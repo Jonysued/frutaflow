@@ -1,15 +1,17 @@
 import { useState } from "react";
-import { Settings, Box, Layers, Users, Send } from "lucide-react";
+import { Settings, Box, Layers, Users, Send, Truck } from "lucide-react";
 import ConfigTaras from "@/components/config/ConfigTaras";
 import ConfigEnvases from "@/components/config/ConfigEnvases";
 import ConfigBultosPaletSection from "@/components/config/ConfigBultosPalet";
+import ConfigPalets from "@/components/config/ConfigPalets";
 import ConfigUsuarios from "@/components/config/ConfigUsuarios";
 import ConfigInformes from "@/components/config/ConfigInformes";
 
 const TABS = [
   { id: "taras", label: "Tara de BINs", icon: Box },
   { id: "envases", label: "Tipos de Envases", icon: Settings },
-  { id: "palets", label: "Bultos por Palet", icon: Layers },
+  { id: "palets", label: "Tipos de Palet", icon: Truck },
+  { id: "bultos", label: "Bultos por Palet", icon: Layers },
   { id: "usuarios", label: "Usuarios y Roles", icon: Users },
   { id: "informes", label: "Enviar Informes", icon: Send },
 ];
@@ -46,7 +48,8 @@ export default function Configuracion() {
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
         {tab === "taras" && <ConfigTaras />}
         {tab === "envases" && <ConfigEnvases />}
-        {tab === "palets" && <ConfigBultosPaletSection />}
+        {tab === "palets" && <ConfigPalets />}
+        {tab === "bultos" && <ConfigBultosPaletSection />}
         {tab === "usuarios" && <ConfigUsuarios />}
         {tab === "informes" && <ConfigInformes />}
       </div>

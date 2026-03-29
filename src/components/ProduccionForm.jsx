@@ -7,6 +7,7 @@ const TURNOS = ["Mañana", "Tarde", "Noche"];
 export default function ProduccionForm({ item, onSave, onCancel }) {
   const [envases, setEnvases] = useState([]);
   const [configPalets, setConfigPalets] = useState([]);
+  const [tiposPalet, setTiposPalet] = useState([]);
 
   const [form, setForm] = useState({
     fecha: item?.fecha || format(new Date(), "yyyy-MM-dd"),
@@ -35,9 +36,11 @@ export default function ProduccionForm({ item, onSave, onCancel }) {
       base44.entities.TipoEnvase.filter({ categoria: "Produccion" }),
       base44.entities.TipoEnvase.filter({ categoria: "Ambos" }),
       base44.entities.ConfigBultosPalet.list(),
-    ]).then(([prod, ambos, palets]) => {
+      base44.entities.TipoPalet.list(),
+    ]).then(([prod, ambos, palets, tpalets]) => {
       setEnvases([...prod, ...ambos]);
       setConfigPalets(palets);
+      setTiposPalet(tpalets);
     });
   }, []);
 
@@ -99,8 +102,10 @@ export default function ProduccionForm({ item, onSave, onCancel }) {
     </div>
   );
 
-  // Palets únicos disponibles
-  const paletOpciones = [...new Set(configPalets.map(p => p.tipo_palet))];
+  // Palets: usar TipoPalet si hay datos, sino extraer de ConfigBultosPalet
+  const paletOpciones = tiposPalet.length > 0
+    ? tiposPalet.map(p => p.nombre)
+    : [...new Set(configPalets.map(p => p.tipo_palet))];
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-[#d5f0e1] p-4">

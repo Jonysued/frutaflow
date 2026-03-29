@@ -1,0 +1,21 @@
+{
+  "name": "TipoPalet",
+  "type": "object",
+  "properties": {
+    "nombre": {
+      "type": "string",
+      "title": "Nombre del palet"
+    },
+    "tara_kg": {
+      "type": "number",
+      "title": "Tara del palet vac\u00edo (kg)"
+    },
+    "descripcion": {
+      "type": "string",
+      "title": "Descripci\u00f3n"
+    }
+  },
+  "required": [
+    "nombre"
+  ]
+}
