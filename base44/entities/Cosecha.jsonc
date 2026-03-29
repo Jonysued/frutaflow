@@ -1,0 +1,64 @@
+{
+  "name": "Cosecha",
+  "type": "object",
+  "properties": {
+    "fecha": {
+      "type": "string",
+      "format": "date",
+      "title": "Fecha"
+    },
+    "turno": {
+      "type": "string",
+      "title": "Turno",
+      "enum": [
+        "Ma\u00f1ana",
+        "Tarde",
+        "Noche"
+      ]
+    },
+    "variedad": {
+      "type": "string",
+      "title": "Variedad / Tipo de fruta"
+    },
+    "cuartel": {
+      "type": "string",
+      "title": "Cuartel / Sector de origen"
+    },
+    "cuadrilla": {
+      "type": "string",
+      "title": "Cuadrilla de cosecha"
+    },
+    "tipo_bulto": {
+      "type": "string",
+      "title": "Tipo de bulto",
+      "enum": [
+        "Bin",
+        "Caja",
+        "Malla",
+        "Bolsa",
+        "Otro"
+      ]
+    },
+    "cantidad_bultos": {
+      "type": "number",
+      "title": "Cantidad de bultos"
+    },
+    "kilos_totales": {
+      "type": "number",
+      "title": "Kilos totales"
+    },
+    "notas": {
+      "type": "string",
+      "title": "Notas"
+    }
+  },
+  "required": [
+    "fecha",
+    "turno",
+    "variedad",
+    "cuartel",
+    "tipo_bulto",
+    "cantidad_bultos",
+    "kilos_totales"
+  ]
+}

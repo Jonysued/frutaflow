@@ -1,0 +1,78 @@
+{
+  "name": "Produccion",
+  "type": "object",
+  "properties": {
+    "fecha": {
+      "type": "string",
+      "format": "date",
+      "title": "Fecha"
+    },
+    "turno": {
+      "type": "string",
+      "title": "Turno",
+      "enum": [
+        "Ma\u00f1ana",
+        "Tarde",
+        "Noche"
+      ]
+    },
+    "variedad": {
+      "type": "string",
+      "title": "Variedad / Tipo de fruta"
+    },
+    "calibre": {
+      "type": "string",
+      "title": "Calibre"
+    },
+    "categoria": {
+      "type": "string",
+      "title": "Categor\u00eda",
+      "enum": [
+        "Extra",
+        "Primera",
+        "Segunda",
+        "Descarte"
+      ]
+    },
+    "tipo_palet": {
+      "type": "string",
+      "title": "Tipo de palet",
+      "enum": [
+        "Europeo",
+        "Americano",
+        "Media cama",
+        "Otro"
+      ]
+    },
+    "cantidad_palets": {
+      "type": "number",
+      "title": "Cantidad de palets"
+    },
+    "cantidad_bultos": {
+      "type": "number",
+      "title": "Cantidad de bultos por palet"
+    },
+    "kilos_totales": {
+      "type": "number",
+      "title": "Kilos totales"
+    },
+    "destino": {
+      "type": "string",
+      "title": "Destino de los palets"
+    },
+    "notas": {
+      "type": "string",
+      "title": "Notas"
+    }
+  },
+  "required": [
+    "fecha",
+    "turno",
+    "variedad",
+    "calibre",
+    "categoria",
+    "tipo_palet",
+    "cantidad_palets",
+    "kilos_totales"
+  ]
+}
