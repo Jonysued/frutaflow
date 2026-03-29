@@ -37,18 +37,30 @@ export default function CosechaForm({ item, onSave, onCancel }) {
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
+  // Al elegir tipo de BIN, autocompleta la tara y recalcula el neto
   const handleTipoBin = (tipo_bin) => {
     const config = configTaras.find(c => c.tipo_bin === tipo_bin);
+    const tara = config ? config.tara_kg : "";
     setForm(f => {
-      const tara = config ? config.tara_kg : f.tara;
-      const neto = f.bruto !== "" ? Number(f.bruto) - Number(tara) : f.neto;
+      const neto = f.bruto !== "" && tara !== "" ? Number(f.bruto) - Number(tara) : f.neto;
       return { ...f, tipo_bin, tara, neto };
     });
   };
 
-  const calcNeto = (bruto, tara) => {
-    const n = Number(bruto) - Number(tara);
-    if (!isNaN(n)) set("neto", n);
+  // Al cambiar bruto, recalcula neto = bruto - tara
+  const handleBruto = (bruto) => {
+    setForm(f => {
+      const neto = bruto !== "" && f.tara !== "" ? Number(bruto) - Number(f.tara) : f.neto;
+      return { ...f, bruto, neto };
+    });
+  };
+
+  // Al cambiar tara manualmente, recalcula neto
+  const handleTara = (tara) => {
+    setForm(f => {
+      const neto = f.bruto !== "" && tara !== "" ? Number(f.bruto) - Number(tara) : f.neto;
+      return { ...f, tara, neto };
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -99,25 +111,20 @@ export default function CosechaForm({ item, onSave, onCancel }) {
         <F label="Procedencia"><input value={form.procedencia} onChange={e => set("procedencia", e.target.value)} placeholder="Ej: OP1SE" className={inputCls} /></F>
         <F label="Variedad *"><input required value={form.variedad} onChange={e => set("variedad", e.target.value)} placeholder="Ej: WONDERFUL" className={inputCls} /></F>
 
-        {/* Tipo de BIN con tara automática */}
-        <F label="Tipo de BIN">
+        <F label="Tipo de BIN (tara auto)">
           <select value={form.tipo_bin} onChange={e => handleTipoBin(e.target.value)} className={inputCls}>
             <option value="">-- Seleccionar --</option>
-            {configTaras.map(c => <option key={c.id} value={c.tipo_bin}>{c.tipo_bin} ({c.tara_kg} kg)</option>)}
+            {configTaras.map(c => <option key={c.id} value={c.tipo_bin}>{c.tipo_bin} — {c.tara_kg} kg</option>)}
           </select>
         </F>
 
         <F label="Bruto (kg) *">
-          <input type="number" required min="0" value={form.bruto}
-            onChange={e => { set("bruto", e.target.value); calcNeto(e.target.value, form.tara); }}
-            className={inputCls} />
+          <input type="number" required min="0" value={form.bruto} onChange={e => handleBruto(e.target.value)} className={inputCls} />
         </F>
-        <F label="Tara (kg) *">
-          <input type="number" required min="0" value={form.tara}
-            onChange={e => { set("tara", e.target.value); calcNeto(form.bruto, e.target.value); }}
-            className={`${inputCls} ${form.tipo_bin ? "bg-gray-50" : ""}`} />
+        <F label="Tara BIN (kg) *">
+          <input type="number" required min="0" value={form.tara} onChange={e => handleTara(e.target.value)} className={`${inputCls} bg-gray-50`} />
         </F>
-        <F label="Neto (kg) *">
+        <F label="Neto (kg) = Bruto − Tara">
           <input type="number" required value={form.neto} onChange={e => set("neto", e.target.value)} className={`${inputCls} bg-gray-50 font-semibold`} />
         </F>
 

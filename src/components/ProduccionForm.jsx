@@ -46,36 +46,49 @@ export default function ProduccionForm({ item, onSave, onCancel }) {
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
-  // Al elegir envase, autocompletar tipo_caja y buscar bultos/palet
+  // Tara = (cant_bultos × tara_caja) + tara_palet
+  const calcTara = (cant_bultos, envaseNombre, tipoPaletNombre, envasesArr, tiposPaletArr) => {
+    const envaseConfig = envasesArr.find(e => e.nombre === envaseNombre);
+    const paletConfig = tiposPaletArr.find(p => p.nombre === tipoPaletNombre);
+    const taraCajas = Number(cant_bultos || 0) * (envaseConfig?.tara_kg || 0);
+    const taraPalet = paletConfig?.tara_kg || 0;
+    return taraCajas + taraPalet;
+  };
+
   const handleEnvase = (nombre) => {
     setForm(f => {
+      const paletBultosConfig = configPalets.find(p => p.tipo_envase === nombre && p.tipo_palet === f.tipo_palet);
       const envaseConfig = envases.find(e => e.nombre === nombre);
-      const paletConfig = configPalets.find(p => p.tipo_envase === nombre && p.tipo_palet === f.tipo_palet);
-      const cant_bultos = paletConfig ? paletConfig.cantidad_bultos : (envaseConfig?.bultos_por_palet || f.cant_bultos);
-      const tara = paletConfig?.tara_palet_kg !== undefined ? -(paletConfig.tara_palet_kg + (cant_bultos * (envaseConfig?.tara_kg || 0))) : f.tara;
-      const kg_netos = f.kg_bruto !== "" ? Number(f.kg_bruto) + Number(tara) : f.kg_netos;
+      const cant_bultos = paletBultosConfig?.cantidad_bultos || envaseConfig?.bultos_por_palet || f.cant_bultos;
+      const tara = calcTara(cant_bultos, nombre, f.tipo_palet, envases, tiposPalet);
+      const kg_netos = f.kg_bruto !== "" ? Number(f.kg_bruto) - tara : f.kg_netos;
       return { ...f, envase: nombre, tipo_caja: nombre, cant_bultos: cant_bultos || f.cant_bultos, tara, kg_netos };
     });
   };
 
-  // Al elegir tipo de palet, recalcular bultos si hay envase seleccionado
   const handlePalet = (tipo_palet) => {
     setForm(f => {
-      const paletConfig = configPalets.find(p => p.tipo_palet === tipo_palet && p.tipo_envase === f.envase);
-      const envaseConfig = envases.find(e => e.nombre === f.envase);
-      if (!paletConfig) return { ...f, tipo_palet };
-      const cant_bultos = paletConfig.cantidad_bultos;
-      const tara_total = paletConfig.tara_palet_kg !== undefined
-        ? -(paletConfig.tara_palet_kg + (cant_bultos * (envaseConfig?.tara_kg || 0)))
-        : f.tara;
-      const kg_netos = f.kg_bruto !== "" ? Number(f.kg_bruto) + Number(tara_total) : f.kg_netos;
-      return { ...f, tipo_palet, cant_bultos, tara: tara_total, kg_netos };
+      const paletBultosConfig = configPalets.find(p => p.tipo_palet === tipo_palet && p.tipo_envase === f.envase);
+      const cant_bultos = paletBultosConfig?.cantidad_bultos || f.cant_bultos;
+      const tara = calcTara(cant_bultos, f.envase, tipo_palet, envases, tiposPalet);
+      const kg_netos = f.kg_bruto !== "" ? Number(f.kg_bruto) - tara : f.kg_netos;
+      return { ...f, tipo_palet, cant_bultos, tara, kg_netos };
     });
   };
 
-  const calcNetos = (bruto, tara) => {
-    const n = Number(bruto) + Number(tara);
-    if (!isNaN(n)) set("kg_netos", n);
+  const handleBultos = (cant_bultos) => {
+    setForm(f => {
+      const tara = calcTara(cant_bultos, f.envase, f.tipo_palet, envases, tiposPalet);
+      const kg_netos = f.kg_bruto !== "" ? Number(f.kg_bruto) - tara : f.kg_netos;
+      return { ...f, cant_bultos, tara, kg_netos };
+    });
+  };
+
+  const handleBruto = (kg_bruto) => {
+    setForm(f => {
+      const kg_netos = f.tara !== "" ? Number(kg_bruto) - Number(f.tara) : f.kg_netos;
+      return { ...f, kg_bruto, kg_netos };
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -102,7 +115,6 @@ export default function ProduccionForm({ item, onSave, onCancel }) {
     </div>
   );
 
-  // Palets: usar TipoPalet si hay datos, sino extraer de ConfigBultosPalet
   const paletOpciones = tiposPalet.length > 0
     ? tiposPalet.map(p => p.nombre)
     : [...new Set(configPalets.map(p => p.tipo_palet))];
@@ -121,45 +133,39 @@ export default function ProduccionForm({ item, onSave, onCancel }) {
         <F label="Especie *"><input required value={form.especie} onChange={e => set("especie", e.target.value)} className={inputCls} /></F>
         <F label="Variedad *"><input required value={form.variedad} onChange={e => set("variedad", e.target.value)} placeholder="Ej: WONDERFUL" className={inputCls} /></F>
 
-        {/* Envase desde configuración */}
         <F label="Envase">
           <select value={form.envase} onChange={e => handleEnvase(e.target.value)} className={inputCls}>
             <option value="">-- Seleccionar --</option>
-            {envases.map(e => <option key={e.id} value={e.nombre}>{e.nombre} (tara: {e.tara_kg} kg)</option>)}
+            {envases.map(e => <option key={e.id} value={e.nombre}>{e.nombre} ({e.tara_kg} kg/u)</option>)}
           </select>
         </F>
 
         <F label="Calibre"><input value={form.calibre} onChange={e => set("calibre", e.target.value)} placeholder="Ej: 12" className={inputCls} /></F>
 
-        {/* Tipo de palet desde configuración */}
         <F label="Tipo de palet">
-          {paletOpciones.length > 0 ? (
-            <select value={form.tipo_palet} onChange={e => handlePalet(e.target.value)} className={inputCls}>
-              <option value="">-- Seleccionar --</option>
-              {paletOpciones.map(p => <option key={p} value={p}>{p}</option>)}
-            </select>
-          ) : (
-            <input value={form.tipo_palet} onChange={e => set("tipo_palet", e.target.value)} placeholder="Ej: Comun" className={inputCls} />
-          )}
+          <select value={form.tipo_palet} onChange={e => handlePalet(e.target.value)} className={inputCls}>
+            <option value="">-- Seleccionar --</option>
+            {paletOpciones.map(p => <option key={p} value={p}>{p}</option>)}
+          </select>
         </F>
 
         <F label="Cant. de bultos *">
-          <input type="number" required min="0" value={form.cant_bultos} onChange={e => set("cant_bultos", e.target.value)} className={`${inputCls} bg-gray-50`} />
+          <input type="number" required min="0" value={form.cant_bultos} onChange={e => handleBultos(e.target.value)} className={inputCls} />
         </F>
 
         <F label="Kg. Bruto *">
-          <input type="number" required min="0" value={form.kg_bruto}
-            onChange={e => { set("kg_bruto", e.target.value); calcNetos(e.target.value, form.tara); }}
-            className={inputCls} />
+          <input type="number" required min="0" value={form.kg_bruto} onChange={e => handleBruto(e.target.value)} className={inputCls} />
         </F>
 
         <F label="Tipo de Caja"><input value={form.tipo_caja} onChange={e => set("tipo_caja", e.target.value)} placeholder="Ej: wenco" className={inputCls} /></F>
 
-        <F label="Tara">
+        <F label="Tara auto (kg)">
           <input type="number" value={form.tara}
-            onChange={e => { set("tara", e.target.value); calcNetos(form.kg_bruto, e.target.value); }}
-            className={`${inputCls} bg-gray-50`} />
+            onChange={e => set("tara", e.target.value)}
+            className={`${inputCls} bg-gray-50`}
+            title="(bultos × tara caja) + tara palet" />
         </F>
+
         <F label="Kg. Netos *">
           <input type="number" required value={form.kg_netos} onChange={e => set("kg_netos", e.target.value)} className={`${inputCls} bg-gray-50 font-semibold`} />
         </F>
