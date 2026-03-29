@@ -1,5 +1,5 @@
 import { Link, useLocation, Outlet } from "react-router-dom";
-import { LayoutDashboard, Wheat, Package, BarChart2, Menu, X } from "lucide-react";
+import { LayoutDashboard, Wheat, Package, BarChart2, Settings, Menu, X } from "lucide-react";
 import { useState } from "react";
 
 const navItems = [
@@ -7,6 +7,7 @@ const navItems = [
   { to: "/cosecha", label: "Cosecha", icon: Wheat },
   { to: "/produccion", label: "Producción", icon: Package },
   { to: "/reportes", label: "Reportes", icon: BarChart2 },
+  { to: "/configuracion", label: "Configuración", icon: Settings },
 ];
 
 export default function Layout() {

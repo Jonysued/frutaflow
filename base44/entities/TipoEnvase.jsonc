@@ -1,0 +1,32 @@
+{
+  "name": "TipoEnvase",
+  "type": "object",
+  "properties": {
+    "nombre": {
+      "type": "string",
+      "title": "Nombre del envase"
+    },
+    "categoria": {
+      "type": "string",
+      "title": "Categor\u00eda",
+      "enum": [
+        "Cosecha",
+        "Produccion",
+        "Ambos"
+      ]
+    },
+    "tara_kg": {
+      "type": "number",
+      "title": "Tara (kg)"
+    },
+    "bultos_por_palet": {
+      "type": "number",
+      "title": "Bultos por palet (default)"
+    }
+  },
+  "required": [
+    "nombre",
+    "categoria",
+    "tara_kg"
+  ]
+}

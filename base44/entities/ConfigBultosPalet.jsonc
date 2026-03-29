@@ -1,0 +1,27 @@
+{
+  "name": "ConfigBultosPalet",
+  "type": "object",
+  "properties": {
+    "tipo_palet": {
+      "type": "string",
+      "title": "Tipo de palet"
+    },
+    "tipo_envase": {
+      "type": "string",
+      "title": "Tipo de envase"
+    },
+    "cantidad_bultos": {
+      "type": "number",
+      "title": "Cantidad de bultos"
+    },
+    "tara_palet_kg": {
+      "type": "number",
+      "title": "Tara del palet vac\u00edo (kg)"
+    }
+  },
+  "required": [
+    "tipo_palet",
+    "tipo_envase",
+    "cantidad_bultos"
+  ]
+}

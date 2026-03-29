@@ -1,0 +1,22 @@
+{
+  "name": "ConfigTara",
+  "type": "object",
+  "properties": {
+    "tipo_bin": {
+      "type": "string",
+      "title": "Tipo / Material del BIN"
+    },
+    "tara_kg": {
+      "type": "number",
+      "title": "Tara del BIN (kg)"
+    },
+    "descripcion": {
+      "type": "string",
+      "title": "Descripci\u00f3n"
+    }
+  },
+  "required": [
+    "tipo_bin",
+    "tara_kg"
+  ]
+}
