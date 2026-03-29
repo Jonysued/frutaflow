@@ -16,49 +16,95 @@
         "Noche"
       ]
     },
-    "variedad": {
-      "type": "string",
-      "title": "Variedad / Tipo de fruta"
+    "nro_bin": {
+      "type": "number",
+      "title": "Nro de BIN"
     },
-    "cuartel": {
+    "especie": {
       "type": "string",
-      "title": "Cuartel / Sector de origen"
+      "title": "Especie"
+    },
+    "propietario": {
+      "type": "string",
+      "title": "Propietario"
+    },
+    "tipo_cosecha": {
+      "type": "string",
+      "title": "Tipo de Cosecha",
+      "enum": [
+        "BARRIDO",
+        "SELECTIVA",
+        "REPASO",
+        "OTRO"
+      ]
     },
     "cuadrilla": {
       "type": "string",
-      "title": "Cuadrilla de cosecha"
+      "title": "Cuadrilla"
     },
-    "tipo_bulto": {
+    "procedencia": {
       "type": "string",
-      "title": "Tipo de bulto",
+      "title": "Procedencia"
+    },
+    "variedad": {
+      "type": "string",
+      "title": "Variedad"
+    },
+    "bruto": {
+      "type": "number",
+      "title": "Bruto (kg)"
+    },
+    "tara": {
+      "type": "number",
+      "title": "Tara (kg)"
+    },
+    "neto": {
+      "type": "number",
+      "title": "Neto (kg)"
+    },
+    "destino": {
+      "type": "string",
+      "title": "Destino",
       "enum": [
-        "Bin",
-        "Caja",
-        "Malla",
-        "Bolsa",
-        "Otro"
+        "VUELCO",
+        "CAMARA",
+        "PROCESO",
+        "OTRO"
       ]
     },
-    "cantidad_bultos": {
-      "type": "number",
-      "title": "Cantidad de bultos"
-    },
-    "kilos_totales": {
-      "type": "number",
-      "title": "Kilos totales"
-    },
-    "notas": {
+    "tipo_proceso": {
       "type": "string",
-      "title": "Notas"
+      "title": "Tipo de proceso",
+      "enum": [
+        "ARILO",
+        "GRANO",
+        "JUGO",
+        "FRESCO",
+        "OTRO"
+      ]
+    },
+    "fecha_vuelco": {
+      "type": "string",
+      "format": "date",
+      "title": "Fecha Vuelco"
+    },
+    "kgs_vuelco": {
+      "type": "number",
+      "title": "Kgs Vuelco"
+    },
+    "stock_camara": {
+      "type": "number",
+      "title": "Stock en C\u00e1mara (kg)"
     }
   },
   "required": [
     "fecha",
-    "turno",
+    "nro_bin",
+    "especie",
     "variedad",
-    "cuartel",
-    "tipo_bulto",
-    "cantidad_bultos",
-    "kilos_totales"
+    "bruto",
+    "tara",
+    "neto",
+    "destino"
   ]
 }

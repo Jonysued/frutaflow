@@ -16,63 +16,78 @@
         "Noche"
       ]
     },
+    "productor": {
+      "type": "string",
+      "title": "Productor"
+    },
+    "especie": {
+      "type": "string",
+      "title": "Especie"
+    },
     "variedad": {
       "type": "string",
-      "title": "Variedad / Tipo de fruta"
+      "title": "Variedad"
+    },
+    "envase": {
+      "type": "string",
+      "title": "Envase"
     },
     "calibre": {
       "type": "string",
       "title": "Calibre"
     },
-    "categoria": {
-      "type": "string",
-      "title": "Categor\u00eda",
-      "enum": [
-        "Extra",
-        "Primera",
-        "Segunda",
-        "Descarte"
-      ]
+    "cant_bultos": {
+      "type": "number",
+      "title": "Cant. de bultos"
     },
     "tipo_palet": {
       "type": "string",
-      "title": "Tipo de palet",
-      "enum": [
-        "Europeo",
-        "Americano",
-        "Media cama",
-        "Otro"
-      ]
+      "title": "Tipo de palet"
     },
-    "cantidad_palets": {
+    "kg_bruto": {
       "type": "number",
-      "title": "Cantidad de palets"
+      "title": "Kg. Bruto"
     },
-    "cantidad_bultos": {
-      "type": "number",
-      "title": "Cantidad de bultos por palet"
-    },
-    "kilos_totales": {
-      "type": "number",
-      "title": "Kilos totales"
-    },
-    "destino": {
+    "tipo_caja": {
       "type": "string",
-      "title": "Destino de los palets"
+      "title": "Tipo de Caja"
     },
-    "notas": {
+    "tara": {
+      "type": "number",
+      "title": "Tara"
+    },
+    "kg_netos": {
+      "type": "number",
+      "title": "Kg. Netos"
+    },
+    "nro_romaneo": {
       "type": "string",
-      "title": "Notas"
+      "title": "N\u00b0 de Romaneo"
+    },
+    "contenedor": {
+      "type": "string",
+      "title": "Contenedor"
+    },
+    "termografo_nro": {
+      "type": "string",
+      "title": "Term\u00f3grafo N\u00b0"
+    },
+    "nro_remito": {
+      "type": "string",
+      "title": "Nro. Remito"
+    },
+    "fecha_remito": {
+      "type": "string",
+      "format": "date",
+      "title": "Fecha Remito"
     }
   },
   "required": [
     "fecha",
-    "turno",
+    "especie",
     "variedad",
-    "calibre",
-    "categoria",
-    "tipo_palet",
-    "cantidad_palets",
-    "kilos_totales"
+    "cant_bultos",
+    "kg_bruto",
+    "kg_netos"
   ]
 }

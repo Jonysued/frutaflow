@@ -10,7 +10,7 @@ const TURNO_COLORS = { Mañana: "#c0392b", Tarde: "#7a1a30", Noche: "#2c0a12" };
 
 function MetricCard({ label, value, unit, icon: Icon, color }) {
   return (
-    <div className={`bg-white rounded-xl p-4 shadow-sm border-l-4 flex items-center gap-4`} style={{ borderColor: color }}>
+    <div className="bg-white rounded-xl p-4 shadow-sm border-l-4 flex items-center gap-4" style={{ borderColor: color }}>
       <div className="rounded-full p-3" style={{ backgroundColor: color + "22" }}>
         <Icon className="w-5 h-5" style={{ color }} />
       </div>
@@ -34,7 +34,7 @@ function RendimientoBar({ value }) {
   );
 }
 
-function TurnoCard({ turno, cosechaKg, produccionKg, palets }) {
+function TurnoCard({ turno, cosechaKg, produccionKg, bultos }) {
   const rendimiento = cosechaKg > 0 ? (produccionKg / cosechaKg) * 100 : 0;
   const color = TURNO_COLORS[turno] || "#c0392b";
   return (
@@ -45,20 +45,20 @@ function TurnoCard({ turno, cosechaKg, produccionKg, palets }) {
       <div className="p-4 space-y-3">
         <div className="grid grid-cols-3 gap-2 text-center">
           <div>
-            <p className="text-[11px] text-gray-400">Cosecha (kg)</p>
+            <p className="text-[11px] text-gray-400">Vuelco / Cosecha (kg)</p>
             <p className="font-bold text-gray-800">{cosechaKg.toLocaleString()}</p>
           </div>
           <div>
-            <p className="text-[11px] text-gray-400">Producción (kg)</p>
+            <p className="text-[11px] text-gray-400">Producción (kg netos)</p>
             <p className="font-bold text-gray-800">{produccionKg.toLocaleString()}</p>
           </div>
           <div>
-            <p className="text-[11px] text-gray-400">Palets</p>
-            <p className="font-bold text-gray-800">{palets}</p>
+            <p className="text-[11px] text-gray-400">Bultos</p>
+            <p className="font-bold text-gray-800">{bultos.toLocaleString()}</p>
           </div>
         </div>
         <div>
-          <p className="text-[11px] text-gray-400 mb-1">Rendimiento</p>
+          <p className="text-[11px] text-gray-400 mb-1">Rendimiento (prod / cosecha)</p>
           <RendimientoBar value={rendimiento} />
         </div>
       </div>
@@ -77,40 +77,39 @@ export default function Dashboard() {
     Promise.all([
       base44.entities.Cosecha.list("-fecha", 500),
       base44.entities.Produccion.list("-fecha", 500)
-    ]).then(([c, p]) => {
-      setCosechas(c);
-      setProducciones(p);
-      setLoading(false);
-    });
+    ]).then(([c, p]) => { setCosechas(c); setProducciones(p); setLoading(false); });
   }, []);
 
   const cosechasDia = cosechas.filter(c => c.fecha === fecha);
   const produccionesDia = producciones.filter(p => p.fecha === fecha);
 
-  const totalCosechaKg = cosechasDia.reduce((s, c) => s + (c.kilos_totales || 0), 0);
-  const totalProdKg = produccionesDia.reduce((s, p) => s + (p.kilos_totales || 0), 0);
-  const totalPalets = produccionesDia.reduce((s, p) => s + (p.cantidad_palets || 0), 0);
+  // Cosecha = suma de netos del día
+  const totalCosechaKg = cosechasDia.reduce((s, c) => s + (c.neto || 0), 0);
+  // Producción = suma de kg_netos del día
+  const totalProdKg = produccionesDia.reduce((s, p) => s + (p.kg_netos || 0), 0);
+  // Bultos totales
+  const totalBultos = produccionesDia.reduce((s, p) => s + (p.cant_bultos || 0), 0);
+  // Rendimiento = producción / cosecha
   const rendimientoDia = totalCosechaKg > 0 ? (totalProdKg / totalCosechaKg) * 100 : 0;
 
   const turnosActivos = TURNOS.filter(t =>
     cosechasDia.some(c => c.turno === t) || produccionesDia.some(p => p.turno === t)
   );
 
-  // Chart data last 7 unique dates
-  const fechas = [...new Set(cosechas.map(c => c.fecha))].sort().slice(-7);
+  // Chart last 7 unique dates
+  const fechas = [...new Set([...cosechas.map(c => c.fecha), ...producciones.map(p => p.fecha)])].sort().slice(-7);
   const chartData = fechas.map(f => {
-    const cKg = cosechas.filter(c => c.fecha === f).reduce((s, c) => s + (c.kilos_totales || 0), 0);
-    const pKg = producciones.filter(p => p.fecha === f).reduce((s, p) => s + (p.kilos_totales || 0), 0);
+    const cKg = cosechas.filter(c => c.fecha === f).reduce((s, c) => s + (c.neto || 0), 0);
+    const pKg = producciones.filter(p => p.fecha === f).reduce((s, p) => s + (p.kg_netos || 0), 0);
     return {
-      fecha: format(new Date(f + "T00:00:00"), "dd/MM", { locale: es }),
-      Cosecha: cKg,
-      Producción: pKg,
+      fecha: f.slice(5),
+      "Cosecha (kg neto)": cKg,
+      "Producción (kg neto)": pKg,
     };
   });
 
   return (
     <div className="p-4 md:p-6 space-y-6">
-      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-[#5c1020]">Dashboard</h1>
@@ -130,15 +129,13 @@ export default function Dashboard() {
         </div>
       ) : (
         <>
-          {/* KPI Cards */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <MetricCard label="Cosecha del día" value={totalCosechaKg.toLocaleString()} unit="kg" icon={Wheat} color="#c0392b" />
-            <MetricCard label="Producción del día" value={totalProdKg.toLocaleString()} unit="kg" icon={Package} color="#7a1a30" />
-            <MetricCard label="Palets despachados" value={totalPalets} unit="pal" icon={Layers} color="#276749" />
+            <MetricCard label="Vuelco / Cosecha" value={totalCosechaKg.toLocaleString()} unit="kg" icon={Wheat} color="#c0392b" />
+            <MetricCard label="Producción (kg netos)" value={totalProdKg.toLocaleString()} unit="kg" icon={Package} color="#7a1a30" />
+            <MetricCard label="Bultos producidos" value={totalBultos.toLocaleString()} unit="blt" icon={Layers} color="#276749" />
             <MetricCard label="Rendimiento" value={rendimientoDia.toFixed(1)} unit="%" icon={TrendingUp} color="#b7791f" />
           </div>
 
-          {/* Kanban por turno */}
           <div>
             <h2 className="text-base font-semibold text-[#5c1020] mb-3">Vista por Turno</h2>
             {turnosActivos.length === 0 ? (
@@ -151,27 +148,26 @@ export default function Dashboard() {
                   <TurnoCard
                     key={turno}
                     turno={turno}
-                    cosechaKg={cosechasDia.filter(c => c.turno === turno).reduce((s, c) => s + (c.kilos_totales || 0), 0)}
-                    produccionKg={produccionesDia.filter(p => p.turno === turno).reduce((s, p) => s + (p.kilos_totales || 0), 0)}
-                    palets={produccionesDia.filter(p => p.turno === turno).reduce((s, p) => s + (p.cantidad_palets || 0), 0)}
+                    cosechaKg={cosechasDia.filter(c => c.turno === turno).reduce((s, c) => s + (c.neto || 0), 0)}
+                    produccionKg={produccionesDia.filter(p => p.turno === turno).reduce((s, p) => s + (p.kg_netos || 0), 0)}
+                    bultos={produccionesDia.filter(p => p.turno === turno).reduce((s, p) => s + (p.cant_bultos || 0), 0)}
                   />
                 ))}
               </div>
             )}
           </div>
 
-          {/* Chart */}
           {chartData.length > 0 && (
             <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-              <h2 className="text-base font-semibold text-[#5c1020] mb-4">Últimos 7 días — Cosecha vs Producción (kg)</h2>
+              <h2 className="text-base font-semibold text-[#5c1020] mb-4">Últimos 7 días — Cosecha vs Producción (kg netos)</h2>
               <ResponsiveContainer width="100%" height={220}>
                 <BarChart data={chartData} barCategoryGap="30%">
                   <CartesianGrid strokeDasharray="3 3" stroke="#f3e6e8" />
                   <XAxis dataKey="fecha" tick={{ fontSize: 11 }} />
                   <YAxis tick={{ fontSize: 11 }} />
                   <Tooltip formatter={v => v.toLocaleString() + " kg"} />
-                  <Bar dataKey="Cosecha" fill="#c0392b" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="Producción" fill="#276749" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="Cosecha (kg neto)" fill="#c0392b" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="Producción (kg neto)" fill="#276749" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
