@@ -101,7 +101,13 @@ export default function CosechaForm({ item, onSave, onCancel }) {
         </F>
         <F label="Nro de BIN *"><input type="number" required value={form.nro_bin} onChange={e => set("nro_bin", e.target.value)} className={inputCls} /></F>
         <F label="Especie *"><input required value={form.especie} onChange={e => set("especie", e.target.value)} className={inputCls} /></F>
-        <F label="Propietario"><input value={form.propietario} onChange={e => set("propietario", e.target.value)} placeholder="Ej: F500" className={inputCls} /></F>
+        <F label="Propietario">
+          <select value={form.propietario} onChange={e => set("propietario", e.target.value)} className={inputCls}>
+            <option value="">-- Seleccionar --</option>
+            <option>Las 500</option>
+            <option>Glonet</option>
+          </select>
+        </F>
         <F label="Tipo de Cosecha">
           <select value={form.tipo_cosecha} onChange={e => set("tipo_cosecha", e.target.value)} className={inputCls}>
             {TIPOS_COSECHA.map(t => <option key={t}>{t}</option>)}
@@ -109,7 +115,13 @@ export default function CosechaForm({ item, onSave, onCancel }) {
         </F>
         <F label="Cuadrilla"><input value={form.cuadrilla} onChange={e => set("cuadrilla", e.target.value)} placeholder="Ej: GARCIA" className={inputCls} /></F>
         <F label="Procedencia"><input value={form.procedencia} onChange={e => set("procedencia", e.target.value)} placeholder="Ej: OP1SE" className={inputCls} /></F>
-        <F label="Variedad *"><input required value={form.variedad} onChange={e => set("variedad", e.target.value)} placeholder="Ej: WONDERFUL" className={inputCls} /></F>
+        <F label="Variedad *">
+          <select required value={form.variedad} onChange={e => set("variedad", e.target.value)} className={inputCls}>
+            <option value="">-- Seleccionar --</option>
+            <option>Wonderful</option>
+            <option>Acco</option>
+          </select>
+        </F>
 
         <F label="Tipo de BIN (tara auto)">
           <select value={form.tipo_bin} onChange={e => handleTipoBin(e.target.value)} className={inputCls}>
