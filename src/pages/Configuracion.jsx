@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Settings, Box, Layers, Users, Send, Truck, MapPin, User, Tag, Leaf, Combine, Cog, Navigation } from "lucide-react";
+import { Settings, Box, Layers, Users, Send, Truck, MapPin, User, Tag, Leaf, Combine, Cog, Navigation, Ruler, LayoutList } from "lucide-react";
 import ConfigTaras from "@/components/config/ConfigTaras";
 import ConfigEnvases from "@/components/config/ConfigEnvases";
 import ConfigBultosPaletSection from "@/components/config/ConfigBultosPalet";
@@ -17,6 +17,8 @@ const TABS = [
   { id: "cuadrillas", label: "Cuadrillas", icon: Combine },
   { id: "tipo_proceso", label: "Tipos de Proceso", icon: Cog },
   { id: "destinos", label: "Destinos", icon: Navigation },
+  { id: "calibres", label: "Calibres", icon: Ruler },
+  { id: "categorias", label: "Categorías", icon: LayoutList },
   { id: "taras", label: "Tara de BINs", icon: Box },
   { id: "envases", label: "Tipos de Envases", icon: Settings },
   { id: "palets", label: "Tipos de Palet", icon: Truck },
@@ -73,6 +75,12 @@ export default function Configuracion() {
         )}
         {tab === "destinos" && (
           <ConfigListaSimple entityName="Destino" title="Destinos" subtitle="Destinos disponibles para seleccionar al registrar un BIN de cosecha." placeholder="Ej: VUELCO, CAMARA" />
+        )}
+        {tab === "calibres" && (
+          <ConfigListaSimple entityName="Calibre" title="Calibres" subtitle="Calibres disponibles para seleccionar en la hoja de producción." placeholder="Ej: 12, 14, 16" />
+        )}
+        {tab === "categorias" && (
+          <ConfigListaSimple entityName="Categoria" title="Categorías" subtitle="Categorías de producto disponibles en la hoja de producción." placeholder="Ej: Cat 1, Cat 2" />
         )}
         {tab === "taras" && <ConfigTaras />}
         {tab === "envases" && <ConfigEnvases />}

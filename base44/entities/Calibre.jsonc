@@ -1,0 +1,13 @@
+{
+  "name": "Calibre",
+  "type": "object",
+  "properties": {
+    "nombre": {
+      "type": "string",
+      "title": "Calibre"
+    }
+  },
+  "required": [
+    "nombre"
+  ]
+}

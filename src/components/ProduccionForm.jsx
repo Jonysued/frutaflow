@@ -8,6 +8,10 @@ export default function ProduccionForm({ item, onSave, onCancel }) {
   const [envases, setEnvases] = useState([]);
   const [configPalets, setConfigPalets] = useState([]);
   const [tiposPalet, setTiposPalet] = useState([]);
+  const [variedades, setVariedades] = useState([]);
+  const [calibres, setCalibre] = useState([]);
+  const [categorias, setCategorias] = useState([]);
+  const [productores, setProductores] = useState([]);
 
   const [form, setForm] = useState({
     fecha: item?.fecha || format(new Date(), "yyyy-MM-dd"),
@@ -15,6 +19,7 @@ export default function ProduccionForm({ item, onSave, onCancel }) {
     productor: item?.productor || "",
     especie: item?.especie || "GRANADAS",
     variedad: item?.variedad || "",
+    categoria: item?.categoria || "",
     envase: item?.envase || "",
     calibre: item?.calibre || "",
     cant_bultos: item?.cant_bultos || "",
@@ -24,10 +29,6 @@ export default function ProduccionForm({ item, onSave, onCancel }) {
     tara: item?.tara || "",
     kg_netos: item?.kg_netos || "",
     nro_romaneo: item?.nro_romaneo || "",
-    contenedor: item?.contenedor || "",
-    termografo_nro: item?.termografo_nro || "",
-    nro_remito: item?.nro_remito || "",
-    fecha_remito: item?.fecha_remito || "",
   });
   const [saving, setSaving] = useState(false);
 
@@ -37,16 +38,23 @@ export default function ProduccionForm({ item, onSave, onCancel }) {
       base44.entities.TipoEnvase.filter({ categoria: "Ambos" }),
       base44.entities.ConfigBultosPalet.list(),
       base44.entities.TipoPalet.list(),
-    ]).then(([prod, ambos, palets, tpalets]) => {
+      base44.entities.Variedad.list(),
+      base44.entities.Calibre.list(),
+      base44.entities.Categoria.list(),
+      base44.entities.Propietario.list(),
+    ]).then(([prod, ambos, palets, tpalets, vars, cals, cats, props]) => {
       setEnvases([...prod, ...ambos]);
       setConfigPalets(palets);
       setTiposPalet(tpalets);
+      setVariedades(vars);
+      setCalibre(cals);
+      setCategorias(cats);
+      setProductores(props);
     });
   }, []);
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
-  // Tara = (cant_bultos × tara_caja) + tara_palet
   const calcTara = (cant_bultos, envaseNombre, tipoPaletNombre, envasesArr, tiposPaletArr) => {
     const envaseConfig = envasesArr.find(e => e.nombre === envaseNombre);
     const paletConfig = tiposPaletArr.find(p => p.nombre === tipoPaletNombre);
@@ -129,9 +137,29 @@ export default function ProduccionForm({ item, onSave, onCancel }) {
             {TURNOS.map(t => <option key={t}>{t}</option>)}
           </select>
         </F>
-        <F label="Productor"><input value={form.productor} onChange={e => set("productor", e.target.value)} placeholder="Ej: F500" className={inputCls} /></F>
+
+        <F label="Productor">
+          <select value={form.productor} onChange={e => set("productor", e.target.value)} className={inputCls}>
+            <option value="">-- Seleccionar --</option>
+            {productores.map(p => <option key={p.id} value={p.nombre}>{p.nombre}</option>)}
+          </select>
+        </F>
+
         <F label="Especie *"><input required value={form.especie} onChange={e => set("especie", e.target.value)} className={inputCls} /></F>
-        <F label="Variedad *"><input required value={form.variedad} onChange={e => set("variedad", e.target.value)} placeholder="Ej: WONDERFUL" className={inputCls} /></F>
+
+        <F label="Variedad *">
+          <select required value={form.variedad} onChange={e => set("variedad", e.target.value)} className={inputCls}>
+            <option value="">-- Seleccionar --</option>
+            {variedades.map(v => <option key={v.id} value={v.nombre}>{v.nombre}</option>)}
+          </select>
+        </F>
+
+        <F label="Categoría">
+          <select value={form.categoria} onChange={e => set("categoria", e.target.value)} className={inputCls}>
+            <option value="">-- Seleccionar --</option>
+            {categorias.map(c => <option key={c.id} value={c.nombre}>{c.nombre}</option>)}
+          </select>
+        </F>
 
         <F label="Envase">
           <select value={form.envase} onChange={e => handleEnvase(e.target.value)} className={inputCls}>
@@ -140,7 +168,12 @@ export default function ProduccionForm({ item, onSave, onCancel }) {
           </select>
         </F>
 
-        <F label="Calibre"><input value={form.calibre} onChange={e => set("calibre", e.target.value)} placeholder="Ej: 12" className={inputCls} /></F>
+        <F label="Calibre">
+          <select value={form.calibre} onChange={e => set("calibre", e.target.value)} className={inputCls}>
+            <option value="">-- Seleccionar --</option>
+            {calibres.map(c => <option key={c.id} value={c.nombre}>{c.nombre}</option>)}
+          </select>
+        </F>
 
         <F label="Tipo de palet">
           <select value={form.tipo_palet} onChange={e => handlePalet(e.target.value)} className={inputCls}>
@@ -157,13 +190,12 @@ export default function ProduccionForm({ item, onSave, onCancel }) {
           <input type="number" required min="0" value={form.kg_bruto} onChange={e => handleBruto(e.target.value)} className={inputCls} />
         </F>
 
-        <F label="Tipo de Caja"><input value={form.tipo_caja} onChange={e => set("tipo_caja", e.target.value)} placeholder="Ej: wenco" className={inputCls} /></F>
+        <F label="Tipo de Caja">
+          <input value={form.tipo_caja} onChange={e => set("tipo_caja", e.target.value)} placeholder="Ej: wenco" className={inputCls} />
+        </F>
 
         <F label="Tara auto (kg)">
-          <input type="number" value={form.tara}
-            onChange={e => set("tara", e.target.value)}
-            className={`${inputCls} bg-gray-50`}
-            title="(bultos × tara caja) + tara palet" />
+          <input type="number" value={form.tara} onChange={e => set("tara", e.target.value)} className={`${inputCls} bg-gray-50`} />
         </F>
 
         <F label="Kg. Netos *">
@@ -171,10 +203,6 @@ export default function ProduccionForm({ item, onSave, onCancel }) {
         </F>
 
         <F label="N° de Romaneo"><input value={form.nro_romaneo} onChange={e => set("nro_romaneo", e.target.value)} placeholder="Ej: W1" className={inputCls} /></F>
-        <F label="Contenedor"><input value={form.contenedor} onChange={e => set("contenedor", e.target.value)} className={inputCls} /></F>
-        <F label="Termógrafo N°"><input value={form.termografo_nro} onChange={e => set("termografo_nro", e.target.value)} className={inputCls} /></F>
-        <F label="Nro. Remito"><input value={form.nro_remito} onChange={e => set("nro_remito", e.target.value)} className={inputCls} /></F>
-        <F label="Fecha Remito"><input type="date" value={form.fecha_remito} onChange={e => set("fecha_remito", e.target.value)} className={inputCls} /></F>
 
         <div className="col-span-2 sm:col-span-3 md:col-span-4 flex gap-2 justify-end pt-1">
           <button type="button" onClick={onCancel} className="px-4 py-2 border rounded-lg text-xs text-gray-600 hover:bg-gray-50">Cancelar</button>

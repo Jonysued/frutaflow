@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { Plus, Upload, Trash2, Download } from "lucide-react";
-import ProduccionForm from "@/components/ProduccionForm";
+import ProduccionForm from "@/components/ProduccionForm.jsx";
 import ImportModal from "@/components/ImportModal";
 
 export default function Produccion() {
@@ -76,11 +76,8 @@ export default function Produccion() {
                   <th className="px-3 py-3 text-left hidden sm:table-cell">Variedad</th>
                   <th className="px-3 py-3 text-left hidden md:table-cell">Envase</th>
                   <th className="px-3 py-3 text-left hidden md:table-cell">Calibre</th>
-                  <th className="px-3 py-3 text-right">Bultos</th>
-                  <th className="px-3 py-3 text-right">Kg Bruto</th>
-                  <th className="px-3 py-3 text-right font-bold">Kg Netos</th>
+                  <th className="px-3 py-3 text-left hidden md:table-cell">Categoría</th>
                   <th className="px-3 py-3 text-left hidden lg:table-cell">Romaneo</th>
-                  <th className="px-3 py-3 text-left hidden lg:table-cell">Remito</th>
                   <th className="px-3 py-3 text-center">Acción</th>
                 </tr>
               </thead>
@@ -99,11 +96,8 @@ export default function Produccion() {
                     <td className="px-3 py-2.5 text-gray-700 hidden sm:table-cell">{r.variedad}</td>
                     <td className="px-3 py-2.5 text-gray-600 hidden md:table-cell">{r.envase}</td>
                     <td className="px-3 py-2.5 text-gray-600 hidden md:table-cell">{r.calibre}</td>
-                    <td className="px-3 py-2.5 text-right font-medium">{r.cant_bultos?.toLocaleString()}</td>
-                    <td className="px-3 py-2.5 text-right text-gray-600">{r.kg_bruto?.toLocaleString()}</td>
-                    <td className="px-3 py-2.5 text-right font-bold text-[#276749]">{r.kg_netos?.toLocaleString()}</td>
+                    <td className="px-3 py-2.5 text-gray-600 hidden md:table-cell">{r.categoria}</td>
                     <td className="px-3 py-2.5 text-gray-600 hidden lg:table-cell font-mono text-xs">{r.nro_romaneo}</td>
-                    <td className="px-3 py-2.5 text-gray-600 hidden lg:table-cell text-xs">{r.nro_remito}</td>
                     <td className="px-3 py-2.5 text-center whitespace-nowrap">
                       <button onClick={() => { setEditItem(r); setShowForm(true); }} className="text-[#c0392b] hover:underline text-xs mr-2">Editar</button>
                       <button onClick={() => handleDelete(r.id)} className="text-gray-400 hover:text-red-600"><Trash2 className="w-3.5 h-3.5 inline" /></button>
