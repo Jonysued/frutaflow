@@ -1,0 +1,13 @@
+{
+  "name": "Cuadrilla",
+  "type": "object",
+  "properties": {
+    "nombre": {
+      "type": "string",
+      "title": "Nombre de la cuadrilla"
+    }
+  },
+  "required": [
+    "nombre"
+  ]
+}

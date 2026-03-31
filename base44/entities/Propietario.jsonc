@@ -1,0 +1,13 @@
+{
+  "name": "Propietario",
+  "type": "object",
+  "properties": {
+    "nombre": {
+      "type": "string",
+      "title": "Nombre del propietario"
+    }
+  },
+  "required": [
+    "nombre"
+  ]
+}

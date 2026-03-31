@@ -1,0 +1,13 @@
+{
+  "name": "Variedad",
+  "type": "object",
+  "properties": {
+    "nombre": {
+      "type": "string",
+      "title": "Nombre de la variedad"
+    }
+  },
+  "required": [
+    "nombre"
+  ]
+}

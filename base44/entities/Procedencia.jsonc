@@ -6,12 +6,17 @@
       "type": "string",
       "title": "Nombre de la procedencia"
     },
+    "propietario": {
+      "type": "string",
+      "title": "Propietario"
+    },
     "descripcion": {
       "type": "string",
       "title": "Descripci\u00f3n"
     }
   },
   "required": [
-    "nombre"
+    "nombre",
+    "propietario"
   ]
 }

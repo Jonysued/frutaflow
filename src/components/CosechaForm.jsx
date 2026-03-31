@@ -2,21 +2,24 @@ import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { format } from "date-fns";
 
-const TURNOS = ["Mañana", "Tarde", "Noche"];
-const TIPOS_COSECHA = ["BARRIDO", "SELECTIVA", "REPASO", "OTRO"];
 const DESTINOS = ["VUELCO", "CAMARA", "PROCESO", "OTRO"];
-const TIPOS_PROCESO = ["ARILO", "GRANO", "JUGO", "FRESCO", "OTRO"];
 
 export default function CosechaForm({ item, onSave, onCancel }) {
   const [configTaras, setConfigTaras] = useState([]);
-  const [procedencias, setProcedencias] = useState([]);
+  const [propietarios, setPropietarios] = useState([]);
+  const [todasProcedencias, setTodasProcedencias] = useState([]);
+  const [variedades, setVariedades] = useState([]);
+  const [tiposCosecha, setTiposCosecha] = useState([]);
+  const [cuadrillas, setCuadrillas] = useState([]);
+  const [tiposProceso, setTiposProceso] = useState([]);
+
   const [form, setForm] = useState({
     fecha: item?.fecha || format(new Date(), "yyyy-MM-dd"),
     turno: item?.turno || "Mañana",
     nro_bin: item?.nro_bin || "",
     especie: item?.especie || "GRANADAS",
     propietario: item?.propietario || "",
-    tipo_cosecha: item?.tipo_cosecha || "BARRIDO",
+    tipo_cosecha: item?.tipo_cosecha || "",
     cuadrilla: item?.cuadrilla || "",
     procedencia: item?.procedencia || "",
     variedad: item?.variedad || "",
@@ -24,7 +27,7 @@ export default function CosechaForm({ item, onSave, onCancel }) {
     tara: item?.tara || "",
     neto: item?.neto || "",
     destino: item?.destino || "VUELCO",
-    tipo_proceso: item?.tipo_proceso || "ARILO",
+    tipo_proceso: item?.tipo_proceso || "",
     fecha_vuelco: item?.fecha_vuelco || "",
     kgs_vuelco: item?.kgs_vuelco || "",
     stock_camara: item?.stock_camara || "",
@@ -35,13 +38,39 @@ export default function CosechaForm({ item, onSave, onCancel }) {
   useEffect(() => {
     Promise.all([
       base44.entities.ConfigTara.list(),
+      base44.entities.Propietario.list(),
       base44.entities.Procedencia.list(),
-    ]).then(([taras, procs]) => { setConfigTaras(taras); setProcedencias(procs); });
+      base44.entities.Variedad.list(),
+      base44.entities.TipoCosecha.list(),
+      base44.entities.Cuadrilla.list(),
+      base44.entities.TipoProceso.list(),
+    ]).then(([taras, props, procs, vars, tcos, cuads, tproc]) => {
+      setConfigTaras(taras);
+      setPropietarios(props);
+      setTodasProcedencias(procs);
+      setVariedades(vars);
+      setTiposCosecha(tcos);
+      setCuadrillas(cuads);
+      setTiposProceso(tproc);
+    });
   }, []);
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
-  // Al elegir tipo de BIN, autocompleta la tara y recalcula el neto
+  // Procedencias filtradas por propietario seleccionado
+  const procedenciasFiltradas = form.propietario
+    ? todasProcedencias.filter(p => p.propietario === form.propietario)
+    : todasProcedencias;
+
+  // Al cambiar propietario, resetear procedencia si no corresponde
+  const handlePropietario = (propietario) => {
+    setForm(f => {
+      const procs = todasProcedencias.filter(p => p.propietario === propietario);
+      const procedencia = procs.some(p => p.nombre === f.procedencia) ? f.procedencia : "";
+      return { ...f, propietario, procedencia };
+    });
+  };
+
   const handleTipoBin = (tipo_bin) => {
     const config = configTaras.find(c => c.tipo_bin === tipo_bin);
     const tara = config ? config.tara_kg : "";
@@ -51,7 +80,6 @@ export default function CosechaForm({ item, onSave, onCancel }) {
     });
   };
 
-  // Al cambiar bruto, recalcula neto = bruto - tara
   const handleBruto = (bruto) => {
     setForm(f => {
       const neto = bruto !== "" && f.tara !== "" ? Number(bruto) - Number(f.tara) : f.neto;
@@ -59,7 +87,6 @@ export default function CosechaForm({ item, onSave, onCancel }) {
     });
   };
 
-  // Al cambiar tara manualmente, recalcula neto
   const handleTara = (tara) => {
     setForm(f => {
       const neto = f.bruto !== "" && tara !== "" ? Number(f.bruto) - Number(tara) : f.neto;
@@ -97,38 +124,48 @@ export default function CosechaForm({ item, onSave, onCancel }) {
     <div className="bg-white rounded-xl shadow-sm border border-[#f8d7da] p-4">
       <h2 className="font-semibold text-[#5c1020] mb-4 text-sm">{item ? "Editar BIN" : "Registrar BIN de cosecha"}</h2>
       <form onSubmit={handleSubmit} className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+
         <F label="Fecha *"><input type="date" required value={form.fecha} onChange={e => set("fecha", e.target.value)} className={inputCls} /></F>
         <F label="Turno">
           <select value={form.turno} onChange={e => set("turno", e.target.value)} className={inputCls}>
-            {TURNOS.map(t => <option key={t}>{t}</option>)}
+            {["Mañana", "Tarde", "Noche"].map(t => <option key={t}>{t}</option>)}
           </select>
         </F>
         <F label="Nro de BIN *"><input type="number" required value={form.nro_bin} onChange={e => set("nro_bin", e.target.value)} className={inputCls} /></F>
         <F label="Especie *"><input required value={form.especie} onChange={e => set("especie", e.target.value)} className={inputCls} /></F>
+
         <F label="Propietario">
-          <select value={form.propietario} onChange={e => set("propietario", e.target.value)} className={inputCls}>
+          <select value={form.propietario} onChange={e => handlePropietario(e.target.value)} className={inputCls}>
             <option value="">-- Seleccionar --</option>
-            <option>Las 500</option>
-            <option>Glonet</option>
+            {propietarios.map(p => <option key={p.id} value={p.nombre}>{p.nombre}</option>)}
           </select>
         </F>
-        <F label="Tipo de Cosecha">
-          <select value={form.tipo_cosecha} onChange={e => set("tipo_cosecha", e.target.value)} className={inputCls}>
-            {TIPOS_COSECHA.map(t => <option key={t}>{t}</option>)}
-          </select>
-        </F>
-        <F label="Cuadrilla"><input value={form.cuadrilla} onChange={e => set("cuadrilla", e.target.value)} placeholder="Ej: GARCIA" className={inputCls} /></F>
+
         <F label="Procedencia">
           <select value={form.procedencia} onChange={e => set("procedencia", e.target.value)} className={inputCls}>
             <option value="">-- Seleccionar --</option>
-            {procedencias.map(p => <option key={p.id} value={p.nombre}>{p.nombre}</option>)}
+            {procedenciasFiltradas.map(p => <option key={p.id} value={p.nombre}>{p.nombre}</option>)}
           </select>
         </F>
+
         <F label="Variedad *">
           <select required value={form.variedad} onChange={e => set("variedad", e.target.value)} className={inputCls}>
             <option value="">-- Seleccionar --</option>
-            <option>Wonderful</option>
-            <option>Acco</option>
+            {variedades.map(v => <option key={v.id} value={v.nombre}>{v.nombre}</option>)}
+          </select>
+        </F>
+
+        <F label="Tipo de Cosecha">
+          <select value={form.tipo_cosecha} onChange={e => set("tipo_cosecha", e.target.value)} className={inputCls}>
+            <option value="">-- Seleccionar --</option>
+            {tiposCosecha.map(t => <option key={t.id} value={t.nombre}>{t.nombre}</option>)}
+          </select>
+        </F>
+
+        <F label="Cuadrilla">
+          <select value={form.cuadrilla} onChange={e => set("cuadrilla", e.target.value)} className={inputCls}>
+            <option value="">-- Seleccionar --</option>
+            {cuadrillas.map(c => <option key={c.id} value={c.nombre}>{c.nombre}</option>)}
           </select>
         </F>
 
@@ -142,8 +179,8 @@ export default function CosechaForm({ item, onSave, onCancel }) {
         <F label="Bruto (kg) *">
           <input type="number" required min="0" value={form.bruto} onChange={e => handleBruto(e.target.value)} className={inputCls} />
         </F>
-        <F label="Tara BIN (kg) *">
-          <input type="number" required min="0" value={form.tara} onChange={e => handleTara(e.target.value)} className={`${inputCls} bg-gray-50`} />
+        <F label="Tara BIN (kg)">
+          <input type="number" min="0" value={form.tara} onChange={e => handleTara(e.target.value)} className={`${inputCls} bg-gray-50`} />
         </F>
         <F label="Neto (kg) = Bruto − Tara">
           <input type="number" required value={form.neto} onChange={e => set("neto", e.target.value)} className={`${inputCls} bg-gray-50 font-semibold`} />
@@ -154,11 +191,14 @@ export default function CosechaForm({ item, onSave, onCancel }) {
             {DESTINOS.map(d => <option key={d}>{d}</option>)}
           </select>
         </F>
+
         <F label="Tipo de proceso">
           <select value={form.tipo_proceso} onChange={e => set("tipo_proceso", e.target.value)} className={inputCls}>
-            {TIPOS_PROCESO.map(t => <option key={t}>{t}</option>)}
+            <option value="">-- Seleccionar --</option>
+            {tiposProceso.map(t => <option key={t.id} value={t.nombre}>{t.nombre}</option>)}
           </select>
         </F>
+
         <F label="Fecha Vuelco"><input type="date" value={form.fecha_vuelco} onChange={e => set("fecha_vuelco", e.target.value)} className={inputCls} /></F>
         <F label="Kgs Vuelco"><input type="number" value={form.kgs_vuelco} onChange={e => set("kgs_vuelco", e.target.value)} className={inputCls} /></F>
         <F label="Stock en Cámara (kg)"><input type="number" value={form.stock_camara} onChange={e => set("stock_camara", e.target.value)} className={inputCls} /></F>

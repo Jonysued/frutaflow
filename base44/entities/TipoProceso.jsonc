@@ -1,0 +1,13 @@
+{
+  "name": "TipoProceso",
+  "type": "object",
+  "properties": {
+    "nombre": {
+      "type": "string",
+      "title": "Tipo de proceso"
+    }
+  },
+  "required": [
+    "nombre"
+  ]
+}

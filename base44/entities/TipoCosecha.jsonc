@@ -1,0 +1,13 @@
+{
+  "name": "TipoCosecha",
+  "type": "object",
+  "properties": {
+    "nombre": {
+      "type": "string",
+      "title": "Tipo de cosecha"
+    }
+  },
+  "required": [
+    "nombre"
+  ]
+}
