@@ -1,0 +1,17 @@
+{
+  "name": "Procedencia",
+  "type": "object",
+  "properties": {
+    "nombre": {
+      "type": "string",
+      "title": "Nombre de la procedencia"
+    },
+    "descripcion": {
+      "type": "string",
+      "title": "Descripci\u00f3n"
+    }
+  },
+  "required": [
+    "nombre"
+  ]
+}

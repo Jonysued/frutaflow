@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { Settings, Box, Layers, Users, Send, Truck } from "lucide-react";
+import { Settings, Box, Layers, Users, Send, Truck, MapPin } from "lucide-react";
 import ConfigTaras from "@/components/config/ConfigTaras";
 import ConfigEnvases from "@/components/config/ConfigEnvases";
 import ConfigBultosPaletSection from "@/components/config/ConfigBultosPalet";
 import ConfigPalets from "@/components/config/ConfigPalets";
+import ConfigProcedencias from "@/components/config/ConfigProcedencias";
 import ConfigUsuarios from "@/components/config/ConfigUsuarios";
 import ConfigInformes from "@/components/config/ConfigInformes";
 
@@ -13,6 +14,7 @@ const TABS = [
   { id: "palets", label: "Tipos de Palet", icon: Truck },
   { id: "bultos", label: "Bultos por Palet", icon: Layers },
   { id: "usuarios", label: "Usuarios y Roles", icon: Users },
+  { id: "procedencias", label: "Procedencias", icon: MapPin },
   { id: "informes", label: "Enviar Informes", icon: Send },
 ];
 
@@ -51,6 +53,7 @@ export default function Configuracion() {
         {tab === "palets" && <ConfigPalets />}
         {tab === "bultos" && <ConfigBultosPaletSection />}
         {tab === "usuarios" && <ConfigUsuarios />}
+        {tab === "procedencias" && <ConfigProcedencias />}
         {tab === "informes" && <ConfigInformes />}
       </div>
     </div>

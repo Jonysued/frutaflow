@@ -9,6 +9,7 @@ const TIPOS_PROCESO = ["ARILO", "GRANO", "JUGO", "FRESCO", "OTRO"];
 
 export default function CosechaForm({ item, onSave, onCancel }) {
   const [configTaras, setConfigTaras] = useState([]);
+  const [procedencias, setProcedencias] = useState([]);
   const [form, setForm] = useState({
     fecha: item?.fecha || format(new Date(), "yyyy-MM-dd"),
     turno: item?.turno || "Mañana",
@@ -32,7 +33,10 @@ export default function CosechaForm({ item, onSave, onCancel }) {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    base44.entities.ConfigTara.list().then(setConfigTaras);
+    Promise.all([
+      base44.entities.ConfigTara.list(),
+      base44.entities.Procedencia.list(),
+    ]).then(([taras, procs]) => { setConfigTaras(taras); setProcedencias(procs); });
   }, []);
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
@@ -114,7 +118,12 @@ export default function CosechaForm({ item, onSave, onCancel }) {
           </select>
         </F>
         <F label="Cuadrilla"><input value={form.cuadrilla} onChange={e => set("cuadrilla", e.target.value)} placeholder="Ej: GARCIA" className={inputCls} /></F>
-        <F label="Procedencia"><input value={form.procedencia} onChange={e => set("procedencia", e.target.value)} placeholder="Ej: OP1SE" className={inputCls} /></F>
+        <F label="Procedencia">
+          <select value={form.procedencia} onChange={e => set("procedencia", e.target.value)} className={inputCls}>
+            <option value="">-- Seleccionar --</option>
+            {procedencias.map(p => <option key={p.id} value={p.nombre}>{p.nombre}</option>)}
+          </select>
+        </F>
         <F label="Variedad *">
           <select required value={form.variedad} onChange={e => set("variedad", e.target.value)} className={inputCls}>
             <option value="">-- Seleccionar --</option>
