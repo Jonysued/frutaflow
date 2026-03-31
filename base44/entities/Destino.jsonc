@@ -1,0 +1,13 @@
+{
+  "name": "Destino",
+  "type": "object",
+  "properties": {
+    "nombre": {
+      "type": "string",
+      "title": "Destino"
+    }
+  },
+  "required": [
+    "nombre"
+  ]
+}

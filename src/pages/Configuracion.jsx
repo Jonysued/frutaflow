@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Settings, Box, Layers, Users, Send, Truck, MapPin, User, Tag, Leaf, Combine, Cog } from "lucide-react";
+import { Settings, Box, Layers, Users, Send, Truck, MapPin, User, Tag, Leaf, Combine, Cog, Navigation } from "lucide-react";
 import ConfigTaras from "@/components/config/ConfigTaras";
 import ConfigEnvases from "@/components/config/ConfigEnvases";
 import ConfigBultosPaletSection from "@/components/config/ConfigBultosPalet";
@@ -16,6 +16,7 @@ const TABS = [
   { id: "tipo_cosecha", label: "Tipos de Cosecha", icon: Tag },
   { id: "cuadrillas", label: "Cuadrillas", icon: Combine },
   { id: "tipo_proceso", label: "Tipos de Proceso", icon: Cog },
+  { id: "destinos", label: "Destinos", icon: Navigation },
   { id: "taras", label: "Tara de BINs", icon: Box },
   { id: "envases", label: "Tipos de Envases", icon: Settings },
   { id: "palets", label: "Tipos de Palet", icon: Truck },
@@ -69,6 +70,9 @@ export default function Configuracion() {
         )}
         {tab === "tipo_proceso" && (
           <ConfigListaSimple entityName="TipoProceso" title="Tipos de Proceso" subtitle="Tipos de proceso disponibles (Arilo, Jugo, Fresco, etc.)." placeholder="Ej: ARILO" />
+        )}
+        {tab === "destinos" && (
+          <ConfigListaSimple entityName="Destino" title="Destinos" subtitle="Destinos disponibles para seleccionar al registrar un BIN de cosecha." placeholder="Ej: VUELCO, CAMARA" />
         )}
         {tab === "taras" && <ConfigTaras />}
         {tab === "envases" && <ConfigEnvases />}

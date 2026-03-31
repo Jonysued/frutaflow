@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { format } from "date-fns";
 
-const DESTINOS = ["VUELCO", "CAMARA", "PROCESO", "OTRO"];
+
 
 export default function CosechaForm({ item, onSave, onCancel }) {
   const [configTaras, setConfigTaras] = useState([]);
@@ -12,6 +12,7 @@ export default function CosechaForm({ item, onSave, onCancel }) {
   const [tiposCosecha, setTiposCosecha] = useState([]);
   const [cuadrillas, setCuadrillas] = useState([]);
   const [tiposProceso, setTiposProceso] = useState([]);
+  const [destinos, setDestinos] = useState([]);
 
   const [form, setForm] = useState({
     fecha: item?.fecha || format(new Date(), "yyyy-MM-dd"),
@@ -44,7 +45,8 @@ export default function CosechaForm({ item, onSave, onCancel }) {
       base44.entities.TipoCosecha.list(),
       base44.entities.Cuadrilla.list(),
       base44.entities.TipoProceso.list(),
-    ]).then(([taras, props, procs, vars, tcos, cuads, tproc]) => {
+      base44.entities.Destino.list(),
+    ]).then(([taras, props, procs, vars, tcos, cuads, tproc, dests]) => {
       setConfigTaras(taras);
       setPropietarios(props);
       setTodasProcedencias(procs);
@@ -52,6 +54,7 @@ export default function CosechaForm({ item, onSave, onCancel }) {
       setTiposCosecha(tcos);
       setCuadrillas(cuads);
       setTiposProceso(tproc);
+      setDestinos(dests);
     });
   }, []);
 
@@ -188,7 +191,8 @@ export default function CosechaForm({ item, onSave, onCancel }) {
 
         <F label="Destino">
           <select value={form.destino} onChange={e => set("destino", e.target.value)} className={inputCls}>
-            {DESTINOS.map(d => <option key={d}>{d}</option>)}
+            <option value="">-- Seleccionar --</option>
+            {destinos.map(d => <option key={d.id} value={d.nombre}>{d.nombre}</option>)}
           </select>
         </F>
 
