@@ -10,14 +10,19 @@ export default function ImportModal({ entity, onClose }) {
 
   const handleFile = (e) => setFile(e.target.files[0]);
 
+  const SCHEMAS = {
+    Cosecha: { fecha: {type:"string"}, turno: {type:"string"}, nro_bin: {type:"number"}, especie: {type:"string"}, propietario: {type:"string"}, tipo_cosecha: {type:"string"}, cuadrilla: {type:"string"}, procedencia: {type:"string"}, variedad: {type:"string"}, bruto: {type:"number"}, tara: {type:"number"}, neto: {type:"number"}, destino: {type:"string"}, tipo_proceso: {type:"string"}, fecha_vuelco: {type:"string"}, kgs_vuelco: {type:"number"}, stock_camara: {type:"number"} },
+    Produccion: { fecha: {type:"string"}, turno: {type:"string"}, productor: {type:"string"}, especie: {type:"string"}, variedad: {type:"string"}, categoria: {type:"string"}, envase: {type:"string"}, calibre: {type:"string"}, cant_bultos: {type:"number"}, tipo_palet: {type:"string"}, kg_bruto: {type:"number"}, tipo_caja: {type:"string"}, tara: {type:"number"}, kg_netos: {type:"number"}, nro_romaneo: {type:"string"} },
+  };
+
   const handleImport = async () => {
     if (!file) return;
     setStatus("loading");
-    const schema = await base44.entities[entity].schema();
+    const schemaProps = SCHEMAS[entity] || {};
     const { file_url } = await base44.integrations.Core.UploadFile({ file });
     const result = await base44.integrations.Core.ExtractDataFromUploadedFile({
       file_url,
-      json_schema: { type: "object", properties: { records: { type: "array", items: { type: "object", properties: schema.properties } } } }
+      json_schema: { type: "object", properties: { records: { type: "array", items: { type: "object", properties: schemaProps } } } }
     });
     if (result.status !== "success") {
       setStatus("error");
