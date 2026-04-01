@@ -10,8 +10,8 @@ export default function Reportes() {
 
   useEffect(() => {
     Promise.all([
-      base44.entities.Cosecha.list("-fecha", 500),
-      base44.entities.Produccion.list("-fecha", 500)
+      base44.entities.Cosecha.list("-fecha", 50000),
+      base44.entities.Produccion.list("-fecha", 50000)
     ]).then(([c, p]) => { setCosechas(c); setProducciones(p); setLoading(false); });
   }, []);
 
