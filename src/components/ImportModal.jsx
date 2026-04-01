@@ -10,6 +10,11 @@ export default function ImportModal({ entity, onClose }) {
 
   const handleFile = (e) => setFile(e.target.files[0]);
 
+  const NUM_FIELDS = {
+    Cosecha: ["nro_bin","bruto","tara","neto","kgs_vuelco","stock_camara"],
+    Produccion: ["cant_bultos","kg_bruto","tara","kg_netos"],
+  };
+
   const SCHEMAS = {
     Cosecha: { fecha: {type:"string"}, turno: {type:"string"}, nro_bin: {type:"number"}, especie: {type:"string"}, propietario: {type:"string"}, tipo_cosecha: {type:"string"}, cuadrilla: {type:"string"}, procedencia: {type:"string"}, variedad: {type:"string"}, bruto: {type:"number"}, tara: {type:"number"}, neto: {type:"number"}, destino: {type:"string"}, tipo_proceso: {type:"string"}, fecha_vuelco: {type:"string"}, kgs_vuelco: {type:"number"}, stock_camara: {type:"number"} },
     Produccion: { fecha: {type:"string"}, turno: {type:"string"}, productor: {type:"string"}, especie: {type:"string"}, variedad: {type:"string"}, categoria: {type:"string"}, envase: {type:"string"}, calibre: {type:"string"}, cant_bultos: {type:"number"}, tipo_palet: {type:"string"}, kg_bruto: {type:"number"}, tipo_caja: {type:"string"}, tara: {type:"number"}, kg_netos: {type:"number"}, nro_romaneo: {type:"string"} },
@@ -35,7 +40,18 @@ export default function ImportModal({ entity, onClose }) {
       setMessage("No se encontraron registros válidos en el archivo.");
       return;
     }
-    await base44.entities[entity].bulkCreate(records);
+    const numFields = NUM_FIELDS[entity] || [];
+    const cleaned = records.map(r => {
+      const row = { ...r };
+      numFields.forEach(f => {
+        if (row[f] === "" || row[f] === null || row[f] === undefined) delete row[f];
+        else row[f] = Number(row[f]);
+      });
+      // remove empty string fields that are not required
+      Object.keys(row).forEach(k => { if (row[k] === "") delete row[k]; });
+      return row;
+    });
+    await base44.entities[entity].bulkCreate(cleaned);
     setStatus("success");
     setMessage(`Se importaron ${records.length} registros correctamente.`);
   };
