@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import ResumenRomaneo from "@/components/ResumenRomaneo";
 import { base44 } from "@/api/base44Client";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend, LineChart, Line } from "recharts";
 
@@ -124,72 +125,7 @@ export default function Reportes() {
             </div>
           )}
 
-          {/* Resumen por Romaneo */}
-          {(() => {
-            const romaneos = [...new Set(producciones.map(p => p.nro_romaneo).filter(Boolean))].sort();
-            if (romaneos.length === 0) return null;
-
-            const dataRomaneo = romaneos.map(rom => {
-              const registros = producciones.filter(p => p.nro_romaneo === rom);
-              // Ordenar por fecha desc para obtener el último
-              const ordenados = [...registros].sort((a, b) => (b.fecha || "").localeCompare(a.fecha || ""));
-              const ultimo = ordenados[0];
-              const totalBultos = registros.reduce((s, p) => s + (p.cant_bultos || 0), 0);
-              const totalKgNetos = registros.reduce((s, p) => s + (p.kg_netos || 0), 0);
-              const totalKgBruto = registros.reduce((s, p) => s + (p.kg_bruto || 0), 0);
-              // Productor del último registro
-              const productor = ultimo?.productor || ultimo?.propietario || "—";
-              const variedad = ultimo?.variedad || "—";
-              const ultimaFecha = ultimo?.fecha || "—";
-              return { rom, totalBultos, totalKgNetos, totalKgBruto, productor, variedad, ultimaFecha, cantRegistros: registros.length };
-            });
-
-            return (
-              <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-                <h2 className="text-sm font-semibold text-[#5c1020] mb-1">Resumen de Producción por Romaneo</h2>
-                <p className="text-xs text-gray-400 mb-4">Palets terminados y totales acumulados por número de romaneo</p>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead className="bg-[#276749] text-white text-xs">
-                      <tr>
-                        <th className="px-3 py-3 text-left">N° Romaneo</th>
-                        <th className="px-3 py-3 text-left hidden sm:table-cell">Productor</th>
-                        <th className="px-3 py-3 text-left hidden sm:table-cell">Variedad</th>
-                        <th className="px-3 py-3 text-center">Registros</th>
-                        <th className="px-3 py-3 text-right">Bultos totales</th>
-                        <th className="px-3 py-3 text-right">Kg Netos</th>
-                        <th className="px-3 py-3 text-right">Kg Bruto</th>
-                        <th className="px-3 py-3 text-left hidden md:table-cell">Última fecha</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {dataRomaneo.map((r, i) => (
-                        <tr key={r.rom} className={i % 2 === 0 ? "bg-white" : "bg-[#f4fbf7]"}>
-                          <td className="px-3 py-2.5 font-mono font-bold text-[#276749]">{r.rom}</td>
-                          <td className="px-3 py-2.5 text-gray-700 hidden sm:table-cell">{r.productor}</td>
-                          <td className="px-3 py-2.5 text-gray-600 hidden sm:table-cell">{r.variedad}</td>
-                          <td className="px-3 py-2.5 text-center">
-                            <span className="bg-gray-100 text-gray-600 text-xs font-semibold px-2 py-0.5 rounded-full">{r.cantRegistros}</span>
-                          </td>
-                          <td className="px-3 py-2.5 text-right font-bold text-gray-800">{r.totalBultos.toLocaleString()}</td>
-                          <td className="px-3 py-2.5 text-right text-gray-700">{r.totalKgNetos.toLocaleString()}</td>
-                          <td className="px-3 py-2.5 text-right text-gray-500">{r.totalKgBruto.toLocaleString()}</td>
-                          <td className="px-3 py-2.5 text-gray-500 hidden md:table-cell">{r.ultimaFecha}</td>
-                        </tr>
-                      ))}
-                      <tr className="bg-[#276749]/10 font-bold text-sm border-t-2 border-[#276749]">
-                        <td className="px-3 py-2.5 text-[#276749]" colSpan={4}>TOTAL</td>
-                        <td className="px-3 py-2.5 text-right text-[#276749]">{dataRomaneo.reduce((s, r) => s + r.totalBultos, 0).toLocaleString()}</td>
-                        <td className="px-3 py-2.5 text-right text-[#276749]">{dataRomaneo.reduce((s, r) => s + r.totalKgNetos, 0).toLocaleString()}</td>
-                        <td className="px-3 py-2.5 text-right text-[#276749]">{dataRomaneo.reduce((s, r) => s + r.totalKgBruto, 0).toLocaleString()}</td>
-                        <td className="px-3 py-2.5 hidden md:table-cell" />
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            );
-          })()}
+          <ResumenRomaneo producciones={producciones} />
 
           {/* Por Productor */}
           {(() => {
