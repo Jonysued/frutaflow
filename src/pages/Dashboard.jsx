@@ -168,6 +168,50 @@ export default function Dashboard() {
             )}
           </div>
 
+          {/* Por Productor */}
+          {(() => {
+            const productores = [...new Set([
+              ...cosechasDia.map(c => c.propietario || c.productor).filter(Boolean),
+              ...produccionesDia.map(p => p.productor || p.propietario).filter(Boolean)
+            ])];
+            if (productores.length === 0) return null;
+            return (
+              <div>
+                <h2 className="text-base font-semibold text-[#5c1020] mb-3">Vista por Productor</h2>
+                <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                  <table className="w-full text-sm">
+                    <thead className="bg-[#5c1020] text-white text-xs">
+                      <tr>
+                        <th className="px-4 py-3 text-left">Productor</th>
+                        <th className="px-4 py-3 text-right">Cosecha (kg neto)</th>
+                        <th className="px-4 py-3 text-right">Producción (kg netos)</th>
+                        <th className="px-4 py-3 text-right">Bultos</th>
+                        <th className="px-4 py-3 text-right">Rendimiento</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {productores.map((prod, i) => {
+                        const cKg = cosechasDia.filter(c => (c.propietario || c.productor) === prod).reduce((s, c) => s + (c.neto || 0), 0);
+                        const pKg = produccionesDia.filter(p => (p.productor || p.propietario) === prod).reduce((s, p) => s + (p.kg_netos || 0), 0);
+                        const blt = produccionesDia.filter(p => (p.productor || p.propietario) === prod).reduce((s, p) => s + (p.cant_bultos || 0), 0);
+                        const rend = cKg > 0 ? (pKg / cKg * 100).toFixed(1) : "—";
+                        return (
+                          <tr key={prod} className={i % 2 === 0 ? "bg-white" : "bg-[#fdf4f5]"}>
+                            <td className="px-4 py-2.5 font-medium text-gray-800">{prod}</td>
+                            <td className="px-4 py-2.5 text-right text-gray-700">{cKg.toLocaleString()}</td>
+                            <td className="px-4 py-2.5 text-right text-gray-700">{pKg.toLocaleString()}</td>
+                            <td className="px-4 py-2.5 text-right text-gray-700">{blt.toLocaleString()}</td>
+                            <td className="px-4 py-2.5 text-right font-semibold" style={{ color: rend !== "—" && Number(rend) >= 75 ? "#276749" : rend !== "—" && Number(rend) >= 50 ? "#b7791f" : "#c0392b" }}>{rend}{rend !== "—" ? "%" : ""}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            );
+          })()}
+
           {chartData.length > 0 && (
             <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
               <h2 className="text-base font-semibold text-[#5c1020] mb-4">Últimos 7 días — Cosecha vs Producción (kg netos)</h2>

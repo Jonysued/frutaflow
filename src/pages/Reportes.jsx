@@ -123,6 +123,36 @@ export default function Reportes() {
               </ResponsiveContainer>
             </div>
           )}
+
+          {/* Por Productor */}
+          {(() => {
+            const productores = [...new Set([
+              ...cosechas.map(c => c.propietario || c.productor).filter(Boolean),
+              ...producciones.map(p => p.productor || p.propietario).filter(Boolean)
+            ])];
+            if (productores.length === 0) return null;
+            const dataProductor = productores.map(prod => ({
+              productor: prod,
+              "Cosecha (kg neto)": cosechas.filter(c => (c.propietario || c.productor) === prod).reduce((s, c) => s + (c.neto || 0), 0),
+              "Producción (kg neto)": producciones.filter(p => (p.productor || p.propietario) === prod).reduce((s, p) => s + (p.kg_netos || 0), 0),
+            })).sort((a, b) => b["Cosecha (kg neto)"] - a["Cosecha (kg neto)"]);
+            return (
+              <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                <h2 className="text-sm font-semibold text-[#5c1020] mb-4">Cosecha vs Producción por Productor</h2>
+                <ResponsiveContainer width="100%" height={Math.max(180, dataProductor.length * 40)}>
+                  <BarChart data={dataProductor} layout="vertical">
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f3e6e8" />
+                    <XAxis type="number" tick={{ fontSize: 11 }} />
+                    <YAxis dataKey="productor" type="category" tick={{ fontSize: 11 }} width={100} />
+                    <Tooltip formatter={v => v.toLocaleString() + " kg"} />
+                    <Legend />
+                    <Bar dataKey="Cosecha (kg neto)" fill="#c0392b" radius={[0, 4, 4, 0]} />
+                    <Bar dataKey="Producción (kg neto)" fill="#276749" radius={[0, 4, 4, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            );
+          })()}
         </>
       )}
     </div>
