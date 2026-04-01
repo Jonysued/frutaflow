@@ -81,37 +81,74 @@ export default function ResumenRomaneo({ producciones }) {
       </div>
 
       {/* Detalle del romaneo seleccionado */}
-      {selectedData && (
-        <div className="bg-[#f4fbf7] border border-[#276749]/30 rounded-xl p-4 relative">
-          <button onClick={() => setSelectedRom(null)} className="absolute top-3 right-3 text-gray-400 hover:text-gray-700">
-            <X className="w-4 h-4" />
-          </button>
-          <h3 className="font-bold text-[#276749] text-sm mb-3">Último registro — Romaneo {selectedData.rom}</h3>
-          {selectedData.ultimoRegistro ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 text-xs">
-              {[
-                ["Fecha", selectedData.ultimoRegistro.fecha],
-                ["Turno", selectedData.ultimoRegistro.turno],
-                ["Productor", selectedData.ultimoRegistro.productor || selectedData.ultimoRegistro.propietario],
-                ["Especie", selectedData.ultimoRegistro.especie],
-                ["Variedad", selectedData.ultimoRegistro.variedad],
-                ["Envase", selectedData.ultimoRegistro.envase],
-                ["Calibre", selectedData.ultimoRegistro.calibre],
-                ["Categoría", selectedData.ultimoRegistro.categoria],
-                ["Tipo Palet", selectedData.ultimoRegistro.tipo_palet],
-                ["Cant. Bultos", selectedData.ultimoRegistro.cant_bultos],
-                ["Kg Bruto", selectedData.ultimoRegistro.kg_bruto?.toLocaleString()],
-                ["Kg Netos", selectedData.ultimoRegistro.kg_netos?.toLocaleString()],
-              ].filter(([, v]) => v).map(([label, val]) => (
-                <div key={label} className="bg-white rounded-lg px-3 py-2 border border-[#276749]/10">
-                  <p className="text-gray-400">{label}</p>
-                  <p className="font-semibold text-gray-800 mt-0.5">{val}</p>
-                </div>
-              ))}
+      {selectedData && (() => {
+        // Agrupar todos los registros del romaneo seleccionado por letra
+        const porLetra = {};
+        selectedData.registros.forEach(p => {
+          const nro = p.nro_romaneo || "";
+          // Extraer letra(s) iniciales y número final
+          const match = nro.match(/^([A-Za-z]+)(\d+)$/);
+          const letra = match ? match[1].toUpperCase() : nro || "?";
+          const num = match ? parseInt(match[2]) : 0;
+          if (!porLetra[letra]) porLetra[letra] = { count: 0, maxNum: 0, ultimo: "" };
+          porLetra[letra].count += 1;
+          if (num > porLetra[letra].maxNum) {
+            porLetra[letra].maxNum = num;
+            porLetra[letra].ultimo = nro;
+          }
+        });
+
+        return (
+          <div className="bg-[#f4fbf7] border border-[#276749]/30 rounded-xl p-4 relative">
+            <button onClick={() => setSelectedRom(null)} className="absolute top-3 right-3 text-gray-400 hover:text-gray-700">
+              <X className="w-4 h-4" />
+            </button>
+            <h3 className="font-bold text-[#276749] text-sm mb-3">Detalle — Romaneo {selectedData.rom}</h3>
+
+            {/* Por letra */}
+            <div className="mb-4">
+              <p className="text-xs text-gray-500 font-semibold uppercase mb-2">Palets por letra</p>
+              <div className="flex flex-wrap gap-3">
+                {Object.entries(porLetra).sort(([a], [b]) => a.localeCompare(b)).map(([letra, info]) => (
+                  <div key={letra} className="bg-white border border-[#276749]/20 rounded-xl px-4 py-3 min-w-[120px]">
+                    <p className="text-2xl font-black text-[#276749]">{letra}</p>
+                    <p className="text-xs text-gray-400 mt-1">Palets</p>
+                    <p className="font-bold text-gray-800 text-lg">{info.count}</p>
+                    <p className="text-xs text-gray-400 mt-1">Último N°</p>
+                    <p className="font-semibold text-[#276749] font-mono">{info.ultimo}</p>
+                  </div>
+                ))}
+              </div>
             </div>
-          ) : <p className="text-gray-400 text-xs">Sin datos</p>}
-        </div>
-      )}
+
+            {/* Último registro */}
+            <p className="text-xs text-gray-500 font-semibold uppercase mb-2">Último registro cargado</p>
+            {selectedData.ultimoRegistro ? (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 text-xs">
+                {[
+                  ["Fecha", selectedData.ultimoRegistro.fecha],
+                  ["Turno", selectedData.ultimoRegistro.turno],
+                  ["Productor", selectedData.ultimoRegistro.productor || selectedData.ultimoRegistro.propietario],
+                  ["Especie", selectedData.ultimoRegistro.especie],
+                  ["Variedad", selectedData.ultimoRegistro.variedad],
+                  ["Envase", selectedData.ultimoRegistro.envase],
+                  ["Calibre", selectedData.ultimoRegistro.calibre],
+                  ["Categoría", selectedData.ultimoRegistro.categoria],
+                  ["Tipo Palet", selectedData.ultimoRegistro.tipo_palet],
+                  ["Cant. Bultos", selectedData.ultimoRegistro.cant_bultos],
+                  ["Kg Bruto", selectedData.ultimoRegistro.kg_bruto?.toLocaleString()],
+                  ["Kg Netos", selectedData.ultimoRegistro.kg_netos?.toLocaleString()],
+                ].filter(([, v]) => v).map(([label, val]) => (
+                  <div key={label} className="bg-white rounded-lg px-3 py-2 border border-[#276749]/10">
+                    <p className="text-gray-400">{label}</p>
+                    <p className="font-semibold text-gray-800 mt-0.5">{val}</p>
+                  </div>
+                ))}
+              </div>
+            ) : <p className="text-gray-400 text-xs">Sin datos</p>}
+          </div>
+        );
+      })()}
 
       {/* Tabla */}
       <div className="overflow-x-auto">
