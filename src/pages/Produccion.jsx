@@ -10,6 +10,19 @@ export default function Produccion() {
   const [showForm, setShowForm] = useState(false);
   const [editItem, setEditItem] = useState(null);
   const [showImport, setShowImport] = useState(false);
+  const [filtros, setFiltros] = useState({ fecha: "", productor: "", variedad: "", especie: "" });
+  const [showFiltros, setShowFiltros] = useState(false);
+
+  const setFiltro = (k, v) => setFiltros(f => ({ ...f, [k]: v }));
+  const limpiarFiltros = () => setFiltros({ fecha: "", productor: "", variedad: "", especie: "" });
+  const filtrosActivos = Object.values(filtros).some(v => v !== "");
+
+  const registrosFiltrados = registros.filter(r =>
+    (!filtros.fecha || r.fecha === filtros.fecha) &&
+    (!filtros.productor || (r.productor || "").toLowerCase().includes(filtros.productor.toLowerCase())) &&
+    (!filtros.variedad || (r.variedad || "").toLowerCase().includes(filtros.variedad.toLowerCase())) &&
+    (!filtros.especie || (r.especie || "").toLowerCase().includes(filtros.especie.toLowerCase()))
+  );
 
   const load = () => {
     setLoading(true);
@@ -44,6 +57,14 @@ export default function Produccion() {
           <p className="text-sm text-gray-500">Kilos procesados, bultos y romaneos</p>
         </div>
         <div className="flex gap-2 flex-wrap">
+          <button
+            onClick={() => setShowFiltros(f => !f)}
+            className={`flex items-center gap-1 px-3 py-2 border rounded-lg text-xs font-semibold transition-all ${
+              filtrosActivos ? "bg-[#276749] text-white border-[#276749]" : "border-gray-200 text-gray-600 hover:bg-gray-50"
+            }`}
+          >
+            🔍 Filtros {filtrosActivos && `(activos)`}
+          </button>
           <button onClick={downloadTemplate} className="flex items-center gap-1 px-3 py-2 border border-gray-200 rounded-lg text-xs text-gray-600 hover:bg-gray-50">
             <Download className="w-3.5 h-3.5" /> Plantilla CSV
           </button>
@@ -55,6 +76,35 @@ export default function Produccion() {
           </button>
         </div>
       </div>
+
+      {showFiltros && (
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-gray-500">Fecha</label>
+              <input type="date" value={filtros.fecha} onChange={e => setFiltro("fecha", e.target.value)} className="border rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#276749]" />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-gray-500">Productor</label>
+              <input value={filtros.productor} onChange={e => setFiltro("productor", e.target.value)} placeholder="Buscar..." className="border rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#276749]" />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-gray-500">Variedad</label>
+              <input value={filtros.variedad} onChange={e => setFiltro("variedad", e.target.value)} placeholder="Buscar..." className="border rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#276749]" />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-gray-500">Especie</label>
+              <input value={filtros.especie} onChange={e => setFiltro("especie", e.target.value)} placeholder="Buscar..." className="border rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#276749]" />
+            </div>
+          </div>
+          {filtrosActivos && (
+            <div className="mt-3 flex items-center gap-2">
+              <span className="text-xs text-gray-500">{registrosFiltrados.length} registros encontrados</span>
+              <button onClick={limpiarFiltros} className="text-xs text-red-600 hover:underline">Limpiar filtros</button>
+            </div>
+          )}
+        </div>
+      )}
 
       {(showForm || editItem) && (
         <ProduccionForm item={editItem} onSave={handleSave} onCancel={() => { setShowForm(false); setEditItem(null); }} />
@@ -84,10 +134,10 @@ export default function Produccion() {
                 </tr>
               </thead>
               <tbody>
-                {registros.length === 0 && (
+                {registrosFiltrados.length === 0 && (
                   <tr><td colSpan={13} className="text-center py-10 text-gray-400">No hay registros aún. Importá tu planilla Excel o cargá manualmente.</td></tr>
                 )}
-                {registros.map((r, i) => (
+                {registrosFiltrados.map((r, i) => (
                   <tr key={r.id} className={i % 2 === 0 ? "bg-white" : "bg-[#f4fbf7]"}>
                     <td className="px-3 py-2.5 font-medium text-gray-700 whitespace-nowrap">{r.fecha}</td>
                     <td className="px-3 py-2.5">
