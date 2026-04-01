@@ -4,6 +4,15 @@ import { format } from "date-fns";
 
 const TURNOS = ["Mañana", "Tarde", "Noche"];
 
+function F({ label, children }) {
+  return (
+    <div className="flex flex-col gap-1">
+      <label className="text-xs text-gray-500">{label}</label>
+      {children}
+    </div>
+  );
+}
+
 export default function ProduccionForm({ item, onSave, onCancel }) {
   const [envases, setEnvases] = useState([]);
   const [configPalets, setConfigPalets] = useState([]);
@@ -121,12 +130,6 @@ export default function ProduccionForm({ item, onSave, onCancel }) {
   };
 
   const inputCls = "border rounded-lg px-2 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#276749]";
-  const F = ({ label, children }) => (
-    <div className="flex flex-col gap-1">
-      <label className="text-xs text-gray-500">{label}</label>
-      {children}
-    </div>
-  );
 
   const paletOpciones = tiposPalet.length > 0
     ? tiposPalet.map(p => p.nombre)

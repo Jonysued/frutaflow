@@ -1,4 +1,13 @@
 import { useState, useEffect, useRef } from "react";
+
+function F({ label, children }) {
+  return (
+    <div className="flex flex-col gap-1">
+      <label className="text-xs text-gray-500">{label}</label>
+      {children}
+    </div>
+  );
+}
 import { base44 } from "@/api/base44Client";
 import { format } from "date-fns";
 
@@ -120,12 +129,7 @@ export default function CosechaForm({ item, onSave, onCancel }) {
     onSave();
   };
 
-  const F = ({ label, children }) => (
-    <div className="flex flex-col gap-1">
-      <label className="text-xs text-gray-500">{label}</label>
-      {children}
-    </div>
-  );
+
   const inputCls = "border rounded-lg px-2 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#c0392b]";
 
   return (
