@@ -7,6 +7,12 @@ const NUM_FIELDS = {
   Produccion: ["cant_bultos","kg_bruto","tara","kg_netos"],
 };
 
+// Required numeric fields — default to 0 if empty instead of deleting
+const NUM_REQUIRED = {
+  Cosecha: ["bruto","tara","neto"],
+  Produccion: ["cant_bultos","kg_bruto","kg_netos"],
+};
+
 const XLSX_SCHEMAS = {
   Cosecha: { fecha:{type:"string"}, turno:{type:"string"}, nro_bin:{type:"number"}, especie:{type:"string"}, propietario:{type:"string"}, tipo_cosecha:{type:"string"}, cuadrilla:{type:"string"}, procedencia:{type:"string"}, variedad:{type:"string"}, bruto:{type:"number"}, tara:{type:"number"}, neto:{type:"number"}, destino:{type:"string"}, tipo_proceso:{type:"string"}, fecha_vuelco:{type:"string"}, kgs_vuelco:{type:"number"}, stock_camara:{type:"number"} },
   Produccion: { fecha:{type:"string"}, turno:{type:"string"}, productor:{type:"string"}, especie:{type:"string"}, variedad:{type:"string"}, categoria:{type:"string"}, envase:{type:"string"}, calibre:{type:"string"}, cant_bultos:{type:"number"}, tipo_palet:{type:"string"}, kg_bruto:{type:"number"}, tipo_caja:{type:"string"}, tara:{type:"number"}, kg_netos:{type:"number"}, nro_romaneo:{type:"string"} },
@@ -27,11 +33,17 @@ function parseCSV(text) {
 
 function cleanRecords(records, entity) {
   const numFields = NUM_FIELDS[entity] || [];
+  const required = NUM_REQUIRED[entity] || [];
   return records.map(r => {
     const row = { ...r };
     numFields.forEach(f => {
-      if (row[f] === "" || row[f] == null) delete row[f];
-      else { const n = Number(row[f]); if (!isNaN(n)) row[f] = n; }
+      if (row[f] === "" || row[f] == null) {
+        if (required.includes(f)) row[f] = 0;
+        else delete row[f];
+      } else {
+        const n = Number(row[f]);
+        row[f] = isNaN(n) ? 0 : n;
+      }
     });
     Object.keys(row).forEach(k => { if (row[k] === "") delete row[k]; });
     return row;
