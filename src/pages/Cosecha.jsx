@@ -13,7 +13,7 @@ export default function Cosecha() {
 
   const load = () => {
     setLoading(true);
-    base44.entities.Cosecha.list("-fecha", 5000).then(r => { setRegistros(r); setLoading(false); });
+    base44.entities.Cosecha.list("-fecha", 50000).then(r => { setRegistros(r); setLoading(false); });
   };
 
   useEffect(load, []);
