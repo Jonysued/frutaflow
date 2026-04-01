@@ -27,9 +27,11 @@ export default function Cosecha() {
   const handleSave = () => { setShowForm(false); setEditItem(null); load(); };
 
   const downloadTemplate = () => {
-    const header = "fecha,turno,nro_bin,especie,propietario,tipo_cosecha,cuadrilla,procedencia,variedad,bruto,tara,neto,destino,tipo_proceso,fecha_vuelco,kgs_vuelco,stock_camara";
-    const example = "2026-02-24,Mañana,67,GRANADAS,F500,BARRIDO,GARCIA,OP1SE,WONDERFUL,265,30,235,VUELCO,ARILO,2026-02-25,-235,";
-    const blob = new Blob([header + "\n" + example], { type: "text/csv" });
+    const sep = ";";
+    const cols = ["fecha","turno","nro_bin","especie","propietario","tipo_cosecha","cuadrilla","procedencia","variedad","bruto","tara","neto","destino","tipo_proceso","fecha_vuelco","kgs_vuelco","stock_camara"];
+    const example = ["2026-02-24","Mañana","67","GRANADAS","F500","BARRIDO","GARCIA","OP1SE","WONDERFUL","265","30","235","VUELCO","ARILO","2026-02-25","-235",""];
+    const content = "\uFEFF" + cols.join(sep) + "\n" + example.join(sep);
+    const blob = new Blob([content], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a"); a.href = url; a.download = "plantilla_cosecha.csv"; a.click();
   };

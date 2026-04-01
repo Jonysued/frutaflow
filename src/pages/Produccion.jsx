@@ -27,9 +27,11 @@ export default function Produccion() {
   const handleSave = () => { setShowForm(false); setEditItem(null); load(); };
 
   const downloadTemplate = () => {
-    const header = "fecha,turno,productor,especie,variedad,envase,calibre,cant_bultos,tipo_palet,kg_bruto,tipo_caja,tara,kg_netos,nro_romaneo,contenedor,termografo_nro,nro_remito,fecha_remito";
-    const example = "2026-02-25,Mañana,F500,GRANADAS,ACCO,CAJA,12,114,Comun,940,wenco,-60,880,W1,,,, ";
-    const blob = new Blob([header + "\n" + example], { type: "text/csv" });
+    const sep = ";";
+    const cols = ["fecha","turno","productor","especie","variedad","categoria","envase","calibre","cant_bultos","tipo_palet","kg_bruto","tipo_caja","tara","kg_netos","nro_romaneo"];
+    const example = ["2026-02-25","Mañana","F500","GRANADAS","ACCO","Cat 1","CAJA WENCO","12","114","Comun","940","wenco","60","880","W1"];
+    const content = "\uFEFF" + cols.join(sep) + "\n" + example.join(sep);
+    const blob = new Blob([content], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a"); a.href = url; a.download = "plantilla_produccion.csv"; a.click();
   };
