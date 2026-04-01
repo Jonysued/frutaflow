@@ -71,13 +71,24 @@ export default function Dashboard() {
   const [producciones, setProducciones] = useState([]);
   const [fecha, setFecha] = useState(format(new Date(), "yyyy-MM-dd"));
   const [loading, setLoading] = useState(true);
+  const [fechaIniciada, setFechaIniciada] = useState(false);
 
   useEffect(() => {
     setLoading(true);
     Promise.all([
       base44.entities.Cosecha.list("-fecha", 50000),
       base44.entities.Produccion.list("-fecha", 50000)
-    ]).then(([c, p]) => { setCosechas(c); setProducciones(p); setLoading(false); });
+    ]).then(([c, p]) => {
+      setCosechas(c);
+      setProducciones(p);
+      setLoading(false);
+      // Default to latest date with data
+      if (!fechaIniciada) {
+        const todasFechas = [...new Set([...c.map(x => x.fecha), ...p.map(x => x.fecha)])].filter(Boolean).sort();
+        if (todasFechas.length > 0) setFecha(todasFechas[todasFechas.length - 1]);
+        setFechaIniciada(true);
+      }
+    });
   }, []);
 
   const cosechasDia = cosechas.filter(c => c.fecha === fecha);
