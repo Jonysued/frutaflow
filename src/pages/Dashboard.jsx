@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { format, differenceInDays, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
-import { Wheat, Package, Layers, TrendingUp, AlertTriangle, Thermometer } from "lucide-react";
+import { Wheat, Package, Layers, TrendingUp, AlertTriangle, Thermometer, Trash2 } from "lucide-react";
 
 const TURNOS = ["Mañana", "Tarde", "Noche"];
 const TURNO_COLORS = { Mañana: "#c0392b", Tarde: "#7a1a30", Noche: "#2c0a12" };
@@ -147,6 +147,8 @@ export default function Dashboard() {
             <MetricCard label="Producción (kg netos)" value={totalProdKg.toLocaleString()} unit="kg" icon={Package} color="#7a1a30" />
             <MetricCard label="Bultos producidos" value={totalBultos.toLocaleString()} unit="blt" icon={Layers} color="#276749" />
             <MetricCard label="Rendimiento" value={rendimientoDia.toFixed(1)} unit="%" icon={TrendingUp} color="#b7791f" />
+            <MetricCard label="Descarte" value={(totalCosechaKg - totalProdKg > 0 ? totalCosechaKg - totalProdKg : 0).toLocaleString()} unit="kg" icon={Trash2} color="#6b7280" />
+            <MetricCard label="% Descarte" value={totalCosechaKg > 0 ? ((totalCosechaKg - totalProdKg) / totalCosechaKg * 100).toFixed(1) : "0.0"} unit="%" icon={Trash2} color="#6b7280" />
           </div>
 
           <div>
@@ -189,6 +191,8 @@ export default function Dashboard() {
                         <th className="px-4 py-3 text-right">Producción (kg netos)</th>
                         <th className="px-4 py-3 text-right">Bultos</th>
                         <th className="px-4 py-3 text-right">Rendimiento</th>
+                        <th className="px-4 py-3 text-right">Descarte (kg)</th>
+                        <th className="px-4 py-3 text-right">% Descarte</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -197,6 +201,8 @@ export default function Dashboard() {
                         const pKg = produccionesDia.filter(p => (p.productor || p.propietario) === prod).reduce((s, p) => s + (p.kg_netos || 0), 0);
                         const blt = produccionesDia.filter(p => (p.productor || p.propietario) === prod).reduce((s, p) => s + (p.cant_bultos || 0), 0);
                         const rend = cKg > 0 ? (pKg / cKg * 100).toFixed(1) : "—";
+                        const descarte = cKg - pKg;
+                        const pctDescarte = cKg > 0 ? (descarte / cKg * 100).toFixed(1) : "—";
                         return (
                           <tr key={prod} className={i % 2 === 0 ? "bg-white" : "bg-[#fdf4f5]"}>
                             <td className="px-4 py-2.5 font-medium text-gray-800">{prod}</td>
@@ -204,6 +210,8 @@ export default function Dashboard() {
                             <td className="px-4 py-2.5 text-right text-gray-700">{pKg.toLocaleString()}</td>
                             <td className="px-4 py-2.5 text-right text-gray-700">{blt.toLocaleString()}</td>
                             <td className="px-4 py-2.5 text-right font-semibold" style={{ color: rend !== "—" && Number(rend) >= 75 ? "#276749" : rend !== "—" && Number(rend) >= 50 ? "#b7791f" : "#c0392b" }}>{rend}{rend !== "—" ? "%" : ""}</td>
+                            <td className="px-4 py-2.5 text-right text-gray-700">{descarte > 0 ? descarte.toLocaleString() : "0"}</td>
+                            <td className="px-4 py-2.5 text-right font-semibold text-gray-600">{pctDescarte !== "—" ? pctDescarte + "%" : "—"}</td>
                           </tr>
                         );
                       })}
