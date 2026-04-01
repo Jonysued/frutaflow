@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { format } from "date-fns";
 
@@ -83,11 +83,16 @@ export default function CosechaForm({ item, onSave, onCancel }) {
     });
   };
 
+  const brutoTimer = useRef(null);
   const handleBruto = (bruto) => {
-    setForm(f => {
-      const neto = bruto !== "" && f.tara !== "" ? Number(bruto) - Number(f.tara) : f.neto;
-      return { ...f, bruto, neto };
-    });
+    setForm(f => ({ ...f, bruto }));
+    if (brutoTimer.current) clearTimeout(brutoTimer.current);
+    brutoTimer.current = setTimeout(() => {
+      setForm(f => {
+        const neto = bruto !== "" && f.tara !== "" ? Number(bruto) - Number(f.tara) : f.neto;
+        return { ...f, neto };
+      });
+    }, 4000);
   };
 
   const handleTara = (tara) => {

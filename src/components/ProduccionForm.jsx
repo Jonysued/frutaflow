@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { format } from "date-fns";
 
@@ -92,11 +92,16 @@ export default function ProduccionForm({ item, onSave, onCancel }) {
     });
   };
 
+  const brutoTimer = useRef(null);
   const handleBruto = (kg_bruto) => {
-    setForm(f => {
-      const kg_netos = f.tara !== "" ? Number(kg_bruto) - Number(f.tara) : f.kg_netos;
-      return { ...f, kg_bruto, kg_netos };
-    });
+    setForm(f => ({ ...f, kg_bruto }));
+    if (brutoTimer.current) clearTimeout(brutoTimer.current);
+    brutoTimer.current = setTimeout(() => {
+      setForm(f => {
+        const kg_netos = f.tara !== "" ? Number(kg_bruto) - Number(f.tara) : f.kg_netos;
+        return { ...f, kg_netos };
+      });
+    }, 4000);
   };
 
   const handleSubmit = async (e) => {
