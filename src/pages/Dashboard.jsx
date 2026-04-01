@@ -84,14 +84,16 @@ export default function Dashboard() {
       setLoading(false);
       // Default to latest date with data
       if (!fechaIniciada) {
-        const todasFechas = [...new Set([...c.map(x => x.fecha), ...p.map(x => x.fecha)])].filter(Boolean).sort();
+        const todasFechas = [...new Set([...c.map(x => x.fecha_vuelco).filter(Boolean), ...p.map(x => x.fecha)])].filter(Boolean).sort();
         if (todasFechas.length > 0) setFecha(todasFechas[todasFechas.length - 1]);
         setFechaIniciada(true);
       }
     });
   }, []);
 
-  const cosechasDia = cosechas.filter(c => c.fecha === fecha);
+  // Cosecha: filtrar por fecha_vuelco (cuando el BIN fue volcado/procesado)
+  const cosechasDia = cosechas.filter(c => c.fecha_vuelco === fecha);
+  // Producción: filtrar por fecha de producción
   const produccionesDia = producciones.filter(p => p.fecha === fecha);
 
   // Cosecha = suma de netos del día
@@ -107,10 +109,10 @@ export default function Dashboard() {
     cosechasDia.some(c => c.turno === t) || produccionesDia.some(p => p.turno === t)
   );
 
-  // Chart last 7 unique dates
-  const fechas = [...new Set([...cosechas.map(c => c.fecha), ...producciones.map(p => p.fecha)])].sort().slice(-7);
+  // Chart last 7 unique dates (cosecha por fecha_vuelco, producción por fecha)
+  const fechas = [...new Set([...cosechas.map(c => c.fecha_vuelco).filter(Boolean), ...producciones.map(p => p.fecha)])].sort().slice(-7);
   const chartData = fechas.map(f => {
-    const cKg = cosechas.filter(c => c.fecha === f).reduce((s, c) => s + (c.neto || 0), 0);
+    const cKg = cosechas.filter(c => c.fecha_vuelco === f).reduce((s, c) => s + (c.neto || 0), 0);
     const pKg = producciones.filter(p => p.fecha === f).reduce((s, p) => s + (p.kg_netos || 0), 0);
     return {
       fecha: f.slice(5),
@@ -124,7 +126,7 @@ export default function Dashboard() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-[#5c1020]">Dashboard</h1>
-          <p className="text-sm text-gray-500">Resumen operativo del día</p>
+          <p className="text-sm text-gray-500">Balance por fecha de vuelco y fecha de producción</p>
         </div>
         <input
           type="date"
