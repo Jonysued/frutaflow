@@ -15,9 +15,9 @@ export default function Layout() {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="min-h-screen flex bg-[#f8f0f1]">
+    <div className="h-screen flex bg-[#f8f0f1] overflow-hidden">
       {/* Sidebar desktop */}
-      <aside className="hidden md:flex flex-col w-60 bg-[#5c1020] text-white shadow-xl">
+      <aside className="hidden md:flex flex-col w-60 bg-[#5c1020] text-white shadow-xl h-screen sticky top-0 flex-shrink-0">
         <div className="px-6 py-5 border-b border-[#7a1a30]">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-full bg-[#c0392b] flex items-center justify-center text-xs font-bold">🍎</div>
@@ -83,7 +83,7 @@ export default function Layout() {
       )}
 
       {/* Main content */}
-      <main className="flex-1 overflow-auto md:pt-0 pt-14">
+      <main className="flex-1 overflow-y-auto md:pt-0 pt-14">
         <Outlet />
       </main>
     </div>
