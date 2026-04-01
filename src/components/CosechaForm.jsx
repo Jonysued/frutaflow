@@ -116,7 +116,6 @@ export default function CosechaForm({ item, onSave, onCancel }) {
     setSaving(true);
     const data = {
       ...form,
-      nro_bin: Number(form.nro_bin),
       bruto: Number(form.bruto),
       tara: Number(form.tara),
       neto: Number(form.neto),
@@ -143,7 +142,7 @@ export default function CosechaForm({ item, onSave, onCancel }) {
             {["Mañana", "Tarde", "Noche"].map(t => <option key={t}>{t}</option>)}
           </select>
         </F>
-        <F label="Nro de BIN *"><input type="number" required value={form.nro_bin} onChange={e => set("nro_bin", e.target.value)} className={inputCls} /></F>
+        <F label="Nro de BIN *"><input type="text" required value={form.nro_bin} onChange={e => set("nro_bin", e.target.value)} className={inputCls} /></F>
         <F label="Especie *"><input required value={form.especie} onChange={e => set("especie", e.target.value)} className={inputCls} /></F>
 
         <F label="Propietario">

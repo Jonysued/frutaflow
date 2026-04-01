@@ -17,7 +17,7 @@
       ]
     },
     "nro_bin": {
-      "type": "number",
+      "type": "string",
       "title": "Nro de BIN"
     },
     "especie": {

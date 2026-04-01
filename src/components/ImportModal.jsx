@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { Upload, X, CheckCircle, AlertCircle } from "lucide-react";
 
 const NUM_FIELDS = {
-  Cosecha: ["nro_bin","bruto","tara","neto","kgs_vuelco","stock_camara"],
+  Cosecha: ["bruto","tara","neto","kgs_vuelco","stock_camara"],
   Produccion: ["cant_bultos","kg_bruto","tara","kg_netos"],
 };
 
@@ -31,18 +31,26 @@ function parseCSV(text) {
   }).filter(r => Object.values(r).some(v => v !== ""));
 }
 
+function toNum(val) {
+  if (val === "" || val == null) return null;
+  // Handle Spanish decimal comma: "1.234,56" → 1234.56
+  const s = String(val).trim().replace(/\./g, "").replace(",", ".");
+  const n = Number(s);
+  return isNaN(n) ? null : n;
+}
+
 function cleanRecords(records, entity) {
   const numFields = NUM_FIELDS[entity] || [];
   const required = NUM_REQUIRED[entity] || [];
   return records.map(r => {
     const row = { ...r };
     numFields.forEach(f => {
-      if (row[f] === "" || row[f] == null) {
+      const n = toNum(row[f]);
+      if (n === null) {
         if (required.includes(f)) row[f] = 0;
         else delete row[f];
       } else {
-        const n = Number(row[f]);
-        row[f] = isNaN(n) ? 0 : n;
+        row[f] = n;
       }
     });
     Object.keys(row).forEach(k => { if (row[k] === "") delete row[k]; });
