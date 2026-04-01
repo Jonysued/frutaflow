@@ -121,31 +121,6 @@ export default function ResumenRomaneo({ producciones }) {
               </div>
             </div>
 
-            {/* Último registro */}
-            <p className="text-xs text-gray-500 font-semibold uppercase mb-2">Último registro cargado</p>
-            {selectedData.ultimoRegistro ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 text-xs">
-                {[
-                  ["Fecha", selectedData.ultimoRegistro.fecha],
-                  ["Turno", selectedData.ultimoRegistro.turno],
-                  ["Productor", selectedData.ultimoRegistro.productor || selectedData.ultimoRegistro.propietario],
-                  ["Especie", selectedData.ultimoRegistro.especie],
-                  ["Variedad", selectedData.ultimoRegistro.variedad],
-                  ["Envase", selectedData.ultimoRegistro.envase],
-                  ["Calibre", selectedData.ultimoRegistro.calibre],
-                  ["Categoría", selectedData.ultimoRegistro.categoria],
-                  ["Tipo Palet", selectedData.ultimoRegistro.tipo_palet],
-                  ["Cant. Bultos", selectedData.ultimoRegistro.cant_bultos],
-                  ["Kg Bruto", selectedData.ultimoRegistro.kg_bruto?.toLocaleString()],
-                  ["Kg Netos", selectedData.ultimoRegistro.kg_netos?.toLocaleString()],
-                ].filter(([, v]) => v).map(([label, val]) => (
-                  <div key={label} className="bg-white rounded-lg px-3 py-2 border border-[#276749]/10">
-                    <p className="text-gray-400">{label}</p>
-                    <p className="font-semibold text-gray-800 mt-0.5">{val}</p>
-                  </div>
-                ))}
-              </div>
-            ) : <p className="text-gray-400 text-xs">Sin datos</p>}
           </div>
         );
       })()}
