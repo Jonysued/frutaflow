@@ -10,18 +10,18 @@ export default function Produccion() {
   const [showForm, setShowForm] = useState(false);
   const [editItem, setEditItem] = useState(null);
   const [showImport, setShowImport] = useState(false);
-  const [filtros, setFiltros] = useState({ fecha: "", productor: "", variedad: "", especie: "" });
+  const [filtros, setFiltros] = useState({ fecha: "", productor: "", envase: "", romaneo: "" });
   const [showFiltros, setShowFiltros] = useState(false);
 
   const setFiltro = (k, v) => setFiltros(f => ({ ...f, [k]: v }));
-  const limpiarFiltros = () => setFiltros({ fecha: "", productor: "", variedad: "", especie: "" });
+  const limpiarFiltros = () => setFiltros({ fecha: "", productor: "", envase: "", romaneo: "" });
   const filtrosActivos = Object.values(filtros).some(v => v !== "");
 
   const registrosFiltrados = registros.filter(r =>
     (!filtros.fecha || r.fecha === filtros.fecha) &&
     (!filtros.productor || (r.productor || "").toLowerCase().includes(filtros.productor.toLowerCase())) &&
-    (!filtros.variedad || (r.variedad || "").toLowerCase().includes(filtros.variedad.toLowerCase())) &&
-    (!filtros.especie || (r.especie || "").toLowerCase().includes(filtros.especie.toLowerCase()))
+    (!filtros.envase || (r.envase || "").toLowerCase().includes(filtros.envase.toLowerCase())) &&
+    (!filtros.romaneo || (r.nro_romaneo || "").toLowerCase().includes(filtros.romaneo.toLowerCase()))
   );
 
   const load = () => {
@@ -89,12 +89,12 @@ export default function Produccion() {
               <input value={filtros.productor} onChange={e => setFiltro("productor", e.target.value)} placeholder="Buscar..." className="border rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#276749]" />
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs text-gray-500">Variedad</label>
-              <input value={filtros.variedad} onChange={e => setFiltro("variedad", e.target.value)} placeholder="Buscar..." className="border rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#276749]" />
+              <label className="text-xs text-gray-500">Envase</label>
+              <input value={filtros.envase} onChange={e => setFiltro("envase", e.target.value)} placeholder="Buscar..." className="border rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#276749]" />
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs text-gray-500">Especie</label>
-              <input value={filtros.especie} onChange={e => setFiltro("especie", e.target.value)} placeholder="Buscar..." className="border rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#276749]" />
+              <label className="text-xs text-gray-500">Romaneo</label>
+              <input value={filtros.romaneo} onChange={e => setFiltro("romaneo", e.target.value)} placeholder="Buscar..." className="border rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#276749]" />
             </div>
           </div>
           {filtrosActivos && (
