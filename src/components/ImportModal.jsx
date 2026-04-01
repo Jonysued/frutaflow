@@ -2,58 +2,84 @@ import { useState, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { Upload, X, CheckCircle, AlertCircle } from "lucide-react";
 
+const NUM_FIELDS = {
+  Cosecha: ["nro_bin","bruto","tara","neto","kgs_vuelco","stock_camara"],
+  Produccion: ["cant_bultos","kg_bruto","tara","kg_netos"],
+};
+
+const XLSX_SCHEMAS = {
+  Cosecha: { fecha:{type:"string"}, turno:{type:"string"}, nro_bin:{type:"number"}, especie:{type:"string"}, propietario:{type:"string"}, tipo_cosecha:{type:"string"}, cuadrilla:{type:"string"}, procedencia:{type:"string"}, variedad:{type:"string"}, bruto:{type:"number"}, tara:{type:"number"}, neto:{type:"number"}, destino:{type:"string"}, tipo_proceso:{type:"string"}, fecha_vuelco:{type:"string"}, kgs_vuelco:{type:"number"}, stock_camara:{type:"number"} },
+  Produccion: { fecha:{type:"string"}, turno:{type:"string"}, productor:{type:"string"}, especie:{type:"string"}, variedad:{type:"string"}, categoria:{type:"string"}, envase:{type:"string"}, calibre:{type:"string"}, cant_bultos:{type:"number"}, tipo_palet:{type:"string"}, kg_bruto:{type:"number"}, tipo_caja:{type:"string"}, tara:{type:"number"}, kg_netos:{type:"number"}, nro_romaneo:{type:"string"} },
+};
+
+function parseCSV(text) {
+  const lines = text.replace(/\r/g, "").split("\n").filter(l => l.trim());
+  if (lines.length < 2) return [];
+  const sep = lines[0].includes(";") ? ";" : ",";
+  const headers = lines[0].replace(/^\uFEFF/, "").split(sep).map(h => h.trim());
+  return lines.slice(1).map(line => {
+    const vals = line.split(sep);
+    const row = {};
+    headers.forEach((h, i) => { if (h) row[h] = vals[i]?.trim() ?? ""; });
+    return row;
+  }).filter(r => Object.values(r).some(v => v !== ""));
+}
+
+function cleanRecords(records, entity) {
+  const numFields = NUM_FIELDS[entity] || [];
+  return records.map(r => {
+    const row = { ...r };
+    numFields.forEach(f => {
+      if (row[f] === "" || row[f] == null) delete row[f];
+      else { const n = Number(row[f]); if (!isNaN(n)) row[f] = n; }
+    });
+    Object.keys(row).forEach(k => { if (row[k] === "") delete row[k]; });
+    return row;
+  });
+}
+
 export default function ImportModal({ entity, onClose }) {
   const [file, setFile] = useState(null);
-  const [status, setStatus] = useState(null); // null | "loading" | "success" | "error"
+  const [status, setStatus] = useState(null);
   const [message, setMessage] = useState("");
   const inputRef = useRef();
 
   const handleFile = (e) => setFile(e.target.files[0]);
 
-  const NUM_FIELDS = {
-    Cosecha: ["nro_bin","bruto","tara","neto","kgs_vuelco","stock_camara"],
-    Produccion: ["cant_bultos","kg_bruto","tara","kg_netos"],
-  };
-
-  const SCHEMAS = {
-    Cosecha: { fecha: {type:"string"}, turno: {type:"string"}, nro_bin: {type:"number"}, especie: {type:"string"}, propietario: {type:"string"}, tipo_cosecha: {type:"string"}, cuadrilla: {type:"string"}, procedencia: {type:"string"}, variedad: {type:"string"}, bruto: {type:"number"}, tara: {type:"number"}, neto: {type:"number"}, destino: {type:"string"}, tipo_proceso: {type:"string"}, fecha_vuelco: {type:"string"}, kgs_vuelco: {type:"number"}, stock_camara: {type:"number"} },
-    Produccion: { fecha: {type:"string"}, turno: {type:"string"}, productor: {type:"string"}, especie: {type:"string"}, variedad: {type:"string"}, categoria: {type:"string"}, envase: {type:"string"}, calibre: {type:"string"}, cant_bultos: {type:"number"}, tipo_palet: {type:"string"}, kg_bruto: {type:"number"}, tipo_caja: {type:"string"}, tara: {type:"number"}, kg_netos: {type:"number"}, nro_romaneo: {type:"string"} },
-  };
-
   const handleImport = async () => {
     if (!file) return;
     setStatus("loading");
-    const schemaProps = SCHEMAS[entity] || {};
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
-    const result = await base44.integrations.Core.ExtractDataFromUploadedFile({
-      file_url,
-      json_schema: { type: "object", properties: { records: { type: "array", items: { type: "object", properties: schemaProps } } } }
-    });
-    if (result.status !== "success") {
-      setStatus("error");
-      setMessage("No se pudo procesar el archivo. Verificá que el formato sea correcto.");
-      return;
+    const isCSV = file.name.toLowerCase().endsWith(".csv");
+    let records = [];
+
+    if (isCSV) {
+      const text = await file.text();
+      records = parseCSV(text);
+    } else {
+      // Excel: use AI extraction
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      const result = await base44.integrations.Core.ExtractDataFromUploadedFile({
+        file_url,
+        json_schema: { type: "object", properties: { records: { type: "array", items: { type: "object", properties: XLSX_SCHEMAS[entity] } } } }
+      });
+      if (result.status !== "success") {
+        setStatus("error");
+        setMessage("No se pudo procesar el archivo Excel. Verificá el formato o usá un CSV.");
+        return;
+      }
+      records = result.output?.records || (Array.isArray(result.output) ? result.output : []);
     }
-    const records = result.output?.records || (Array.isArray(result.output) ? result.output : []);
+
     if (records.length === 0) {
       setStatus("error");
-      setMessage("No se encontraron registros válidos en el archivo.");
+      setMessage("No se encontraron registros válidos. Verificá que el archivo tenga el formato correcto.");
       return;
     }
-    const numFields = NUM_FIELDS[entity] || [];
-    const cleaned = records.map(r => {
-      const row = { ...r };
-      numFields.forEach(f => {
-        if (row[f] === "" || row[f] === null || row[f] === undefined) delete row[f];
-        else row[f] = Number(row[f]);
-      });
-      // remove empty string fields that are not required
-      Object.keys(row).forEach(k => { if (row[k] === "") delete row[k]; });
-      return row;
-    });
+
+    const cleaned = cleanRecords(records, entity);
     await base44.entities[entity].bulkCreate(cleaned);
     setStatus("success");
-    setMessage(`Se importaron ${records.length} registros correctamente.`);
+    setMessage(`Se importaron ${cleaned.length} registros correctamente.`);
   };
 
   return (
