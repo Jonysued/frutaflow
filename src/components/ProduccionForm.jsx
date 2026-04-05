@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from "@/api/base44Client";
 import { format } from "date-fns";
 import MobileSelect from "@/components/MobileSelect";
@@ -40,7 +41,27 @@ export default function ProduccionForm({ item, onSave, onCancel }) {
     kg_netos: item?.kg_netos || "",
     nro_romaneo: item?.nro_romaneo || "",
   });
-  const [saving, setSaving] = useState(false);
+  const queryClient = useQueryClient();
+  const mutation = useMutation({
+    mutationFn: (data) => item?.id
+      ? base44.entities.Produccion.update(item.id, data)
+      : base44.entities.Produccion.create(data),
+    onMutate: async (newData) => {
+      await queryClient.cancelQueries({ queryKey: ['producciones'] });
+      const previous = queryClient.getQueryData(['producciones']);
+      queryClient.setQueryData(['producciones'], (old = []) =>
+        item?.id
+          ? old.map(p => p.id === item.id ? { ...p, ...newData } : p)
+          : [{ ...newData, id: 'temp-' + Date.now() }, ...old]
+      );
+      return { previous };
+    },
+    onError: (_err, _data, context) => {
+      if (context?.previous) queryClient.setQueryData(['producciones'], context.previous);
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['producciones'] }),
+    onSuccess: () => onSave(),
+  });
 
   useEffect(() => {
     Promise.all([
@@ -114,9 +135,8 @@ export default function ProduccionForm({ item, onSave, onCancel }) {
     }, 4000);
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setSaving(true);
     const data = {
       ...form,
       cant_bultos: Number(form.cant_bultos),
@@ -124,10 +144,7 @@ export default function ProduccionForm({ item, onSave, onCancel }) {
       tara: Number(form.tara),
       kg_netos: Number(form.kg_netos),
     };
-    if (item?.id) await base44.entities.Produccion.update(item.id, data);
-    else await base44.entities.Produccion.create(data);
-    setSaving(false);
-    onSave();
+    mutation.mutate(data);
   };
 
   const inputCls = "border rounded-lg px-2 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#276749]";
@@ -234,8 +251,8 @@ export default function ProduccionForm({ item, onSave, onCancel }) {
 
         <div className="col-span-2 sm:col-span-3 md:col-span-4 flex gap-2 justify-end pt-1">
           <button type="button" onClick={onCancel} className="px-4 py-2 border rounded-lg text-xs text-gray-600 hover:bg-gray-50">Cancelar</button>
-          <button type="submit" disabled={saving} className="px-4 py-2 bg-[#276749] text-white rounded-lg text-xs font-semibold hover:bg-[#1e5038] disabled:opacity-60">
-            {saving ? "Guardando..." : "Guardar"}
+          <button type="submit" disabled={mutation.isPending} className="px-4 py-2 bg-[#276749] text-white rounded-lg text-xs font-semibold hover:bg-[#1e5038] disabled:opacity-60">
+            {mutation.isPending ? "Guardando..." : "Guardar"}
           </button>
         </div>
       </form>

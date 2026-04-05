@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from "@/api/base44Client";
 import { format } from "date-fns";
 import MobileSelect from "@/components/MobileSelect";
@@ -44,7 +45,27 @@ export default function CosechaForm({ item, onSave, onCancel }) {
     stock_camara: item?.stock_camara || "",
     tipo_bin: item?.tipo_bin || "",
   });
-  const [saving, setSaving] = useState(false);
+  const queryClient = useQueryClient();
+  const mutation = useMutation({
+    mutationFn: (data) => item?.id
+      ? base44.entities.Cosecha.update(item.id, data)
+      : base44.entities.Cosecha.create(data),
+    onMutate: async (newData) => {
+      await queryClient.cancelQueries({ queryKey: ['cosechas'] });
+      const previous = queryClient.getQueryData(['cosechas']);
+      queryClient.setQueryData(['cosechas'], (old = []) =>
+        item?.id
+          ? old.map(c => c.id === item.id ? { ...c, ...newData } : c)
+          : [{ ...newData, id: 'temp-' + Date.now() }, ...old]
+      );
+      return { previous };
+    },
+    onError: (_err, _data, context) => {
+      if (context?.previous) queryClient.setQueryData(['cosechas'], context.previous);
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['cosechas'] }),
+    onSuccess: () => onSave(),
+  });
 
   useEffect(() => {
     Promise.all([
@@ -110,9 +131,8 @@ export default function CosechaForm({ item, onSave, onCancel }) {
     });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setSaving(true);
     const data = {
       ...form,
       bruto: Number(form.bruto),
@@ -121,10 +141,7 @@ export default function CosechaForm({ item, onSave, onCancel }) {
       kgs_vuelco: form.kgs_vuelco !== "" ? Number(form.kgs_vuelco) : null,
       stock_camara: form.stock_camara !== "" ? Number(form.stock_camara) : null,
     };
-    if (item?.id) await base44.entities.Cosecha.update(item.id, data);
-    else await base44.entities.Cosecha.create(data);
-    setSaving(false);
-    onSave();
+    mutation.mutate(data);
   };
 
   const inputCls = "border rounded-lg px-2 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#c0392b]";
@@ -236,8 +253,8 @@ export default function CosechaForm({ item, onSave, onCancel }) {
 
         <div className="col-span-2 sm:col-span-3 md:col-span-4 flex gap-2 justify-end pt-1">
           <button type="button" onClick={onCancel} className="px-4 py-2 border rounded-lg text-xs text-gray-600 hover:bg-gray-50">Cancelar</button>
-          <button type="submit" disabled={saving} className="px-4 py-2 bg-[#c0392b] text-white rounded-lg text-xs font-semibold hover:bg-[#a93226] disabled:opacity-60">
-            {saving ? "Guardando..." : "Guardar"}
+          <button type="submit" disabled={mutation.isPending} className="px-4 py-2 bg-[#c0392b] text-white rounded-lg text-xs font-semibold hover:bg-[#a93226] disabled:opacity-60">
+            {mutation.isPending ? "Guardando..." : "Guardar"}
           </button>
         </div>
       </form>

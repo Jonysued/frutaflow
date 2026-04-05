@@ -1,4 +1,5 @@
-import { useEffect, useState, useCallback } from "react";
+import { useState } from "react";
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
@@ -7,23 +8,22 @@ import ImportModal from "@/components/ImportModal";
 
 export default function Cosecha() {
   const navigate = useNavigate();
-  const [registros, setRegistros] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [showImport, setShowImport] = useState(false);
 
-  const load = useCallback(() => {
-    setLoading(true);
-    return base44.entities.Cosecha.list("-fecha", 50000).then(r => { setRegistros(r); setLoading(false); });
-  }, []);
+  const { data: registros = [], isLoading: loading, refetch } = useQuery({
+    queryKey: ['cosechas'],
+    queryFn: () => base44.entities.Cosecha.list('-fecha', 50000),
+    staleTime: 1000 * 60 * 5,
+  });
 
-  useEffect(() => { load(); }, []);
-
-  const { refreshing } = usePullToRefresh(load);
+  const { refreshing } = usePullToRefresh(refetch);
 
   const handleDelete = async (id) => {
     if (!confirm("¿Eliminar este BIN?")) return;
+    queryClient.setQueryData(['cosechas'], (old = []) => old.filter(r => r.id !== id));
     await base44.entities.Cosecha.delete(id);
-    load();
+    queryClient.invalidateQueries({ queryKey: ['cosechas'] });
   };
 
   const downloadTemplate = () => {
@@ -62,7 +62,7 @@ export default function Cosecha() {
       </div>
 
 
-      {showImport && <ImportModal entity="Cosecha" onClose={() => { setShowImport(false); load(); }} />}
+      {showImport && <ImportModal entity="Cosecha" onClose={() => { setShowImport(false); refetch(); }} />}
 
       {loading ? (
         <div className="flex justify-center py-16">

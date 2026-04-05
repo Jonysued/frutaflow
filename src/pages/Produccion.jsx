@@ -1,4 +1,5 @@
-import { useEffect, useState, useCallback } from "react";
+import { useState } from "react";
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
@@ -7,15 +8,30 @@ import ImportModal from "@/components/ImportModal";
 
 export default function Produccion() {
   const navigate = useNavigate();
-  const [registros, setRegistros] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [showImport, setShowImport] = useState(false);
-  const [filtros, setFiltros] = useState({ fecha: "", productor: "", envase: "", romaneo: "" });
+  const [filtros, setFiltros] = useState(() => {
+    try { return JSON.parse(sessionStorage.getItem('prod_filtros')) || { fecha: "", productor: "", envase: "", romaneo: "" }; }
+    catch { return { fecha: "", productor: "", envase: "", romaneo: "" }; }
+  });
   const [showFiltros, setShowFiltros] = useState(false);
 
-  const setFiltro = (k, v) => setFiltros(f => ({ ...f, [k]: v }));
-  const limpiarFiltros = () => setFiltros({ fecha: "", productor: "", envase: "", romaneo: "" });
+  const setFiltro = (k, v) => setFiltros(f => {
+    const next = { ...f, [k]: v };
+    sessionStorage.setItem('prod_filtros', JSON.stringify(next));
+    return next;
+  });
+  const limpiarFiltros = () => {
+    sessionStorage.removeItem('prod_filtros');
+    setFiltros({ fecha: "", productor: "", envase: "", romaneo: "" });
+  };
   const filtrosActivos = Object.values(filtros).some(v => v !== "");
+
+  const { data: registros = [], isLoading: loading, refetch } = useQuery({
+    queryKey: ['producciones'],
+    queryFn: () => base44.entities.Produccion.list('-fecha', 50000),
+    staleTime: 1000 * 60 * 5,
+  });
 
   const registrosFiltrados = registros.filter(r =>
     (!filtros.fecha || r.fecha === filtros.fecha) &&
@@ -24,19 +40,13 @@ export default function Produccion() {
     (!filtros.romaneo || (r.nro_romaneo || "").toLowerCase().includes(filtros.romaneo.toLowerCase()))
   );
 
-  const load = useCallback(() => {
-    setLoading(true);
-    return base44.entities.Produccion.list("-fecha", 50000).then(r => { setRegistros(r); setLoading(false); });
-  }, []);
-
-  useEffect(() => { load(); }, []);
-
-  const { refreshing } = usePullToRefresh(load);
+  const { refreshing } = usePullToRefresh(refetch);
 
   const handleDelete = async (id) => {
     if (!confirm("¿Eliminar este registro?")) return;
+    queryClient.setQueryData(['producciones'], (old = []) => old.filter(r => r.id !== id));
     await base44.entities.Produccion.delete(id);
-    load();
+    queryClient.invalidateQueries({ queryKey: ['producciones'] });
   };
 
   const downloadTemplate = () => {
@@ -112,7 +122,7 @@ export default function Produccion() {
       )}
 
 
-      {showImport && <ImportModal entity="Produccion" onClose={() => { setShowImport(false); load(); }} />}
+      {showImport && <ImportModal entity="Produccion" onClose={() => { setShowImport(false); refetch(); }} />}
 
       {loading ? (
         <div className="flex justify-center py-16">
