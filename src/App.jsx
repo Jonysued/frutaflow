@@ -7,7 +7,7 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
-import Cosecha from './pages/Cosecha.jsx';
+import Cosecha from './pages/Cosecha';
 import Produccion from './pages/Produccion';
 import Reportes from './pages/Reportes';
 import Configuracion from './pages/Configuracion';
