@@ -7,11 +7,6 @@ const NUM_FIELDS = {
   Produccion: ["cant_bultos","kg_bruto","tara","kg_netos"],
 };
 
-const NUM_REQUIRED = {
-  Cosecha: ["bruto","tara","neto"],
-  Produccion: ["cant_bultos","kg_bruto","kg_netos"],
-};
-
 const XLSX_SCHEMAS = {
   Cosecha: { fecha:{type:"string"}, turno:{type:"string"}, nro_bin:{type:"number"}, especie:{type:"string"}, propietario:{type:"string"}, tipo_cosecha:{type:"string"}, cuadrilla:{type:"string"}, procedencia:{type:"string"}, variedad:{type:"string"}, bruto:{type:"number"}, tara:{type:"number"}, neto:{type:"number"}, destino:{type:"string"}, tipo_proceso:{type:"string"}, fecha_vuelco:{type:"string"}, kgs_vuelco:{type:"number"}, stock_camara:{type:"number"} },
   Produccion: { fecha:{type:"string"}, turno:{type:"string"}, productor:{type:"string"}, especie:{type:"string"}, variedad:{type:"string"}, categoria:{type:"string"}, envase:{type:"string"}, calibre:{type:"string"}, cant_bultos:{type:"number"}, tipo_palet:{type:"string"}, kg_bruto:{type:"number"}, tipo_caja:{type:"string"}, tara:{type:"number"}, kg_netos:{type:"number"}, nro_romaneo:{type:"string"} },
@@ -39,17 +34,12 @@ function toNum(val) {
 
 function cleanRecords(records, entity) {
   const numFields = NUM_FIELDS[entity] || [];
-  const required = NUM_REQUIRED[entity] || [];
   return records.map(r => {
     const row = { ...r };
     numFields.forEach(f => {
       const n = toNum(row[f]);
-      if (n === null) {
-        if (required.includes(f)) row[f] = 0;
-        else delete row[f];
-      } else {
-        row[f] = n;
-      }
+      if (n === null) delete row[f];
+      else row[f] = n;
     });
     Object.keys(row).forEach(k => { if (row[k] === "") delete row[k]; });
     return row;
@@ -81,7 +71,7 @@ export default function ImportModal({ entity, onClose }) {
       });
       if (result.status !== "success") {
         setStatus("error");
-        setMessage("No se pudo procesar el archivo Excel. Verificá el formato o usá un CSV.");
+        setMessage("No se pudo procesar el archivo. Verificá el formato o usá un CSV.");
         return;
       }
       records = result.output?.records || (Array.isArray(result.output) ? result.output : []);
