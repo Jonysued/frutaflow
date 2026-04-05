@@ -84,5 +84,11 @@
 
   body {
     @apply bg-background text-foreground;
+    overscroll-behavior: none;
+  }
+
+  button, a {
+    user-select: none;
+    -webkit-user-select: none;
   }
 }

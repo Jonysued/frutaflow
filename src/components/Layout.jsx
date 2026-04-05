@@ -1,5 +1,5 @@
-import { Link, useLocation, Outlet } from "react-router-dom";
-import { LayoutDashboard, Wheat, Package, BarChart2, Settings, Menu, X } from "lucide-react";
+import { Link, useLocation, Outlet, useNavigate } from "react-router-dom";
+import { LayoutDashboard, Wheat, Package, BarChart2, Settings, Menu, X, ArrowLeft } from "lucide-react";
 import { useState } from "react";
 
 const navItems = [
@@ -12,7 +12,10 @@ const navItems = [
 
 export default function Layout() {
   const location = useLocation();
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const isRoot = ['/','/ cosecha','/produccion','/reportes','/configuracion'].includes(location.pathname);
+  const canGoBack = location.pathname.split('/').length > 2;
 
   return (
     <div className="h-screen flex bg-[#f8f0f1] overflow-hidden">
@@ -49,8 +52,13 @@ export default function Layout() {
       </aside>
 
       {/* Mobile header */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-[#5c1020] text-white px-4 py-3 flex items-center justify-between shadow-lg">
+      <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-[#5c1020] text-white px-4 flex items-center justify-between shadow-lg" style={{ paddingTop: 'calc(12px + env(safe-area-inset-top))', paddingBottom: '12px' }}>
         <div className="flex items-center gap-2">
+          {canGoBack ? (
+            <button onClick={() => navigate(-1)} className="p-1 mr-1">
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+          ) : null}
           <span className="text-lg">🍎</span>
           <span className="font-bold text-sm">FrutaPack</span>
         </div>
@@ -83,9 +91,27 @@ export default function Layout() {
       )}
 
       {/* Main content */}
-      <main className="flex-1 overflow-auto md:pt-0 pt-14">
+      <main className="flex-1 overflow-auto md:pt-0 pt-14 md:pb-0 pb-16">
         <Outlet />
       </main>
+
+      {/* Mobile bottom tab bar */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#5c1020] text-white flex" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+        {navItems.map(({ to, label, icon: Icon }) => (
+          <Link
+            key={to}
+            to={to}
+            className={`flex-1 flex flex-col items-center justify-center py-2 text-[10px] font-semibold transition-all ${
+              location.pathname === to || (to !== '/' && location.pathname.startsWith(to))
+                ? 'text-white'
+                : 'text-red-300 opacity-70'
+            }`}
+          >
+            <Icon className="w-5 h-5 mb-0.5" />
+            {label}
+          </Link>
+        ))}
+      </nav>
     </div>
   );
 }

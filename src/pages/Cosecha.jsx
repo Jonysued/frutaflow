@@ -1,14 +1,13 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Plus, Upload, Trash2, Download } from "lucide-react";
-import CosechaForm from "@/components/CosechaForm";
 import ImportModal from "@/components/ImportModal";
 
 export default function Cosecha() {
+  const navigate = useNavigate();
   const [registros, setRegistros] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
-  const [editItem, setEditItem] = useState(null);
   const [showImport, setShowImport] = useState(false);
 
   const load = () => {
@@ -23,8 +22,6 @@ export default function Cosecha() {
     await base44.entities.Cosecha.delete(id);
     load();
   };
-
-  const handleSave = () => { setShowForm(false); setEditItem(null); load(); };
 
   const downloadTemplate = () => {
     const sep = ";";
@@ -50,15 +47,13 @@ export default function Cosecha() {
           <button onClick={() => setShowImport(true)} className="flex items-center gap-1 px-3 py-2 border border-[#7a1a30] rounded-lg text-xs text-[#7a1a30] hover:bg-red-50">
             <Upload className="w-3.5 h-3.5" /> Importar Excel
           </button>
-          <button onClick={() => { setEditItem(null); setShowForm(true); }} className="flex items-center gap-1 px-4 py-2 bg-[#c0392b] text-white rounded-lg text-xs font-semibold hover:bg-[#a93226]">
+          <button onClick={() => navigate('/cosecha/new')} className="flex items-center gap-1 px-4 py-2 bg-[#c0392b] text-white rounded-lg text-xs font-semibold hover:bg-[#a93226]">
             <Plus className="w-3.5 h-3.5" /> Nuevo BIN
           </button>
         </div>
       </div>
 
-      {(showForm || editItem) && (
-        <CosechaForm item={editItem} onSave={handleSave} onCancel={() => { setShowForm(false); setEditItem(null); }} />
-      )}
+
       {showImport && <ImportModal entity="Cosecha" onClose={() => { setShowImport(false); load(); }} />}
 
       {loading ? (
@@ -109,7 +104,7 @@ export default function Cosecha() {
                     </td>
                     <td className="px-3 py-2.5 text-gray-600 text-xs hidden lg:table-cell">{r.tipo_proceso}</td>
                     <td className="px-3 py-2.5 text-center whitespace-nowrap">
-                      <button onClick={() => { setEditItem(r); setShowForm(true); }} className="text-[#c0392b] hover:underline text-xs mr-2">Editar</button>
+                      <button onClick={() => navigate(`/cosecha/edit/${r.id}`)} className="text-[#c0392b] hover:underline text-xs mr-2">Editar</button>
                       <button onClick={() => handleDelete(r.id)} className="text-gray-400 hover:text-red-600"><Trash2 className="w-3.5 h-3.5 inline" /></button>
                     </td>
                   </tr>

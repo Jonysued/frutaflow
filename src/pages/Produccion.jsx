@@ -1,14 +1,13 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Plus, Upload, Trash2, Download } from "lucide-react";
-import ProduccionForm from "@/components/ProduccionForm.jsx";
 import ImportModal from "@/components/ImportModal";
 
 export default function Produccion() {
+  const navigate = useNavigate();
   const [registros, setRegistros] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
-  const [editItem, setEditItem] = useState(null);
   const [showImport, setShowImport] = useState(false);
   const [filtros, setFiltros] = useState({ fecha: "", productor: "", envase: "", romaneo: "" });
   const [showFiltros, setShowFiltros] = useState(false);
@@ -36,8 +35,6 @@ export default function Produccion() {
     await base44.entities.Produccion.delete(id);
     load();
   };
-
-  const handleSave = () => { setShowForm(false); setEditItem(null); load(); };
 
   const downloadTemplate = () => {
     const sep = ";";
@@ -71,7 +68,7 @@ export default function Produccion() {
           <button onClick={() => setShowImport(true)} className="flex items-center gap-1 px-3 py-2 border border-[#7a1a30] rounded-lg text-xs text-[#7a1a30] hover:bg-red-50">
             <Upload className="w-3.5 h-3.5" /> Importar Excel
           </button>
-          <button onClick={() => { setEditItem(null); setShowForm(true); }} className="flex items-center gap-1 px-4 py-2 bg-[#c0392b] text-white rounded-lg text-xs font-semibold hover:bg-[#a93226]">
+          <button onClick={() => navigate('/produccion/new')} className="flex items-center gap-1 px-4 py-2 bg-[#c0392b] text-white rounded-lg text-xs font-semibold hover:bg-[#a93226]">
             <Plus className="w-3.5 h-3.5" /> Nuevo registro
           </button>
         </div>
@@ -106,9 +103,7 @@ export default function Produccion() {
         </div>
       )}
 
-      {(showForm || editItem) && (
-        <ProduccionForm item={editItem} onSave={handleSave} onCancel={() => { setShowForm(false); setEditItem(null); }} />
-      )}
+
       {showImport && <ImportModal entity="Produccion" onClose={() => { setShowImport(false); load(); }} />}
 
       {loading ? (
@@ -151,7 +146,7 @@ export default function Produccion() {
                     <td className="px-3 py-2.5 text-gray-600 hidden md:table-cell">{r.categoria}</td>
                     <td className="px-3 py-2.5 text-gray-600 hidden lg:table-cell font-mono text-xs">{r.nro_romaneo}</td>
                     <td className="px-3 py-2.5 text-center whitespace-nowrap">
-                      <button onClick={() => { setEditItem(r); setShowForm(true); }} className="text-[#c0392b] hover:underline text-xs mr-2">Editar</button>
+                      <button onClick={() => navigate(`/produccion/edit/${r.id}`)} className="text-[#c0392b] hover:underline text-xs mr-2">Editar</button>
                       <button onClick={() => handleDelete(r.id)} className="text-gray-400 hover:text-red-600"><Trash2 className="w-3.5 h-3.5 inline" /></button>
                     </td>
                   </tr>

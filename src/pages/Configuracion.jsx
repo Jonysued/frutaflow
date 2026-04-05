@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Settings, Box, Layers, Users, Send, Truck, MapPin, User, Tag, Leaf, Combine, Cog, Navigation, Ruler, LayoutList } from "lucide-react";
+import { Settings, Box, Layers, Users, Send, Truck, MapPin, User, Tag, Leaf, Combine, Cog, Navigation, Ruler, LayoutList, LogOut } from "lucide-react";
+import { base44 } from "@/api/base44Client";
 import ConfigTaras from "@/components/config/ConfigTaras";
 import ConfigEnvases from "@/components/config/ConfigEnvases";
 import ConfigBultosPaletSection from "@/components/config/ConfigBultosPalet";
@@ -25,6 +26,7 @@ const TABS = [
   { id: "bultos", label: "Bultos por Palet", icon: Layers },
   { id: "usuarios", label: "Usuarios y Roles", icon: Users },
   { id: "informes", label: "Enviar Informes", icon: Send },
+  { id: "cuenta", label: "Cuenta", icon: LogOut },
 ];
 
 export default function Configuracion() {
@@ -88,6 +90,20 @@ export default function Configuracion() {
         {tab === "bultos" && <ConfigBultosPaletSection />}
         {tab === "usuarios" && <ConfigUsuarios />}
         {tab === "informes" && <ConfigInformes />}
+        {tab === "cuenta" && (
+          <div className="space-y-4 max-w-sm">
+            <div>
+              <h3 className="font-semibold text-gray-800 text-sm">Cuenta</h3>
+              <p className="text-xs text-gray-500 mt-0.5">Gestioná tu sesión en la aplicación.</p>
+            </div>
+            <button
+              onClick={() => base44.auth.logout()}
+              className="flex items-center gap-2 px-4 py-2 bg-[#c0392b] text-white rounded-lg text-sm font-semibold hover:bg-[#a93226]"
+            >
+              <LogOut className="w-4 h-4" /> Cerrar sesión
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
