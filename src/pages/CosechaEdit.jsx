@@ -11,7 +11,7 @@ export default function CosechaEdit() {
   const [loading, setLoading] = useState(!!id);
 
   useEffect(() => {
-    if (id) {
+    if (id && !id.startsWith(':')) {
       base44.entities.Cosecha.filter({ id }).then(res => {
         setItem(res[0] || null);
         setLoading(false);

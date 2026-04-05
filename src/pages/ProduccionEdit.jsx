@@ -11,7 +11,7 @@ export default function ProduccionEdit() {
   const [loading, setLoading] = useState(!!id);
 
   useEffect(() => {
-    if (id) {
+    if (id && !id.startsWith(':')) {
       base44.entities.Produccion.filter({ id }).then(res => {
         setItem(res[0] || null);
         setLoading(false);
