@@ -3,12 +3,13 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Upload, Trash2 } from "lucide-react";
+import ImportModal from "@/components/ImportModal";
 
 export default function Produccion() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-
+  const [showImport, setShowImport] = useState(false);
   const [filtros, setFiltros] = useState(() => {
     try { return JSON.parse(sessionStorage.getItem('prod_filtros')) || { fecha: "", productor: "", envase: "", romaneo: "" }; }
     catch { return { fecha: "", productor: "", envase: "", romaneo: "" }; }
@@ -71,6 +72,9 @@ export default function Produccion() {
           >
             🔍 Filtros {filtrosActivos && `(activos)`}
           </button>
+          <button onClick={() => setShowImport(true)} className="flex items-center gap-1 px-3 py-2 border border-[#7a1a30] rounded-lg text-xs text-[#7a1a30] hover:bg-red-50">
+            <Upload className="w-3.5 h-3.5" /> Importar
+          </button>
           <button onClick={() => navigate('/produccion/new')} className="flex items-center gap-1 px-4 py-2 bg-[#c0392b] text-white rounded-lg text-xs font-semibold hover:bg-[#a93226]">
             <Plus className="w-3.5 h-3.5" /> Nuevo registro
           </button>
@@ -108,6 +112,8 @@ export default function Produccion() {
 
 
 
+
+      {showImport && <ImportModal entity="Produccion" onClose={() => { setShowImport(false); refetch(); }} />}
 
       {loading ? (
         <div className="flex justify-center py-16">
