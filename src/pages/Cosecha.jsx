@@ -4,8 +4,8 @@ import { Upload, Trash2, Download, Grid, Edit } from "lucide-react";
 
 import ImportModal from "@/components/ImportModal";
 import CosechaForm from "@/components/CosechaForm";
-import CosechaGridModal from "@/components/CosechaGridModal";
-import CosechaEdicionMasivaModal from "@/components/CosechaEdicionMasivaModal";
+import CosechaGridModal from "@/components/CosechaGridModal.jsx";
+import CosechaEdicionMasivaModal from "@/components/CosechaEdicionMasivaModal.jsx";
 
 export default function Cosecha() {
   const [registros, setRegistros] = useState([]);
@@ -14,7 +14,6 @@ export default function Cosecha() {
   const [showImport, setShowImport] = useState(false);
   const [showGrid, setShowGrid] = useState(false);
   const [editItem, setEditItem] = useState(null);
-  const [showForm, setShowForm] = useState(false);
 
   const load = () => {
     setLoading(true);
@@ -119,7 +118,7 @@ export default function Cosecha() {
                     </td>
                     <td className="px-3 py-2.5 text-gray-600 text-xs hidden lg:table-cell">{r.tipo_proceso}</td>
                     <td className="px-3 py-2.5 text-center whitespace-nowrap">
-                      <button onClick={() => { setEditItem(r); setShowForm(true); }} className="text-[#c0392b] hover:underline text-xs mr-2">Editar</button>
+                      <button onClick={() => setEditItem(r)} className="text-[#c0392b] hover:underline text-xs mr-2">Editar</button>
                       <button onClick={() => handleDelete(r.id)} className="text-gray-400 hover:text-red-600"><Trash2 className="w-3.5 h-3.5 inline" /></button>
                     </td>
                   </tr>
