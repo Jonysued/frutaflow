@@ -180,7 +180,7 @@ export default function CosechaForm({ item, onSave, onCancel }) {
         <F label="Tara BIN (kg)">
           <input type="number" min="0" value={form.tara} onChange={e => handleTara(e.target.value)} className={`${inputCls} bg-gray-50`} />
         </F>
-        <F label="Neto (kg) = Bruto − Tara">
+        <F label="Neto (kg)">
           <input type="number" required value={form.neto} onChange={e => set("neto", e.target.value)} className={`${inputCls} bg-gray-50 font-semibold`} />
         </F>
         <F label="Destino">

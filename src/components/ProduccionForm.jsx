@@ -188,7 +188,7 @@ export default function ProduccionForm({ item, onSave, onCancel }) {
           <input type="number" required min="0" value={form.kg_bruto} onChange={e => handleBruto(e.target.value)} className={inputCls} />
         </F>
         <F label="Tipo de Caja">
-          <input value={form.tipo_caja} onChange={e => set("tipo_caja", e.target.value)} placeholder="Ej: wenco" className={inputCls} />
+          <input value={form.tipo_caja} onChange={e => set("tipo_caja", e.target.value)} className={inputCls} />
         </F>
         <F label="Tara auto (kg)">
           <input type="number" value={form.tara} onChange={e => set("tara", e.target.value)} className={`${inputCls} bg-gray-50`} />
@@ -196,7 +196,7 @@ export default function ProduccionForm({ item, onSave, onCancel }) {
         <F label="Kg. Netos *">
           <input type="number" required value={form.kg_netos} onChange={e => set("kg_netos", e.target.value)} className={`${inputCls} bg-gray-50 font-semibold`} />
         </F>
-        <F label="N° de Romaneo"><input value={form.nro_romaneo} onChange={e => set("nro_romaneo", e.target.value)} placeholder="Ej: W1" className={inputCls} /></F>
+        <F label="N° de Romaneo"><input value={form.nro_romaneo} onChange={e => set("nro_romaneo", e.target.value)} className={inputCls} /></F>
         <div className="col-span-2 sm:col-span-3 md:col-span-4 flex gap-2 justify-end pt-1">
           <button type="button" onClick={onCancel} className="px-4 py-2 border rounded-lg text-xs text-gray-600 hover:bg-gray-50">Cancelar</button>
           <button type="submit" disabled={saving} className="px-4 py-2 bg-[#276749] text-white rounded-lg text-xs font-semibold hover:bg-[#1e5038] disabled:opacity-60">

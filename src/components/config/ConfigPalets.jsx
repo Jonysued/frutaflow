@@ -5,6 +5,7 @@ import { Plus, Trash2, Save } from "lucide-react";
 function PaletRow({ item, onDelete, onUpdate }) {
   const [form, setForm] = useState({ nombre: item.nombre, tara_kg: item.tara_kg || "", descripcion: item.descripcion || "" });
   const [saving, setSaving] = useState(false);
+  const inputCls = "border rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#c0392b] w-full";
 
   const save = async () => {
     setSaving(true);
@@ -13,12 +14,10 @@ function PaletRow({ item, onDelete, onUpdate }) {
     onUpdate();
   };
 
-  const inputCls = "border rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#c0392b] w-full";
-
   return (
     <tr className="border-b">
       <td className="px-3 py-2"><input value={form.nombre} onChange={e => setForm(f => ({ ...f, nombre: e.target.value }))} className={inputCls} /></td>
-      <td className="px-3 py-2 w-28"><input type="number" step="0.1" value={form.tara_kg} onChange={e => setForm(f => ({ ...f, tara_kg: e.target.value }))} className={inputCls} placeholder="-" /></td>
+      <td className="px-3 py-2 w-28"><input type="number" step="0.1" value={form.tara_kg} onChange={e => setForm(f => ({ ...f, tara_kg: e.target.value }))} className={inputCls} /></td>
       <td className="px-3 py-2"><input value={form.descripcion} onChange={e => setForm(f => ({ ...f, descripcion: e.target.value }))} className={inputCls} /></td>
       <td className="px-3 py-2 flex gap-1 justify-end">
         <button onClick={save} disabled={saving} className="p-1.5 bg-[#c0392b] text-white rounded-lg hover:bg-[#a93226]"><Save className="w-3.5 h-3.5" /></button>
@@ -57,7 +56,7 @@ export default function ConfigPalets() {
     <div className="space-y-4">
       <div>
         <h3 className="font-semibold text-gray-800 text-sm">Tipos de Palet</h3>
-        <p className="text-xs text-gray-500 mt-0.5">Definí los tipos de palet disponibles para seleccionar en producción.</p>
+        <p className="text-xs text-gray-500 mt-0.5">Configurá los tipos de palet con su tara en kg.</p>
       </div>
       <div className="overflow-x-auto border rounded-xl">
         <table className="w-full text-sm">
@@ -72,7 +71,7 @@ export default function ConfigPalets() {
           <tbody>
             {items.map(item => <PaletRow key={item.id} item={item} onDelete={handleDelete} onUpdate={load} />)}
             <tr className="border-t bg-gray-50">
-              <td className="px-3 py-2"><input value={newRow.nombre} onChange={e => setNewRow(f => ({ ...f, nombre: e.target.value }))} className={inputCls} placeholder="Ej: Comun, Euro, CHEP" /></td>
+              <td className="px-3 py-2"><input value={newRow.nombre} onChange={e => setNewRow(f => ({ ...f, nombre: e.target.value }))} className={inputCls} placeholder="Ej: Comun, Exportación" /></td>
               <td className="px-3 py-2"><input type="number" step="0.1" value={newRow.tara_kg} onChange={e => setNewRow(f => ({ ...f, tara_kg: e.target.value }))} className={inputCls} placeholder="kg" /></td>
               <td className="px-3 py-2"><input value={newRow.descripcion} onChange={e => setNewRow(f => ({ ...f, descripcion: e.target.value }))} className={inputCls} placeholder="Opcional" /></td>
               <td className="px-3 py-2">
