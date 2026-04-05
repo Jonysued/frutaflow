@@ -80,13 +80,10 @@ export default function ResumenRomaneo({ producciones }) {
         <p className="text-xs text-gray-400">Palets terminados y totales acumulados. Hacé clic en una fila para ver el detalle.</p>
       </div>
 
-      {/* Detalle del romaneo seleccionado */}
       {selectedData && (() => {
-        // Agrupar todos los registros del romaneo seleccionado por letra
         const porLetra = {};
         selectedData.registros.forEach(p => {
           const nro = p.nro_romaneo || "";
-          // Extraer letra(s) iniciales y número final
           const match = nro.match(/^([A-Za-z]+)(\d+)$/);
           const letra = match ? match[1].toUpperCase() : nro || "?";
           const num = match ? parseInt(match[2]) : 0;
@@ -104,8 +101,6 @@ export default function ResumenRomaneo({ producciones }) {
               <X className="w-4 h-4" />
             </button>
             <h3 className="font-bold text-[#276749] text-sm mb-3">Detalle — Romaneo {selectedData.rom}</h3>
-
-            {/* Por letra */}
             <div className="mb-4">
               <p className="text-xs text-gray-500 font-semibold uppercase mb-2">Palets por letra</p>
               <div className="flex flex-wrap gap-3">
@@ -120,12 +115,10 @@ export default function ResumenRomaneo({ producciones }) {
                 ))}
               </div>
             </div>
-
           </div>
         );
       })()}
 
-      {/* Tabla */}
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
@@ -138,7 +131,6 @@ export default function ResumenRomaneo({ producciones }) {
                 </th>
               ))}
             </tr>
-            {/* Fila de filtros */}
             <tr className="bg-[#f0faf5] border-b border-[#276749]/20 text-xs">
               {COLS.map(col => (
                 <td key={col.key} className="px-2 py-1.5">

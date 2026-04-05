@@ -7,7 +7,6 @@ const NUM_FIELDS = {
   Produccion: ["cant_bultos","kg_bruto","tara","kg_netos"],
 };
 
-// Required numeric fields — default to 0 if empty instead of deleting
 const NUM_REQUIRED = {
   Cosecha: ["bruto","tara","neto"],
   Produccion: ["cant_bultos","kg_bruto","kg_netos"],
@@ -33,7 +32,6 @@ function parseCSV(text) {
 
 function toNum(val) {
   if (val === "" || val == null) return null;
-  // Handle Spanish decimal comma: "1.234,56" → 1234.56
   const s = String(val).trim().replace(/\./g, "").replace(",", ".");
   const n = Number(s);
   return isNaN(n) ? null : n;
@@ -76,7 +74,6 @@ export default function ImportModal({ entity, onClose }) {
       const text = await file.text();
       records = parseCSV(text);
     } else {
-      // Excel: use AI extraction
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
       const result = await base44.integrations.Core.ExtractDataFromUploadedFile({
         file_url,

@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { Upload, Trash2, Download, Grid, Edit } from "lucide-react";
-
 import ImportModal from "@/components/ImportModal";
 import CosechaForm from "@/components/CosechaForm";
-import CosechaGridModal from "@/components/CosechaGridModal.jsx";
-import CosechaEdicionMasivaModal from "@/components/CosechaEdicionMasivaModal.jsx";
+import CosechaGridModal from "@/components/CosechaGridModal";
+import CosechaEdicionMasivaModal from "@/components/CosechaEdicionMasivaModal";
 
 export default function Cosecha() {
   const [registros, setRegistros] = useState([]);

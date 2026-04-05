@@ -15,7 +15,6 @@ function F({ label, children }) {
   );
 }
 
-// ─── MODO REGISTRAR ───────────────────────────────────────────────────────────
 function RegistrarBIN() {
   const [scanning, setScanning] = useState(false);
   const [form, setForm] = useState({
@@ -35,7 +34,7 @@ function RegistrarBIN() {
   const [cuadrillas, setCuadrillas] = useState([]);
   const [procedencias, setProcedencias] = useState([]);
   const [saving, setSaving] = useState(false);
-  const [resultado, setResultado] = useState(null); // { ok, msg }
+  const [resultado, setResultado] = useState(null);
 
   useEffect(() => {
     Promise.all([
@@ -57,12 +56,10 @@ function RegistrarBIN() {
 
   const handleScan = (text) => {
     setScanning(false);
-    // Intentar parsear JSON del QR
     try {
       const data = JSON.parse(text);
       setForm(f => ({ ...f, ...data }));
     } catch {
-      // Si no es JSON, asumir que es el nro_bin
       setForm(f => ({ ...f, nro_bin: text.trim() }));
     }
   };
@@ -93,7 +90,6 @@ function RegistrarBIN() {
 
   return (
     <div className="space-y-5">
-      {/* Escáner QR */}
       <div className="bg-white rounded-xl border border-[#f8d7da] p-4 space-y-3">
         <div className="flex items-center justify-between">
           <p className="text-sm font-semibold text-[#5c1020]">Escanear QR del BIN</p>
@@ -115,7 +111,6 @@ function RegistrarBIN() {
         )}
       </div>
 
-      {/* Formulario */}
       <div className="bg-white rounded-xl border border-[#f8d7da] p-4">
         <p className="text-sm font-semibold text-[#5c1020] mb-3">Datos del BIN</p>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -184,11 +179,10 @@ function RegistrarBIN() {
   );
 }
 
-// ─── MODO PESAR ───────────────────────────────────────────────────────────────
 function PesarBIN() {
   const [scanning, setScanning] = useState(false);
-  const [binsEscaneados, setBinsEscaneados] = useState([]); // lista de ids de bins
-  const [registros, setRegistros] = useState([]); // registros Cosecha encontrados
+  const [binsEscaneados, setBinsEscaneados] = useState([]);
+  const [registros, setRegistros] = useState([]);
   const [configTaras, setConfigTaras] = useState([]);
   const [brutoTotal, setBrutoTotal] = useState("");
   const [tipoBin, setTipoBin] = useState("");
@@ -201,10 +195,8 @@ function PesarBIN() {
 
   const handleScan = async (text) => {
     const nro = text.trim();
-    if (binsEscaneados.includes(nro)) return; // ya escaneado
-    // Buscar el BIN en la BD
+    if (binsEscaneados.includes(nro)) return;
     const results = await base44.entities.Cosecha.filter({ nro_bin: nro });
-    // Tomar el más reciente sin peso asignado
     const sinPeso = results.find(r => !r.bruto || r.bruto === 0);
     if (sinPeso) {
       setBinsEscaneados(prev => [...prev, nro]);
@@ -252,7 +244,6 @@ function PesarBIN() {
 
   return (
     <div className="space-y-5">
-      {/* Escáner */}
       <div className="bg-white rounded-xl border border-[#f8d7da] p-4 space-y-3">
         <div className="flex items-center justify-between">
           <p className="text-sm font-semibold text-[#5c1020]">Escanear BINs a pesar</p>
@@ -276,7 +267,6 @@ function PesarBIN() {
         <QrScanner active={scanning} onScan={handleScan} />
       </div>
 
-      {/* BINs escaneados */}
       {registros.length > 0 && (
         <div className="bg-white rounded-xl border border-[#f8d7da] p-4 space-y-3">
           <p className="text-sm font-semibold text-[#5c1020]">{registros.length} BIN(s) escaneados</p>
@@ -290,7 +280,6 @@ function PesarBIN() {
         </div>
       )}
 
-      {/* Peso */}
       <div className="bg-white rounded-xl border border-[#f8d7da] p-4 space-y-3">
         <p className="text-sm font-semibold text-[#5c1020]">Asignar peso</p>
         <div className="grid grid-cols-2 gap-3">
@@ -331,7 +320,6 @@ function PesarBIN() {
   );
 }
 
-// ─── PÁGINA PRINCIPAL ─────────────────────────────────────────────────────────
 export default function Registro() {
   const [modo, setModo] = useState("registrar");
 
@@ -342,7 +330,6 @@ export default function Registro() {
         <p className="text-sm text-gray-500">Registro individual de BINs mediante escaneo QR</p>
       </div>
 
-      {/* Toggle */}
       <div className="flex rounded-xl overflow-hidden border border-[#c0392b] w-fit">
         <button
           onClick={() => setModo("registrar")}

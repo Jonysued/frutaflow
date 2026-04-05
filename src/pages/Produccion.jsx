@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { Plus, Upload, Trash2, Download } from "lucide-react";
-import ProduccionForm from "@/components/ProduccionForm.jsx";
+import ProduccionForm from "@/components/ProduccionForm";
 import ImportModal from "@/components/ImportModal";
 
 export default function Produccion() {
@@ -57,12 +57,7 @@ export default function Produccion() {
           <p className="text-sm text-gray-500">Kilos procesados, bultos y romaneos</p>
         </div>
         <div className="flex gap-2 flex-wrap">
-          <button
-            onClick={() => setShowFiltros(f => !f)}
-            className={`flex items-center gap-1 px-3 py-2 border rounded-lg text-xs font-semibold transition-all ${
-              filtrosActivos ? "bg-[#276749] text-white border-[#276749]" : "border-gray-200 text-gray-600 hover:bg-gray-50"
-            }`}
-          >
+          <button onClick={() => setShowFiltros(f => !f)} className={`flex items-center gap-1 px-3 py-2 border rounded-lg text-xs font-semibold transition-all ${filtrosActivos ? "bg-[#276749] text-white border-[#276749]" : "border-gray-200 text-gray-600 hover:bg-gray-50"}`}>
             🔍 Filtros {filtrosActivos && `(activos)`}
           </button>
           <button onClick={downloadTemplate} className="flex items-center gap-1 px-3 py-2 border border-gray-200 rounded-lg text-xs text-gray-600 hover:bg-gray-50">
@@ -135,7 +130,7 @@ export default function Produccion() {
               </thead>
               <tbody>
                 {registrosFiltrados.length === 0 && (
-                  <tr><td colSpan={13} className="text-center py-10 text-gray-400">No hay registros aún. Importá tu planilla Excel o cargá manualmente.</td></tr>
+                  <tr><td colSpan={10} className="text-center py-10 text-gray-400">No hay registros aún.</td></tr>
                 )}
                 {registrosFiltrados.map((r, i) => (
                   <tr key={r.id} className={i % 2 === 0 ? "bg-white" : "bg-[#f4fbf7]"}>
