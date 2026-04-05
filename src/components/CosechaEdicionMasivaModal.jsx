@@ -1,9 +1,9 @@
 import { useEffect, useState, useRef } from "react";
 import { HotTable } from "@handsontable/react";
-import { registerAllModules } from "handsontable/registry";
-import "handsontable/dist/handsontable.full.min.css";
 import { base44 } from "@/api/base44Client";
 import { X, Save, Search } from "lucide-react";
+import { registerAllModules } from "handsontable/registry";
+import "handsontable/dist/handsontable.full.min.css";
 
 registerAllModules();
 
