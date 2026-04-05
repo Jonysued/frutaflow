@@ -11,6 +11,10 @@ export default function Cosecha() {
   const [registros, setRegistros] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showEdicionMasiva, setShowEdicionMasiva] = useState(false);
+  const [showImport, setShowImport] = useState(false);
+  const [showGrid, setShowGrid] = useState(false);
+  const [editItem, setEditItem] = useState(null);
+  const [showForm, setShowForm] = useState(false);
 
   const load = () => {
     setLoading(true);
