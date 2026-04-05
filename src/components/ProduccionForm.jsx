@@ -130,6 +130,7 @@ export default function ProduccionForm({ item, onSave, onCancel }) {
   };
 
   const inputCls = "border rounded-lg px-2 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#276749]";
+
   const paletOpciones = tiposPalet.length > 0
     ? tiposPalet.map(p => p.nombre)
     : [...new Set(configPalets.map(p => p.tipo_palet))];
@@ -144,59 +145,73 @@ export default function ProduccionForm({ item, onSave, onCancel }) {
             {TURNOS.map(t => <option key={t}>{t}</option>)}
           </select>
         </F>
+
         <F label="Productor">
           <select value={form.productor} onChange={e => set("productor", e.target.value)} className={inputCls}>
             <option value="">-- Seleccionar --</option>
             {productores.map(p => <option key={p.id} value={p.nombre}>{p.nombre}</option>)}
           </select>
         </F>
+
         <F label="Especie *"><input required value={form.especie} onChange={e => set("especie", e.target.value)} className={inputCls} /></F>
+
         <F label="Variedad *">
           <select required value={form.variedad} onChange={e => set("variedad", e.target.value)} className={inputCls}>
             <option value="">-- Seleccionar --</option>
             {variedades.map(v => <option key={v.id} value={v.nombre}>{v.nombre}</option>)}
           </select>
         </F>
+
         <F label="Categoría">
           <select value={form.categoria} onChange={e => set("categoria", e.target.value)} className={inputCls}>
             <option value="">-- Seleccionar --</option>
             {categorias.map(c => <option key={c.id} value={c.nombre}>{c.nombre}</option>)}
           </select>
         </F>
+
         <F label="Envase">
           <select value={form.envase} onChange={e => handleEnvase(e.target.value)} className={inputCls}>
             <option value="">-- Seleccionar --</option>
             {envases.map(e => <option key={e.id} value={e.nombre}>{e.nombre} ({e.tara_kg} kg/u)</option>)}
           </select>
         </F>
+
         <F label="Calibre">
           <select value={form.calibre} onChange={e => set("calibre", e.target.value)} className={inputCls}>
             <option value="">-- Seleccionar --</option>
             {calibres.map(c => <option key={c.id} value={c.nombre}>{c.nombre}</option>)}
           </select>
         </F>
+
         <F label="Tipo de palet">
           <select value={form.tipo_palet} onChange={e => handlePalet(e.target.value)} className={inputCls}>
             <option value="">-- Seleccionar --</option>
             {paletOpciones.map(p => <option key={p} value={p}>{p}</option>)}
           </select>
         </F>
+
         <F label="Cant. de bultos *">
           <input type="number" required min="0" value={form.cant_bultos} onChange={e => handleBultos(e.target.value)} className={inputCls} />
         </F>
+
         <F label="Kg. Bruto *">
           <input type="number" required min="0" value={form.kg_bruto} onChange={e => handleBruto(e.target.value)} className={inputCls} />
         </F>
+
         <F label="Tipo de Caja">
-          <input value={form.tipo_caja} onChange={e => set("tipo_caja", e.target.value)} className={inputCls} />
+          <input value={form.tipo_caja} onChange={e => set("tipo_caja", e.target.value)} placeholder="Ej: wenco" className={inputCls} />
         </F>
+
         <F label="Tara auto (kg)">
           <input type="number" value={form.tara} onChange={e => set("tara", e.target.value)} className={`${inputCls} bg-gray-50`} />
         </F>
+
         <F label="Kg. Netos *">
           <input type="number" required value={form.kg_netos} onChange={e => set("kg_netos", e.target.value)} className={`${inputCls} bg-gray-50 font-semibold`} />
         </F>
-        <F label="N° de Romaneo"><input value={form.nro_romaneo} onChange={e => set("nro_romaneo", e.target.value)} className={inputCls} /></F>
+
+        <F label="N° de Romaneo"><input value={form.nro_romaneo} onChange={e => set("nro_romaneo", e.target.value)} placeholder="Ej: W1" className={inputCls} /></F>
+
         <div className="col-span-2 sm:col-span-3 md:col-span-4 flex gap-2 justify-end pt-1">
           <button type="button" onClick={onCancel} className="px-4 py-2 border rounded-lg text-xs text-gray-600 hover:bg-gray-50">Cancelar</button>
           <button type="submit" disabled={saving} className="px-4 py-2 bg-[#276749] text-white rounded-lg text-xs font-semibold hover:bg-[#1e5038] disabled:opacity-60">

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { format, differenceInDays, parseISO } from "date-fns";
+import { es } from "date-fns/locale";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { Wheat, Package, Layers, TrendingUp, AlertTriangle, Thermometer, Trash2 } from "lucide-react";
 
@@ -65,75 +66,6 @@ function TurnoCard({ turno, cosechaKg, produccionKg, bultos }) {
   );
 }
 
-function BinsCamaraSection({ bins }) {
-  const [umbral, setUmbral] = useState(7);
-  const vencidos = bins.filter(b => b.diasEnCamara >= umbral);
-
-  return (
-    <div>
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
-        <div className="flex items-center gap-2">
-          <Thermometer className="w-5 h-5 text-blue-600" />
-          <h2 className="text-base font-semibold text-[#5c1020]">BINs en Cámara sin procesar</h2>
-          <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">{bins.length} BINs</span>
-          {vencidos.length > 0 && (
-            <span className="text-xs bg-red-100 text-red-700 font-semibold px-2 py-0.5 rounded-full flex items-center gap-1">
-              <AlertTriangle className="w-3 h-3" /> {vencidos.length} superan umbral
-            </span>
-          )}
-        </div>
-        <div className="flex items-center gap-2 text-sm">
-          <label className="text-gray-500 text-xs">Alerta después de</label>
-          <input
-            type="number"
-            min={1}
-            value={umbral}
-            onChange={e => setUmbral(Number(e.target.value))}
-            className="w-16 border rounded-lg px-2 py-1 text-sm text-center focus:outline-none focus:ring-1 focus:ring-[#c0392b]"
-          />
-          <span className="text-gray-500 text-xs">días</span>
-        </div>
-      </div>
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-[#1a4a6b] text-white text-xs">
-              <tr>
-                <th className="px-3 py-3 text-left">BIN</th>
-                <th className="px-3 py-3 text-left">Fecha ingreso</th>
-                <th className="px-3 py-3 text-left hidden sm:table-cell">Propietario</th>
-                <th className="px-3 py-3 text-left hidden sm:table-cell">Variedad</th>
-                <th className="px-3 py-3 text-right">Neto (kg)</th>
-                <th className="px-3 py-3 text-center">Días en cámara</th>
-              </tr>
-            </thead>
-            <tbody>
-              {bins.map((b, i) => {
-                const alerta = b.diasEnCamara >= umbral;
-                return (
-                  <tr key={b.id} className={alerta ? "bg-red-50 border-l-4 border-red-400" : i % 2 === 0 ? "bg-white" : "bg-blue-50/30"}>
-                    <td className="px-3 py-2.5 font-mono font-bold text-[#1a4a6b]">{b.nro_bin}</td>
-                    <td className="px-3 py-2.5 text-gray-700">{b.fecha}</td>
-                    <td className="px-3 py-2.5 text-gray-600 hidden sm:table-cell">{b.propietario}</td>
-                    <td className="px-3 py-2.5 text-gray-600 hidden sm:table-cell">{b.variedad}</td>
-                    <td className="px-3 py-2.5 text-right text-gray-700">{b.neto?.toLocaleString()}</td>
-                    <td className="px-3 py-2.5 text-center">
-                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold ${alerta ? "bg-red-100 text-red-700" : "bg-blue-100 text-blue-700"}`}>
-                        {alerta && <AlertTriangle className="w-3 h-3" />}
-                        {b.diasEnCamara}d
-                      </span>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export default function Dashboard() {
   const [cosechas, setCosechas] = useState([]);
   const [producciones, setProducciones] = useState([]);
@@ -150,6 +82,7 @@ export default function Dashboard() {
       setCosechas(c);
       setProducciones(p);
       setLoading(false);
+      // Default to latest date with data
       if (!fechaIniciada) {
         const todasFechas = [...new Set([...c.map(x => x.fecha_vuelco).filter(Boolean), ...p.map(x => x.fecha)])].filter(Boolean).sort();
         if (todasFechas.length > 0) setFecha(todasFechas[todasFechas.length - 1]);
@@ -158,22 +91,34 @@ export default function Dashboard() {
     });
   }, []);
 
+  // Cosecha: filtrar por fecha_vuelco (cuando el BIN fue volcado/procesado)
   const cosechasDia = cosechas.filter(c => c.fecha_vuelco === fecha);
+  // Producción: filtrar por fecha de producción
   const produccionesDia = producciones.filter(p => p.fecha === fecha);
+
+  // Cosecha = suma de netos del día
   const totalCosechaKg = cosechasDia.reduce((s, c) => s + (c.neto || 0), 0);
+  // Producción = suma de kg_netos del día
   const totalProdKg = produccionesDia.reduce((s, p) => s + (p.kg_netos || 0), 0);
+  // Bultos totales
   const totalBultos = produccionesDia.reduce((s, p) => s + (p.cant_bultos || 0), 0);
+  // Rendimiento = producción / cosecha
   const rendimientoDia = totalCosechaKg > 0 ? (totalProdKg / totalCosechaKg) * 100 : 0;
 
   const turnosActivos = TURNOS.filter(t =>
     cosechasDia.some(c => c.turno === t) || produccionesDia.some(p => p.turno === t)
   );
 
+  // Chart last 7 unique dates (cosecha por fecha_vuelco, producción por fecha)
   const fechas = [...new Set([...cosechas.map(c => c.fecha_vuelco).filter(Boolean), ...producciones.map(p => p.fecha)])].sort().slice(-7);
   const chartData = fechas.map(f => {
     const cKg = cosechas.filter(c => c.fecha_vuelco === f).reduce((s, c) => s + (c.neto || 0), 0);
     const pKg = producciones.filter(p => p.fecha === f).reduce((s, p) => s + (p.kg_netos || 0), 0);
-    return { fecha: f.slice(5), "Cosecha (kg neto)": cKg, "Producción (kg neto)": pKg };
+    return {
+      fecha: f.slice(5),
+      "Cosecha (kg neto)": cKg,
+      "Producción (kg neto)": pKg,
+    };
   });
 
   return (
@@ -183,7 +128,12 @@ export default function Dashboard() {
           <h1 className="text-2xl font-bold text-[#5c1020]">Dashboard</h1>
           <p className="text-sm text-gray-500">Balance por fecha de vuelco y fecha de producción</p>
         </div>
-        <input type="date" value={fecha} onChange={e => setFecha(e.target.value)} className="border border-gray-200 rounded-lg px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-[#c0392b]" />
+        <input
+          type="date"
+          value={fecha}
+          onChange={e => setFecha(e.target.value)}
+          className="border border-gray-200 rounded-lg px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-[#c0392b]"
+        />
       </div>
 
       {loading ? (
@@ -222,6 +172,7 @@ export default function Dashboard() {
             )}
           </div>
 
+          {/* Por Productor */}
           {(() => {
             const productores = [...new Set([
               ...cosechasDia.map(c => c.propietario || c.productor).filter(Boolean),
@@ -271,14 +222,22 @@ export default function Dashboard() {
             );
           })()}
 
+          {/* BINs en Cámara */}
           {(() => {
             const hoy = new Date();
             const binsEnCamara = cosechas
               .filter(c => c.destino === "CAMARA" && !c.fecha_vuelco && !c.kgs_vuelco)
-              .map(c => ({ ...c, diasEnCamara: c.fecha ? differenceInDays(hoy, parseISO(c.fecha)) : 0 }))
+              .map(c => ({
+                ...c,
+                diasEnCamara: c.fecha ? differenceInDays(hoy, parseISO(c.fecha)) : 0
+              }))
               .sort((a, b) => b.diasEnCamara - a.diasEnCamara);
+
             if (binsEnCamara.length === 0) return null;
-            return <BinsCamaraSection bins={binsEnCamara} />;
+
+            return (
+              <BinsCamaraSection bins={binsEnCamara} />
+            );
           })()}
 
           {chartData.length > 0 && (
@@ -298,6 +257,79 @@ export default function Dashboard() {
           )}
         </>
       )}
+    </div>
+  );
+}
+
+function BinsCamaraSection({ bins }) {
+  const [umbral, setUmbral] = useState(7);
+  const vencidos = bins.filter(b => b.diasEnCamara >= umbral);
+  const ok = bins.filter(b => b.diasEnCamara < umbral);
+
+  return (
+    <div>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
+        <div className="flex items-center gap-2">
+          <Thermometer className="w-5 h-5 text-blue-600" />
+          <h2 className="text-base font-semibold text-[#5c1020]">BINs en Cámara sin procesar</h2>
+          <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">{bins.length} BINs</span>
+          {vencidos.length > 0 && (
+            <span className="text-xs bg-red-100 text-red-700 font-semibold px-2 py-0.5 rounded-full flex items-center gap-1">
+              <AlertTriangle className="w-3 h-3" /> {vencidos.length} superan umbral
+            </span>
+          )}
+        </div>
+        <div className="flex items-center gap-2 text-sm">
+          <label className="text-gray-500 text-xs">Alerta después de</label>
+          <input
+            type="number"
+            min={1}
+            value={umbral}
+            onChange={e => setUmbral(Number(e.target.value))}
+            className="w-16 border rounded-lg px-2 py-1 text-sm text-center focus:outline-none focus:ring-1 focus:ring-[#c0392b]"
+          />
+          <span className="text-gray-500 text-xs">días</span>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-[#1a4a6b] text-white text-xs">
+              <tr>
+                <th className="px-3 py-3 text-left">BIN</th>
+                <th className="px-3 py-3 text-left">Fecha ingreso</th>
+                <th className="px-3 py-3 text-left hidden sm:table-cell">Propietario</th>
+                <th className="px-3 py-3 text-left hidden sm:table-cell">Variedad</th>
+                <th className="px-3 py-3 text-right">Neto (kg)</th>
+                <th className="px-3 py-3 text-center">Días en cámara</th>
+              </tr>
+            </thead>
+            <tbody>
+              {bins.map((b, i) => {
+                const alerta = b.diasEnCamara >= umbral;
+                return (
+                  <tr key={b.id} className={alerta ? "bg-red-50 border-l-4 border-red-400" : i % 2 === 0 ? "bg-white" : "bg-blue-50/30"}>
+                    <td className="px-3 py-2.5 font-mono font-bold text-[#1a4a6b]">{b.nro_bin}</td>
+                    <td className="px-3 py-2.5 text-gray-700">{b.fecha}</td>
+                    <td className="px-3 py-2.5 text-gray-600 hidden sm:table-cell">{b.propietario}</td>
+                    <td className="px-3 py-2.5 text-gray-600 hidden sm:table-cell">{b.variedad}</td>
+                    <td className="px-3 py-2.5 text-right text-gray-700">{b.neto?.toLocaleString()}</td>
+                    <td className="px-3 py-2.5 text-center">
+                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold ${
+                        alerta ? "bg-red-100 text-red-700" : "bg-blue-100 text-blue-700"
+                      }`}>
+                        {alerta && <AlertTriangle className="w-3 h-3" />}
+                        {b.diasEnCamara}d
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 }

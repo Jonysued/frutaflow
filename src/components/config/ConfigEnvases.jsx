@@ -7,7 +7,6 @@ const CATEGORIAS = ["Cosecha", "Produccion", "Ambos"];
 function EnvaseRow({ item, onDelete, onUpdate }) {
   const [form, setForm] = useState({ nombre: item.nombre, categoria: item.categoria, tara_kg: item.tara_kg, bultos_por_palet: item.bultos_por_palet || "" });
   const [saving, setSaving] = useState(false);
-  const inputCls = "border rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#c0392b] w-full";
 
   const save = async () => {
     setSaving(true);
@@ -15,6 +14,8 @@ function EnvaseRow({ item, onDelete, onUpdate }) {
     setSaving(false);
     onUpdate();
   };
+
+  const inputCls = "border rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#c0392b] w-full";
 
   return (
     <tr className="border-b">
@@ -25,7 +26,7 @@ function EnvaseRow({ item, onDelete, onUpdate }) {
         </select>
       </td>
       <td className="px-3 py-2 w-24"><input type="number" step="0.01" value={form.tara_kg} onChange={e => setForm(f => ({ ...f, tara_kg: e.target.value }))} className={inputCls} /></td>
-      <td className="px-3 py-2 w-24"><input type="number" value={form.bultos_por_palet} onChange={e => setForm(f => ({ ...f, bultos_por_palet: e.target.value }))} className={inputCls} /></td>
+      <td className="px-3 py-2 w-24"><input type="number" value={form.bultos_por_palet} onChange={e => setForm(f => ({ ...f, bultos_por_palet: e.target.value }))} className={inputCls} placeholder="-" /></td>
       <td className="px-3 py-2 flex gap-1 justify-end">
         <button onClick={save} disabled={saving} className="p-1.5 bg-[#c0392b] text-white rounded-lg hover:bg-[#a93226]"><Save className="w-3.5 h-3.5" /></button>
         <button onClick={() => onDelete(item.id)} className="p-1.5 text-gray-400 hover:text-red-600 rounded-lg border"><Trash2 className="w-3.5 h-3.5" /></button>
@@ -63,7 +64,7 @@ export default function ConfigEnvases() {
     <div className="space-y-4">
       <div>
         <h3 className="font-semibold text-gray-800 text-sm">Tipos de Envases</h3>
-        <p className="text-xs text-gray-500 mt-0.5">Configurá los tipos de envase con su tara y bultos por palet por defecto.</p>
+        <p className="text-xs text-gray-500 mt-0.5">Configurá los envases de cosecha y producción con su tara y bultos por palet por defecto.</p>
       </div>
       <div className="overflow-x-auto border rounded-xl">
         <table className="w-full text-sm">
@@ -72,7 +73,7 @@ export default function ConfigEnvases() {
               <th className="px-3 py-2 text-left">Nombre</th>
               <th className="px-3 py-2 text-left">Categoría</th>
               <th className="px-3 py-2 text-left">Tara (kg)</th>
-              <th className="px-3 py-2 text-left">Bultos/palet</th>
+              <th className="px-3 py-2 text-left">Bultos/Palet</th>
               <th className="px-3 py-2"></th>
             </tr>
           </thead>
@@ -86,7 +87,7 @@ export default function ConfigEnvases() {
                 </select>
               </td>
               <td className="px-3 py-2"><input type="number" step="0.01" value={newRow.tara_kg} onChange={e => setNewRow(f => ({ ...f, tara_kg: e.target.value }))} className={inputCls} placeholder="kg" /></td>
-              <td className="px-3 py-2"><input type="number" value={newRow.bultos_por_palet} onChange={e => setNewRow(f => ({ ...f, bultos_por_palet: e.target.value }))} className={inputCls} placeholder="Ej: 114" /></td>
+              <td className="px-3 py-2"><input type="number" value={newRow.bultos_por_palet} onChange={e => setNewRow(f => ({ ...f, bultos_por_palet: e.target.value }))} className={inputCls} placeholder="-" /></td>
               <td className="px-3 py-2">
                 <button onClick={handleAdd} disabled={adding || !newRow.nombre || !newRow.tara_kg} className="flex items-center gap-1 px-3 py-1.5 bg-[#c0392b] text-white rounded-lg text-xs font-semibold hover:bg-[#a93226] disabled:opacity-50">
                   <Plus className="w-3.5 h-3.5" /> Agregar

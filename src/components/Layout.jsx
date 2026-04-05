@@ -1,10 +1,9 @@
 import { Link, useLocation, Outlet } from "react-router-dom";
-import { LayoutDashboard, Wheat, Package, BarChart2, Settings, Menu, X, QrCode } from "lucide-react";
+import { LayoutDashboard, Wheat, Package, BarChart2, Settings, Menu, X } from "lucide-react";
 import { useState } from "react";
 
 const navItems = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/registro", label: "Registro", icon: QrCode },
   { to: "/cosecha", label: "Cosecha", icon: Wheat },
   { to: "/produccion", label: "Producción", icon: Package },
   { to: "/reportes", label: "Reportes", icon: BarChart2 },

@@ -35,6 +35,7 @@ export default function Reportes() {
     return { label: t, Cosecha: cKg, Producción: pKg, Bultos: bultos, Rendimiento: rendimiento };
   });
 
+  // By variedad
   const variedades = [...new Set(cosechas.map(c => c.variedad))];
   const dataVariedad = variedades.map(v => ({
     variedad: v,
@@ -82,7 +83,7 @@ export default function Reportes() {
           </div>
 
           <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-            <h2 className="text-sm font-semibold text-[#5c1020] mb-4">Rendimiento productivo (%)</h2>
+            <h2 className="text-sm font-semibold text-[#5c1020] mb-4">Rendimiento productivo (Producción / Cosecha %)</h2>
             <ResponsiveContainer width="100%" height={200}>
               <LineChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f3e6e8" />
@@ -126,6 +127,7 @@ export default function Reportes() {
 
           <ResumenRomaneo producciones={producciones} />
 
+          {/* Por Productor */}
           {(() => {
             const productores = [...new Set([
               ...cosechas.map(c => c.propietario || c.productor).filter(Boolean),

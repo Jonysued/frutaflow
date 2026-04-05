@@ -18,7 +18,7 @@ function TaraRow({ item, onDelete, onUpdate }) {
 
   return (
     <tr className="border-b">
-      <td className="px-3 py-2"><input value={form.tipo_bin} onChange={e => setForm(f => ({ ...f, tipo_bin: e.target.value }))} className={inputCls} /></td>
+      <td className="px-3 py-2"><input value={form.tipo_bin} onChange={e => setForm(f => ({ ...f, tipo_bin: e.target.value }))} className={inputCls} placeholder="Ej: Plástico, Madera" /></td>
       <td className="px-3 py-2 w-28"><input type="number" step="0.1" value={form.tara_kg} onChange={e => setForm(f => ({ ...f, tara_kg: e.target.value }))} className={inputCls} /></td>
       <td className="px-3 py-2"><input value={form.descripcion} onChange={e => setForm(f => ({ ...f, descripcion: e.target.value }))} className={inputCls} /></td>
       <td className="px-3 py-2 flex gap-1 justify-end">

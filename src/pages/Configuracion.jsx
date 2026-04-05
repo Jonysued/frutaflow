@@ -37,6 +37,7 @@ export default function Configuracion() {
         <p className="text-sm text-gray-500">Parámetros del sistema, listas desplegables, taras y usuarios</p>
       </div>
 
+      {/* Tabs */}
       <div className="flex flex-wrap gap-2 border-b border-gray-200 pb-0">
         {TABS.map(({ id, label, icon: Icon }) => (
           <button
@@ -54,6 +55,7 @@ export default function Configuracion() {
         ))}
       </div>
 
+      {/* Content */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
         {tab === "propietarios" && (
           <ConfigListaSimple entityName="Propietario" title="Propietarios" subtitle="Propietarios disponibles para seleccionar en la hoja de cosecha." placeholder="Ej: Las 500, Glonet" />
