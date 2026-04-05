@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
+import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { format, differenceInDays, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
@@ -73,23 +74,26 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [fechaIniciada, setFechaIniciada] = useState(false);
 
-  useEffect(() => {
+  const loadData = useCallback(() => {
     setLoading(true);
-    Promise.all([
+    return Promise.all([
       base44.entities.Cosecha.list("-fecha", 50000),
       base44.entities.Produccion.list("-fecha", 50000)
     ]).then(([c, p]) => {
       setCosechas(c);
       setProducciones(p);
       setLoading(false);
-      // Default to latest date with data
       if (!fechaIniciada) {
         const todasFechas = [...new Set([...c.map(x => x.fecha_vuelco).filter(Boolean), ...p.map(x => x.fecha)])].filter(Boolean).sort();
         if (todasFechas.length > 0) setFecha(todasFechas[todasFechas.length - 1]);
         setFechaIniciada(true);
       }
     });
-  }, []);
+  }, [fechaIniciada]);
+
+  useEffect(() => { loadData(); }, []);
+
+  const { refreshing } = usePullToRefresh(loadData);
 
   // Cosecha: filtrar por fecha_vuelco (cuando el BIN fue volcado/procesado)
   const cosechasDia = cosechas.filter(c => c.fecha_vuelco === fecha);
@@ -123,6 +127,11 @@ export default function Dashboard() {
 
   return (
     <div className="p-4 md:p-6 space-y-6">
+      {refreshing && (
+        <div className="flex justify-center py-2">
+          <div className="w-5 h-5 border-2 border-[#f8d7da] border-t-[#c0392b] rounded-full animate-spin" />
+        </div>
+      )}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-[#5c1020]">Dashboard</h1>

@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
+import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { Plus, Upload, Trash2, Download } from "lucide-react";
 import ImportModal from "@/components/ImportModal";
 
@@ -23,12 +24,14 @@ export default function Produccion() {
     (!filtros.romaneo || (r.nro_romaneo || "").toLowerCase().includes(filtros.romaneo.toLowerCase()))
   );
 
-  const load = () => {
+  const load = useCallback(() => {
     setLoading(true);
-    base44.entities.Produccion.list("-fecha", 50000).then(r => { setRegistros(r); setLoading(false); });
-  };
+    return base44.entities.Produccion.list("-fecha", 50000).then(r => { setRegistros(r); setLoading(false); });
+  }, []);
 
-  useEffect(load, []);
+  useEffect(() => { load(); }, []);
+
+  const { refreshing } = usePullToRefresh(load);
 
   const handleDelete = async (id) => {
     if (!confirm("¿Eliminar este registro?")) return;
@@ -48,6 +51,11 @@ export default function Produccion() {
 
   return (
     <div className="p-4 md:p-6 space-y-4">
+      {refreshing && (
+        <div className="flex justify-center py-2">
+          <div className="w-5 h-5 border-2 border-[#f8d7da] border-t-[#c0392b] rounded-full animate-spin" />
+        </div>
+      )}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-[#5c1020]">Producción</h1>

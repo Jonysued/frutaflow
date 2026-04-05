@@ -1,10 +1,12 @@
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
+import { AnimatePresence, motion } from 'framer-motion';
 import { queryClientInstance } from '@/lib/query-client'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
+import { useLocation } from 'react-router-dom';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import Cosecha from './pages/Cosecha';
@@ -37,24 +39,40 @@ const AuthenticatedApp = () => {
     }
   }
 
-  // Render the main app
+  const location = useLocation();
+
   return (
-    <Routes>
-      <Route element={<Layout />}>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/cosecha" element={<Cosecha />} />
-        <Route path="/cosecha/new" element={<CosechaEdit />} />
-        <Route path="/cosecha/edit/:id" element={<CosechaEdit />} />
-        <Route path="/produccion" element={<Produccion />} />
-        <Route path="/produccion/new" element={<ProduccionEdit />} />
-        <Route path="/produccion/edit/:id" element={<ProduccionEdit />} />
-        <Route path="/reportes" element={<Reportes />} />
-        <Route path="/configuracion" element={<Configuracion />} />
-      </Route>
-      <Route path="*" element={<PageNotFound />} />
-    </Routes>
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        <Route element={<Layout />}>
+          <Route path="/" element={<PageWrapper><Dashboard /></PageWrapper>} />
+          <Route path="/cosecha" element={<PageWrapper><Cosecha /></PageWrapper>} />
+          <Route path="/cosecha/new" element={<PageWrapper><CosechaEdit /></PageWrapper>} />
+          <Route path="/cosecha/edit/:id" element={<PageWrapper><CosechaEdit /></PageWrapper>} />
+          <Route path="/produccion" element={<PageWrapper><Produccion /></PageWrapper>} />
+          <Route path="/produccion/new" element={<PageWrapper><ProduccionEdit /></PageWrapper>} />
+          <Route path="/produccion/edit/:id" element={<PageWrapper><ProduccionEdit /></PageWrapper>} />
+          <Route path="/reportes" element={<PageWrapper><Reportes /></PageWrapper>} />
+          <Route path="/configuracion" element={<PageWrapper><Configuracion /></PageWrapper>} />
+        </Route>
+        <Route path="*" element={<PageNotFound />} />
+      </Routes>
+    </AnimatePresence>
   );
 };
+
+function PageWrapper({ children }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: 16 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: -16 }}
+      transition={{ duration: 0.18, ease: 'easeOut' }}
+    >
+      {children}
+    </motion.div>
+  );
+}
 
 
 function App() {

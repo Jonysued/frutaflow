@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { format } from "date-fns";
+import MobileSelect from "@/components/MobileSelect";
 
 const TURNOS = ["Mañana", "Tarde", "Noche"];
 
@@ -139,55 +140,72 @@ export default function ProduccionForm({ item, onSave, onCancel }) {
     <div className="bg-white rounded-xl shadow-sm border border-[#d5f0e1] p-4">
       <h2 className="font-semibold text-[#5c1020] mb-4 text-sm">{item ? "Editar registro" : "Nuevo registro de producción"}</h2>
       <form onSubmit={handleSubmit} className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+
         <F label="Fecha *"><input type="date" required value={form.fecha} onChange={e => set("fecha", e.target.value)} className={inputCls} /></F>
+
         <F label="Turno">
-          <select value={form.turno} onChange={e => set("turno", e.target.value)} className={inputCls}>
-            {TURNOS.map(t => <option key={t}>{t}</option>)}
-          </select>
+          <MobileSelect
+            label="Turno"
+            value={form.turno}
+            onChange={v => set("turno", v || "Mañana")}
+            options={TURNOS.map(t => ({ value: t, label: t }))}
+          />
         </F>
 
         <F label="Productor">
-          <select value={form.productor} onChange={e => set("productor", e.target.value)} className={inputCls}>
-            <option value="">-- Seleccionar --</option>
-            {productores.map(p => <option key={p.id} value={p.nombre}>{p.nombre}</option>)}
-          </select>
+          <MobileSelect
+            label="Productor"
+            value={form.productor}
+            onChange={v => set("productor", v)}
+            options={productores.map(p => ({ value: p.nombre, label: p.nombre }))}
+          />
         </F>
 
         <F label="Especie *"><input required value={form.especie} onChange={e => set("especie", e.target.value)} className={inputCls} /></F>
 
         <F label="Variedad *">
-          <select required value={form.variedad} onChange={e => set("variedad", e.target.value)} className={inputCls}>
-            <option value="">-- Seleccionar --</option>
-            {variedades.map(v => <option key={v.id} value={v.nombre}>{v.nombre}</option>)}
-          </select>
+          <MobileSelect
+            label="Variedad"
+            value={form.variedad}
+            onChange={v => set("variedad", v)}
+            options={variedades.map(v => ({ value: v.nombre, label: v.nombre }))}
+          />
         </F>
 
         <F label="Categoría">
-          <select value={form.categoria} onChange={e => set("categoria", e.target.value)} className={inputCls}>
-            <option value="">-- Seleccionar --</option>
-            {categorias.map(c => <option key={c.id} value={c.nombre}>{c.nombre}</option>)}
-          </select>
+          <MobileSelect
+            label="Categoría"
+            value={form.categoria}
+            onChange={v => set("categoria", v)}
+            options={categorias.map(c => ({ value: c.nombre, label: c.nombre }))}
+          />
         </F>
 
         <F label="Envase">
-          <select value={form.envase} onChange={e => handleEnvase(e.target.value)} className={inputCls}>
-            <option value="">-- Seleccionar --</option>
-            {envases.map(e => <option key={e.id} value={e.nombre}>{e.nombre} ({e.tara_kg} kg/u)</option>)}
-          </select>
+          <MobileSelect
+            label="Envase"
+            value={form.envase}
+            onChange={handleEnvase}
+            options={envases.map(e => ({ value: e.nombre, label: `${e.nombre} (${e.tara_kg} kg/u)` }))}
+          />
         </F>
 
         <F label="Calibre">
-          <select value={form.calibre} onChange={e => set("calibre", e.target.value)} className={inputCls}>
-            <option value="">-- Seleccionar --</option>
-            {calibres.map(c => <option key={c.id} value={c.nombre}>{c.nombre}</option>)}
-          </select>
+          <MobileSelect
+            label="Calibre"
+            value={form.calibre}
+            onChange={v => set("calibre", v)}
+            options={calibres.map(c => ({ value: c.nombre, label: c.nombre }))}
+          />
         </F>
 
         <F label="Tipo de palet">
-          <select value={form.tipo_palet} onChange={e => handlePalet(e.target.value)} className={inputCls}>
-            <option value="">-- Seleccionar --</option>
-            {paletOpciones.map(p => <option key={p} value={p}>{p}</option>)}
-          </select>
+          <MobileSelect
+            label="Tipo de palet"
+            value={form.tipo_palet}
+            onChange={handlePalet}
+            options={paletOpciones.map(p => ({ value: p, label: p }))}
+          />
         </F>
 
         <F label="Cant. de bultos *">
@@ -210,7 +228,9 @@ export default function ProduccionForm({ item, onSave, onCancel }) {
           <input type="number" required value={form.kg_netos} onChange={e => set("kg_netos", e.target.value)} className={`${inputCls} bg-gray-50 font-semibold`} />
         </F>
 
-        <F label="N° de Romaneo"><input value={form.nro_romaneo} onChange={e => set("nro_romaneo", e.target.value)} placeholder="Ej: W1" className={inputCls} /></F>
+        <F label="N° de Romaneo">
+          <input value={form.nro_romaneo} onChange={e => set("nro_romaneo", e.target.value)} placeholder="Ej: W1" className={inputCls} />
+        </F>
 
         <div className="col-span-2 sm:col-span-3 md:col-span-4 flex gap-2 justify-end pt-1">
           <button type="button" onClick={onCancel} className="px-4 py-2 border rounded-lg text-xs text-gray-600 hover:bg-gray-50">Cancelar</button>

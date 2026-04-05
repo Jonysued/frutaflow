@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Settings, Box, Layers, Users, Send, Truck, MapPin, User, Tag, Leaf, Combine, Cog, Navigation, Ruler, LayoutList, LogOut } from "lucide-react";
+import { Settings, Box, Layers, Users, Send, Truck, MapPin, User, Tag, Leaf, Combine, Cog, Navigation, Ruler, LayoutList, LogOut, Trash2, AlertTriangle } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import ConfigTaras from "@/components/config/ConfigTaras";
 import ConfigEnvases from "@/components/config/ConfigEnvases";
@@ -90,21 +90,93 @@ export default function Configuracion() {
         {tab === "bultos" && <ConfigBultosPaletSection />}
         {tab === "usuarios" && <ConfigUsuarios />}
         {tab === "informes" && <ConfigInformes />}
-        {tab === "cuenta" && (
-          <div className="space-y-4 max-w-sm">
-            <div>
-              <h3 className="font-semibold text-gray-800 text-sm">Cuenta</h3>
-              <p className="text-xs text-gray-500 mt-0.5">Gestioná tu sesión en la aplicación.</p>
-            </div>
-            <button
-              onClick={() => base44.auth.logout()}
-              className="flex items-center gap-2 px-4 py-2 bg-[#c0392b] text-white rounded-lg text-sm font-semibold hover:bg-[#a93226]"
-            >
-              <LogOut className="w-4 h-4" /> Cerrar sesión
-            </button>
-          </div>
-        )}
+        {tab === "cuenta" && <CuentaSection />}
       </div>
+    </div>
+  );
+}
+
+function CuentaSection() {
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [confirmText, setConfirmText] = useState("");
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDeleteAccount = async () => {
+    if (confirmText !== "ELIMINAR") return;
+    setDeleting(true);
+    // Delete all user data then logout
+    const [cosechas, producciones] = await Promise.all([
+      base44.entities.Cosecha.list("-fecha", 99999),
+      base44.entities.Produccion.list("-fecha", 99999),
+    ]);
+    await Promise.all([
+      ...cosechas.map(c => base44.entities.Cosecha.delete(c.id)),
+      ...producciones.map(p => base44.entities.Produccion.delete(p.id)),
+    ]);
+    setDeleting(false);
+    base44.auth.logout();
+  };
+
+  return (
+    <div className="space-y-6 max-w-sm">
+      <div>
+        <h3 className="font-semibold text-gray-800 text-sm">Cuenta</h3>
+        <p className="text-xs text-gray-500 mt-0.5">Gestioná tu sesión en la aplicación.</p>
+      </div>
+      <button
+        onClick={() => base44.auth.logout()}
+        className="flex items-center gap-2 px-4 py-2 bg-[#c0392b] text-white rounded-lg text-sm font-semibold hover:bg-[#a93226]"
+      >
+        <LogOut className="w-4 h-4" /> Cerrar sesión
+      </button>
+
+      <div className="border-t pt-6">
+        <h3 className="font-semibold text-gray-800 text-sm mb-1">Zona peligrosa</h3>
+        <p className="text-xs text-gray-500 mb-3">Esta acción eliminará permanentemente todos los datos de Cosecha y Producción y cerrará tu sesión.</p>
+        <button
+          onClick={() => setShowDeleteDialog(true)}
+          className="flex items-center gap-2 px-4 py-2 border border-red-300 text-red-600 rounded-lg text-sm font-semibold hover:bg-red-50"
+        >
+          <Trash2 className="w-4 h-4" /> Eliminar todos mis datos
+        </button>
+      </div>
+
+      {showDeleteDialog && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 space-y-4">
+            <div className="flex items-start gap-3">
+              <div className="p-2 bg-red-100 rounded-full flex-shrink-0">
+                <AlertTriangle className="w-5 h-5 text-red-600" />
+              </div>
+              <div>
+                <h3 className="font-bold text-gray-900 text-sm">Eliminar todos los datos</h3>
+                <p className="text-xs text-gray-500 mt-1">Esta acción es irreversible. Para confirmar, escribí <strong>ELIMINAR</strong> en el campo de abajo.</p>
+              </div>
+            </div>
+            <input
+              value={confirmText}
+              onChange={e => setConfirmText(e.target.value)}
+              placeholder="Escribí ELIMINAR"
+              className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-red-500"
+            />
+            <div className="flex gap-2 justify-end">
+              <button
+                onClick={() => { setShowDeleteDialog(false); setConfirmText(""); }}
+                className="px-4 py-2 border rounded-lg text-xs text-gray-600 hover:bg-gray-50"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleDeleteAccount}
+                disabled={confirmText !== "ELIMINAR" || deleting}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg text-xs font-semibold hover:bg-red-700 disabled:opacity-40"
+              >
+                {deleting ? "Eliminando..." : "Confirmar y eliminar"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

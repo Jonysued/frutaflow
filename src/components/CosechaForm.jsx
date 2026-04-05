@@ -1,4 +1,7 @@
 import { useState, useEffect, useRef } from "react";
+import { base44 } from "@/api/base44Client";
+import { format } from "date-fns";
+import MobileSelect from "@/components/MobileSelect";
 
 function F({ label, children }) {
   return (
@@ -8,10 +11,8 @@ function F({ label, children }) {
     </div>
   );
 }
-import { base44 } from "@/api/base44Client";
-import { format } from "date-fns";
 
-
+const TURNOS = ["Mañana", "Tarde", "Noche"];
 
 export default function CosechaForm({ item, onSave, onCancel }) {
   const [configTaras, setConfigTaras] = useState([]);
@@ -69,12 +70,10 @@ export default function CosechaForm({ item, onSave, onCancel }) {
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
-  // Procedencias filtradas por propietario seleccionado
   const procedenciasFiltradas = form.propietario
     ? todasProcedencias.filter(p => p.propietario === form.propietario)
     : todasProcedencias;
 
-  // Al cambiar propietario, resetear procedencia si no corresponde
   const handlePropietario = (propietario) => {
     setForm(f => {
       const procs = todasProcedencias.filter(p => p.propietario === propietario);
@@ -128,7 +127,6 @@ export default function CosechaForm({ item, onSave, onCancel }) {
     onSave();
   };
 
-
   const inputCls = "border rounded-lg px-2 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#c0392b]";
 
   return (
@@ -137,54 +135,71 @@ export default function CosechaForm({ item, onSave, onCancel }) {
       <form onSubmit={handleSubmit} className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
 
         <F label="Fecha *"><input type="date" required value={form.fecha} onChange={e => set("fecha", e.target.value)} className={inputCls} /></F>
+
         <F label="Turno">
-          <select value={form.turno} onChange={e => set("turno", e.target.value)} className={inputCls}>
-            {["Mañana", "Tarde", "Noche"].map(t => <option key={t}>{t}</option>)}
-          </select>
+          <MobileSelect
+            label="Turno"
+            value={form.turno}
+            onChange={v => set("turno", v || "Mañana")}
+            options={TURNOS.map(t => ({ value: t, label: t }))}
+          />
         </F>
+
         <F label="Nro de BIN *"><input type="text" required value={form.nro_bin} onChange={e => set("nro_bin", e.target.value)} className={inputCls} /></F>
         <F label="Especie *"><input required value={form.especie} onChange={e => set("especie", e.target.value)} className={inputCls} /></F>
 
         <F label="Propietario">
-          <select value={form.propietario} onChange={e => handlePropietario(e.target.value)} className={inputCls}>
-            <option value="">-- Seleccionar --</option>
-            {propietarios.map(p => <option key={p.id} value={p.nombre}>{p.nombre}</option>)}
-          </select>
+          <MobileSelect
+            label="Propietario"
+            value={form.propietario}
+            onChange={handlePropietario}
+            options={propietarios.map(p => ({ value: p.nombre, label: p.nombre }))}
+          />
         </F>
 
         <F label="Procedencia">
-          <select value={form.procedencia} onChange={e => set("procedencia", e.target.value)} className={inputCls}>
-            <option value="">-- Seleccionar --</option>
-            {procedenciasFiltradas.map(p => <option key={p.id} value={p.nombre}>{p.nombre}</option>)}
-          </select>
+          <MobileSelect
+            label="Procedencia"
+            value={form.procedencia}
+            onChange={v => set("procedencia", v)}
+            options={procedenciasFiltradas.map(p => ({ value: p.nombre, label: p.nombre }))}
+          />
         </F>
 
         <F label="Variedad *">
-          <select required value={form.variedad} onChange={e => set("variedad", e.target.value)} className={inputCls}>
-            <option value="">-- Seleccionar --</option>
-            {variedades.map(v => <option key={v.id} value={v.nombre}>{v.nombre}</option>)}
-          </select>
+          <MobileSelect
+            label="Variedad"
+            value={form.variedad}
+            onChange={v => set("variedad", v)}
+            options={variedades.map(v => ({ value: v.nombre, label: v.nombre }))}
+          />
         </F>
 
         <F label="Tipo de Cosecha">
-          <select value={form.tipo_cosecha} onChange={e => set("tipo_cosecha", e.target.value)} className={inputCls}>
-            <option value="">-- Seleccionar --</option>
-            {tiposCosecha.map(t => <option key={t.id} value={t.nombre}>{t.nombre}</option>)}
-          </select>
+          <MobileSelect
+            label="Tipo de Cosecha"
+            value={form.tipo_cosecha}
+            onChange={v => set("tipo_cosecha", v)}
+            options={tiposCosecha.map(t => ({ value: t.nombre, label: t.nombre }))}
+          />
         </F>
 
         <F label="Cuadrilla">
-          <select value={form.cuadrilla} onChange={e => set("cuadrilla", e.target.value)} className={inputCls}>
-            <option value="">-- Seleccionar --</option>
-            {cuadrillas.map(c => <option key={c.id} value={c.nombre}>{c.nombre}</option>)}
-          </select>
+          <MobileSelect
+            label="Cuadrilla"
+            value={form.cuadrilla}
+            onChange={v => set("cuadrilla", v)}
+            options={cuadrillas.map(c => ({ value: c.nombre, label: c.nombre }))}
+          />
         </F>
 
         <F label="Tipo de BIN (tara auto)">
-          <select value={form.tipo_bin} onChange={e => handleTipoBin(e.target.value)} className={inputCls}>
-            <option value="">-- Seleccionar --</option>
-            {configTaras.map(c => <option key={c.id} value={c.tipo_bin}>{c.tipo_bin} — {c.tara_kg} kg</option>)}
-          </select>
+          <MobileSelect
+            label="Tipo de BIN"
+            value={form.tipo_bin}
+            onChange={handleTipoBin}
+            options={configTaras.map(c => ({ value: c.tipo_bin, label: `${c.tipo_bin} — ${c.tara_kg} kg` }))}
+          />
         </F>
 
         <F label="Bruto (kg) *">
@@ -198,17 +213,21 @@ export default function CosechaForm({ item, onSave, onCancel }) {
         </F>
 
         <F label="Destino">
-          <select value={form.destino} onChange={e => set("destino", e.target.value)} className={inputCls}>
-            <option value="">-- Seleccionar --</option>
-            {destinos.map(d => <option key={d.id} value={d.nombre}>{d.nombre}</option>)}
-          </select>
+          <MobileSelect
+            label="Destino"
+            value={form.destino}
+            onChange={v => set("destino", v)}
+            options={destinos.map(d => ({ value: d.nombre, label: d.nombre }))}
+          />
         </F>
 
         <F label="Tipo de proceso">
-          <select value={form.tipo_proceso} onChange={e => set("tipo_proceso", e.target.value)} className={inputCls}>
-            <option value="">-- Seleccionar --</option>
-            {tiposProceso.map(t => <option key={t.id} value={t.nombre}>{t.nombre}</option>)}
-          </select>
+          <MobileSelect
+            label="Tipo de proceso"
+            value={form.tipo_proceso}
+            onChange={v => set("tipo_proceso", v)}
+            options={tiposProceso.map(t => ({ value: t.nombre, label: t.nombre }))}
+          />
         </F>
 
         <F label="Fecha Vuelco"><input type="date" value={form.fecha_vuelco} onChange={e => set("fecha_vuelco", e.target.value)} className={inputCls} /></F>
