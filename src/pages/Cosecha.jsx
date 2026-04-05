@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
-import { Plus, Upload, Trash2, Download } from "lucide-react";
+import { Plus, Upload, Trash2, Download, TableProperties } from "lucide-react";
 import CosechaForm from "@/components/CosechaForm";
+import CosechaBulkEntry from "@/components/CosechaBulkEntry";
 import ImportModal from "@/components/ImportModal";
 
 export default function Cosecha() {
@@ -10,6 +11,7 @@ export default function Cosecha() {
   const [showForm, setShowForm] = useState(false);
   const [editItem, setEditItem] = useState(null);
   const [showImport, setShowImport] = useState(false);
+  const [showBulk, setShowBulk] = useState(false);
 
   const load = () => {
     setLoading(true);
@@ -50,6 +52,9 @@ export default function Cosecha() {
           <button onClick={() => setShowImport(true)} className="flex items-center gap-1 px-3 py-2 border border-[#7a1a30] rounded-lg text-xs text-[#7a1a30] hover:bg-red-50">
             <Upload className="w-3.5 h-3.5" /> Importar Excel
           </button>
+          <button onClick={() => setShowBulk(true)} className="flex items-center gap-1 px-4 py-2 bg-[#7a1a30] text-white rounded-lg text-xs font-semibold hover:bg-[#5c1020]">
+            <TableProperties className="w-3.5 h-3.5" /> Carga masiva
+          </button>
           <button onClick={() => { setEditItem(null); setShowForm(true); }} className="flex items-center gap-1 px-4 py-2 bg-[#c0392b] text-white rounded-lg text-xs font-semibold hover:bg-[#a93226]">
             <Plus className="w-3.5 h-3.5" /> Nuevo BIN
           </button>
@@ -60,6 +65,7 @@ export default function Cosecha() {
         <CosechaForm item={editItem} onSave={handleSave} onCancel={() => { setShowForm(false); setEditItem(null); }} />
       )}
       {showImport && <ImportModal entity="Cosecha" onClose={() => { setShowImport(false); load(); }} />}
+      {showBulk && <CosechaBulkEntry onClose={() => setShowBulk(false)} onSaved={() => { setShowBulk(false); load(); }} />}
 
       {loading ? (
         <div className="flex justify-center py-16">
