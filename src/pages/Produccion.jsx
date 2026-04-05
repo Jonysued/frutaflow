@@ -3,13 +3,12 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
-import { Plus, Upload, Trash2, Download } from "lucide-react";
-import ImportModal from "@/components/ImportModal";
+import { Plus, Trash2 } from "lucide-react";
 
 export default function Produccion() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [showImport, setShowImport] = useState(false);
+
   const [filtros, setFiltros] = useState(() => {
     try { return JSON.parse(sessionStorage.getItem('prod_filtros')) || { fecha: "", productor: "", envase: "", romaneo: "" }; }
     catch { return { fecha: "", productor: "", envase: "", romaneo: "" }; }
@@ -49,15 +48,7 @@ export default function Produccion() {
     queryClient.invalidateQueries({ queryKey: ['producciones'] });
   };
 
-  const downloadTemplate = () => {
-    const sep = ";";
-    const cols = ["fecha","turno","productor","especie","variedad","categoria","envase","calibre","cant_bultos","tipo_palet","kg_bruto","tipo_caja","tara","kg_netos","nro_romaneo"];
-    const example = ["2026-02-25","Mañana","F500","GRANADAS","ACCO","Cat 1","CAJA WENCO","12","114","Comun","940","wenco","60","880","W1"];
-    const content = "\uFEFF" + cols.join(sep) + "\n" + example.join(sep);
-    const blob = new Blob([content], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a"); a.href = url; a.download = "plantilla_produccion.csv"; a.click();
-  };
+
 
   return (
     <div className="p-4 md:p-6 space-y-4">
@@ -79,12 +70,6 @@ export default function Produccion() {
             }`}
           >
             🔍 Filtros {filtrosActivos && `(activos)`}
-          </button>
-          <button onClick={downloadTemplate} className="flex items-center gap-1 px-3 py-2 border border-gray-200 rounded-lg text-xs text-gray-600 hover:bg-gray-50">
-            <Download className="w-3.5 h-3.5" /> Plantilla CSV
-          </button>
-          <button onClick={() => setShowImport(true)} className="flex items-center gap-1 px-3 py-2 border border-[#7a1a30] rounded-lg text-xs text-[#7a1a30] hover:bg-red-50">
-            <Upload className="w-3.5 h-3.5" /> Importar Excel
           </button>
           <button onClick={() => navigate('/produccion/new')} className="flex items-center gap-1 px-4 py-2 bg-[#c0392b] text-white rounded-lg text-xs font-semibold hover:bg-[#a93226]">
             <Plus className="w-3.5 h-3.5" /> Nuevo registro
@@ -122,7 +107,7 @@ export default function Produccion() {
       )}
 
 
-      {showImport && <ImportModal entity="Produccion" onClose={() => { setShowImport(false); refetch(); }} />}
+
 
       {loading ? (
         <div className="flex justify-center py-16">
@@ -148,7 +133,7 @@ export default function Produccion() {
               </thead>
               <tbody>
                 {registrosFiltrados.length === 0 && (
-                  <tr><td colSpan={13} className="text-center py-10 text-gray-400">No hay registros aún. Importá tu planilla Excel o cargá manualmente.</td></tr>
+                  <tr><td colSpan={13} className="text-center py-10 text-gray-400">No hay registros aún. Cargá manualmente con el botón "Nuevo registro".</td></tr>
                 )}
                 {registrosFiltrados.map((r, i) => (
                   <tr key={r.id} className={i % 2 === 0 ? "bg-white" : "bg-[#f4fbf7]"}>
