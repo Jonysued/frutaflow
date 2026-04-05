@@ -11,6 +11,7 @@ import Cosecha from './pages/Cosecha';
 import Produccion from './pages/Produccion';
 import Reportes from './pages/Reportes';
 import Configuracion from './pages/Configuracion';
+import Registro from './pages/Registro';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -40,6 +41,7 @@ const AuthenticatedApp = () => {
     <Routes>
       <Route element={<Layout />}>
         <Route path="/" element={<Dashboard />} />
+        <Route path="/registro" element={<Registro />} />
         <Route path="/cosecha" element={<Cosecha />} />
         <Route path="/produccion" element={<Produccion />} />
         <Route path="/reportes" element={<Reportes />} />

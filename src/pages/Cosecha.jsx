@@ -1,18 +1,15 @@
 import { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
-import { Plus, Upload, Trash2, Download, Grid, Edit } from "lucide-react";
-import CosechaForm from "@/components/CosechaForm";
+import { Upload, Trash2, Download, Grid, Edit } from "lucide-react";
+
 import ImportModal from "@/components/ImportModal";
+import CosechaForm from "@/components/CosechaForm";
 import CosechaGridModal from "@/components/CosechaGridModal";
 import CosechaEdicionMasivaModal from "@/components/CosechaEdicionMasivaModal";
 
 export default function Cosecha() {
   const [registros, setRegistros] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
-  const [editItem, setEditItem] = useState(null);
-  const [showImport, setShowImport] = useState(false);
-  const [showGrid, setShowGrid] = useState(false);
   const [showEdicionMasiva, setShowEdicionMasiva] = useState(false);
 
   const load = () => {
@@ -28,7 +25,7 @@ export default function Cosecha() {
     load();
   };
 
-  const handleSave = () => { setShowForm(false); setEditItem(null); load(); };
+  const handleSave = () => { setEditItem(null); load(); };
 
   const downloadTemplate = () => {
     const sep = ";";
@@ -60,14 +57,12 @@ export default function Cosecha() {
           <button onClick={() => setShowGrid(true)} className="flex items-center gap-1 px-3 py-2 border border-[#5c1020] rounded-lg text-xs text-[#5c1020] font-semibold hover:bg-red-50">
             <Grid className="w-3.5 h-3.5" /> Carga masiva
           </button>
-          <button onClick={() => { setEditItem(null); setShowForm(true); }} className="flex items-center gap-1 px-4 py-2 bg-[#c0392b] text-white rounded-lg text-xs font-semibold hover:bg-[#a93226]">
-            <Plus className="w-3.5 h-3.5" /> Nuevo BIN
-          </button>
+
         </div>
       </div>
 
-      {(showForm || editItem) && (
-        <CosechaForm item={editItem} onSave={handleSave} onCancel={() => { setShowForm(false); setEditItem(null); }} />
+      {editItem && (
+        <CosechaForm item={editItem} onSave={handleSave} onCancel={() => setEditItem(null)} />
       )}
       {showImport && <ImportModal entity="Cosecha" onClose={() => { setShowImport(false); load(); }} />}
       {showGrid && <CosechaGridModal onClose={() => setShowGrid(false)} onSaved={() => { setShowGrid(false); load(); }} />}
