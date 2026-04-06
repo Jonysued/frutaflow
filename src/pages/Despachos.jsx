@@ -8,74 +8,178 @@ const ESTADO_COLORS = {
   Despachado: "bg-green-100 text-green-700",
 };
 
-function NuevaCargaModal({ onClose, onCreated }) {
+function NuevaCargaModal({ onClose, onCreated, producciones }) {
   const [form, setForm] = useState({ nro_carga: "", fecha: new Date().toISOString().slice(0,10), destino: "", contenedor: "", nro_remito: "", cant_pallets_max: 21, observaciones: "" });
+  const [selected, setSelected] = useState(new Set());
+  const [filtro, setFiltro] = useState("");
   const [saving, setSaving] = useState(false);
+  const [step, setStep] = useState(1); // 1: datos, 2: pallets
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+  const max = form.cant_pallets_max;
+  const count = selected.size;
+
+  const toggle = (id) => {
+    setSelected(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else if (next.size < max) next.add(id);
+      return next;
+    });
+  };
+
+  const disponibles = producciones.filter(p => {
+    if (!filtro) return true;
+    const q = filtro.toLowerCase();
+    return (p.nro_romaneo || "").toLowerCase().includes(q) ||
+      (p.productor || "").toLowerCase().includes(q) ||
+      (p.calibre || "").toLowerCase().includes(q) ||
+      (p.variedad || "").toLowerCase().includes(q);
+  });
 
   const handleSave = async () => {
     if (!form.nro_carga || !form.fecha) return;
     setSaving(true);
-    const created = await base44.entities.Despacho.create({ ...form, pallet_ids: [], estado: "Borrador" });
+    const created = await base44.entities.Despacho.create({ ...form, pallet_ids: [...selected], estado: "Borrador" });
     onCreated(created);
   };
 
   return (
     <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-md">
-        <div className="flex items-center justify-between px-5 py-4 border-b">
-          <h2 className="font-semibold text-[#5c1020] text-sm">Nueva Carga de Despacho</h2>
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-3xl flex flex-col max-h-[90vh]">
+        <div className="flex items-center justify-between px-5 py-4 border-b flex-shrink-0">
+          <div>
+            <h2 className="font-semibold text-[#5c1020] text-sm">Nueva Carga de Despacho</h2>
+            <div className="flex items-center gap-2 mt-1">
+              <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${step === 1 ? "bg-[#c0392b] text-white" : "bg-gray-100 text-gray-500"}`}>1. Datos</span>
+              <span className="text-gray-300 text-xs">→</span>
+              <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${step === 2 ? "bg-[#c0392b] text-white" : "bg-gray-100 text-gray-500"}`}>2. Seleccionar pallets</span>
+            </div>
+          </div>
           <button onClick={onClose}><X className="w-4 h-4 text-gray-400 hover:text-gray-700" /></button>
         </div>
-        <div className="p-5 space-y-3">
-          <div className="grid grid-cols-2 gap-3">
-            <div className="flex flex-col gap-1">
-              <label className="text-xs text-gray-500">Nro. de Carga *</label>
-              <input value={form.nro_carga} onChange={e => set("nro_carga", e.target.value)} className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#c0392b]" placeholder="Ej: C-001" />
+
+        {step === 1 ? (
+          <div className="p-5 space-y-3 overflow-y-auto">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="flex flex-col gap-1">
+                <label className="text-xs text-gray-500">Nro. de Carga *</label>
+                <input value={form.nro_carga} onChange={e => set("nro_carga", e.target.value)} className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#c0392b]" placeholder="Ej: C-001" />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs text-gray-500">Fecha *</label>
+                <input type="date" value={form.fecha} onChange={e => set("fecha", e.target.value)} className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#c0392b]" />
+              </div>
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs text-gray-500">Fecha *</label>
-              <input type="date" value={form.fecha} onChange={e => set("fecha", e.target.value)} className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#c0392b]" />
-            </div>
-          </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-xs text-gray-500">Capacidad de pallets *</label>
-            <div className="flex gap-2">
-              {[20, 21].map(n => (
-                <button key={n} onClick={() => set("cant_pallets_max", n)}
-                  className={`flex-1 py-2 rounded-lg border text-sm font-semibold transition-all ${form.cant_pallets_max === n ? "bg-[#c0392b] text-white border-[#c0392b]" : "border-gray-200 text-gray-600 hover:border-[#c0392b]"}`}>
-                  {n} pallets
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-xs text-gray-500">Destino</label>
-            <input value={form.destino} onChange={e => set("destino", e.target.value)} className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#c0392b]" placeholder="País / puerto de destino" />
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="flex flex-col gap-1">
-              <label className="text-xs text-gray-500">Contenedor</label>
-              <input value={form.contenedor} onChange={e => set("contenedor", e.target.value)} className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#c0392b]" />
+              <label className="text-xs text-gray-500">Capacidad de pallets *</label>
+              <div className="flex gap-2">
+                {[20, 21].map(n => (
+                  <button key={n} onClick={() => set("cant_pallets_max", n)}
+                    className={`flex-1 py-2 rounded-lg border text-sm font-semibold transition-all ${form.cant_pallets_max === n ? "bg-[#c0392b] text-white border-[#c0392b]" : "border-gray-200 text-gray-600 hover:border-[#c0392b]"}`}>
+                    {n} pallets
+                  </button>
+                ))}
+              </div>
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs text-gray-500">Nro. Remito</label>
-              <input value={form.nro_remito} onChange={e => set("nro_remito", e.target.value)} className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#c0392b]" />
+              <label className="text-xs text-gray-500">Destino</label>
+              <input value={form.destino} onChange={e => set("destino", e.target.value)} className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#c0392b]" placeholder="País / puerto de destino" />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="flex flex-col gap-1">
+                <label className="text-xs text-gray-500">Contenedor</label>
+                <input value={form.contenedor} onChange={e => set("contenedor", e.target.value)} className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-[#c0392b]" />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs text-gray-500">Nro. Remito</label>
+                <input value={form.nro_remito} onChange={e => set("nro_remito", e.target.value)} className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-[#c0392b]" />
+              </div>
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-gray-500">Observaciones</label>
+              <textarea value={form.observaciones} onChange={e => set("observaciones", e.target.value)} rows={2} className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#c0392b] resize-none" />
             </div>
           </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-xs text-gray-500">Observaciones</label>
-            <textarea value={form.observaciones} onChange={e => set("observaciones", e.target.value)} rows={2} className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#c0392b] resize-none" />
-          </div>
-        </div>
-        <div className="px-5 py-4 border-t flex gap-2 justify-end">
-          <button onClick={onClose} className="px-4 py-2 border rounded-lg text-xs text-gray-600 hover:bg-gray-50">Cancelar</button>
-          <button onClick={handleSave} disabled={saving || !form.nro_carga || !form.fecha}
-            className="px-4 py-2 bg-[#c0392b] text-white rounded-lg text-xs font-semibold hover:bg-[#a93226] disabled:opacity-60 flex items-center gap-1">
-            {saving ? <div className="w-3 h-3 border-2 border-white/40 border-t-white rounded-full animate-spin" /> : <Plus className="w-3 h-3" />}
-            Crear Carga
+        ) : (
+          <>
+            {/* Contador */}
+            <div className="px-5 py-3 border-b flex-shrink-0">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-xs text-gray-500">Pallets seleccionados</span>
+                <span className={`text-sm font-bold ${count === max ? "text-green-600" : "text-[#5c1020]"}`}>{count} / {max}</span>
+              </div>
+              <div className="w-full bg-gray-100 rounded-full h-2">
+                <div className="h-2 rounded-full transition-all" style={{ width: `${Math.min((count / max) * 100, 100)}%`, backgroundColor: count === max ? "#276749" : "#c0392b" }} />
+              </div>
+            </div>
+            {/* Filtro */}
+            <div className="px-5 py-3 border-b flex-shrink-0">
+              <input value={filtro} onChange={e => setFiltro(e.target.value)} placeholder="Buscar por romaneo, productor, calibre, variedad..." className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#c0392b]" />
+            </div>
+            {/* Lista */}
+            <div className="flex-1 overflow-y-auto">
+              <table className="w-full text-xs">
+                <thead className="bg-gray-50 sticky top-0">
+                  <tr>
+                    <th className="px-3 py-2 text-left w-8"></th>
+                    <th className="px-3 py-2 text-left">Romaneo</th>
+                    <th className="px-3 py-2 text-left">Fecha</th>
+                    <th className="px-3 py-2 text-left">Productor</th>
+                    <th className="px-3 py-2 text-left">Variedad</th>
+                    <th className="px-3 py-2 text-left">Calibre</th>
+                    <th className="px-3 py-2 text-right">Bultos</th>
+                    <th className="px-3 py-2 text-right">Kg netos</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {disponibles.length === 0 && (
+                    <tr><td colSpan={8} className="text-center py-8 text-gray-400">No hay registros de producción disponibles</td></tr>
+                  )}
+                  {disponibles.map((p, i) => {
+                    const sel = selected.has(p.id);
+                    const disabled = !sel && count >= max;
+                    return (
+                      <tr key={p.id}
+                        onClick={() => !disabled && toggle(p.id)}
+                        className={`cursor-pointer transition-colors border-b ${sel ? "bg-green-50" : disabled ? "opacity-40 cursor-not-allowed" : i % 2 === 0 ? "bg-white hover:bg-gray-50" : "bg-gray-50/50 hover:bg-gray-100"}`}>
+                        <td className="px-3 py-2.5">
+                          <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${sel ? "bg-[#276749] border-[#276749]" : "border-gray-300"}`}>
+                            {sel && <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
+                          </div>
+                        </td>
+                        <td className="px-3 py-2.5 font-mono font-semibold text-[#5c1020]">{p.nro_romaneo || "—"}</td>
+                        <td className="px-3 py-2.5 text-gray-600">{p.fecha}</td>
+                        <td className="px-3 py-2.5 text-gray-700">{p.productor}</td>
+                        <td className="px-3 py-2.5 text-gray-700">{p.variedad}</td>
+                        <td className="px-3 py-2.5"><span className="px-1.5 py-0.5 bg-gray-100 rounded text-gray-600">{p.calibre}</span></td>
+                        <td className="px-3 py-2.5 text-right text-gray-700">{p.cant_bultos?.toLocaleString()}</td>
+                        <td className="px-3 py-2.5 text-right font-semibold text-gray-800">{p.kg_netos?.toLocaleString()}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
+
+        <div className="px-5 py-4 border-t flex gap-2 justify-between flex-shrink-0">
+          <button onClick={step === 1 ? onClose : () => setStep(1)} className="px-4 py-2 border rounded-lg text-xs text-gray-600 hover:bg-gray-50">
+            {step === 1 ? "Cancelar" : "← Volver"}
           </button>
+          {step === 1 ? (
+            <button onClick={() => setStep(2)} disabled={!form.nro_carga || !form.fecha}
+              className="px-4 py-2 bg-[#c0392b] text-white rounded-lg text-xs font-semibold hover:bg-[#a93226] disabled:opacity-60">
+              Seleccionar pallets →
+            </button>
+          ) : (
+            <button onClick={handleSave} disabled={saving}
+              className="px-4 py-2 bg-[#276749] text-white rounded-lg text-xs font-semibold hover:bg-[#1e5438] disabled:opacity-60 flex items-center gap-1">
+              {saving ? <div className="w-3 h-3 border-2 border-white/40 border-t-white rounded-full animate-spin" /> : <CheckCircle className="w-3 h-3" />}
+              Crear Carga ({count} pallets)
+            </button>
+          )}
         </div>
       </div>
     </div>
@@ -407,7 +511,7 @@ export default function Despachos() {
         </div>
       )}
 
-      {showNueva && <NuevaCargaModal onClose={() => setShowNueva(false)} onCreated={handleCreated} />}
+      {showNueva && <NuevaCargaModal onClose={() => setShowNueva(false)} onCreated={handleCreated} producciones={producciones} />}
       {asignando && (
         <AsignarPalletModal
           despacho={asignando}
