@@ -1,22 +1,57 @@
-import { Link, useLocation, Outlet, useNavigate, matchPath } from "react-router-dom";
+import { Link, useLocation, Outlet, useNavigate } from "react-router-dom";
 import { LayoutDashboard, Wheat, Package, BarChart2, Settings, Menu, X, ArrowLeft, Truck } from "lucide-react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import Dashboard from "@/pages/Dashboard";
+import Cosecha from "@/pages/Cosecha";
+import Produccion from "@/pages/Produccion";
+import Despachos from "@/pages/Despachos";
+import Reportes from "@/pages/Reportes";
+import Configuracion from "@/pages/Configuracion";
 
 const navItems = [
-  { to: "/", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/cosecha", label: "Cosecha", icon: Wheat },
-  { to: "/produccion", label: "Producción", icon: Package },
-  { to: "/despachos", label: "Despachos", icon: Truck },
-  { to: "/reportes", label: "Reportes", icon: BarChart2 },
-  { to: "/configuracion", label: "Configuración", icon: Settings },
+  { to: "/", label: "Dashboard", icon: LayoutDashboard, Component: Dashboard },
+  { to: "/cosecha", label: "Cosecha", icon: Wheat, Component: Cosecha },
+  { to: "/produccion", label: "Producción", icon: Package, Component: Produccion },
+  { to: "/despachos", label: "Despachos", icon: Truck, Component: Despachos },
+  { to: "/reportes", label: "Reportes", icon: BarChart2, Component: Reportes },
+  { to: "/configuracion", label: "Configuración", icon: Settings, Component: Configuracion },
 ];
+
+// Determine if a path corresponds to a primary tab
+const primaryPaths = navItems.map(n => n.to);
+
+function isSubRoute(pathname) {
+  return !primaryPaths.includes(pathname);
+}
+
+function getActiveTab(pathname) {
+  if (pathname === "/") return "/";
+  const match = navItems.find(n => n.to !== "/" && pathname.startsWith(n.to));
+  return match ? match.to : "/";
+}
 
 export default function Layout() {
   const location = useLocation();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
-  const isRoot = ['/','/ cosecha','/produccion','/reportes','/configuracion'].includes(location.pathname);
-  const canGoBack = location.pathname.split('/').length > 2;
+
+  const showSubRoute = isSubRoute(location.pathname);
+  const activeTab = getActiveTab(location.pathname);
+  const canGoBack = showSubRoute;
+
+  // Keep track of which tabs have been visited so we only mount them once they're needed
+  const [visited, setVisited] = useState(() => new Set([activeTab]));
+
+  useMemo(() => {
+    if (!showSubRoute) {
+      setVisited(prev => {
+        if (prev.has(activeTab)) return prev;
+        const next = new Set(prev);
+        next.add(activeTab);
+        return next;
+      });
+    }
+  }, [activeTab, showSubRoute]);
 
   return (
     <div className="h-screen flex bg-[#f8f0f1] overflow-hidden">
@@ -50,7 +85,7 @@ export default function Layout() {
             <Link
               key={to}
               to={to}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all min-h-[44px] ${
                 location.pathname === to
                   ? "bg-[#c0392b] text-white shadow-md"
                   : "text-red-100 hover:bg-[#7a1a30] hover:text-white"
@@ -67,10 +102,10 @@ export default function Layout() {
       </aside>
 
       {/* Mobile header */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-[#5c1020] text-white px-4 flex items-center justify-between shadow-lg" style={{ paddingTop: 'calc(12px + env(safe-area-inset-top))', paddingBottom: '12px' }}>
+      <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-[#5c1020] text-white px-4 flex items-center justify-between shadow-lg" style={{ paddingTop: 'calc(12px + env(safe-area-inset-top))', paddingBottom: '12px', minHeight: '44px' }}>
         <div className="flex items-center gap-2">
           {canGoBack ? (
-            <button onClick={() => navigate(-1)} className="p-1 mr-1">
+            <button onClick={() => navigate(-1)} className="p-1 mr-1 min-h-[44px] min-w-[44px] flex items-center justify-center">
               <ArrowLeft className="w-5 h-5" />
             </button>
           ) : null}
@@ -86,12 +121,12 @@ export default function Layout() {
           </svg>
           <span className="font-bold text-sm">Rimonim</span>
         </div>
-        <button onClick={() => setOpen(!open)} className="p-1">
+        <button onClick={() => setOpen(!open)} className="p-1 min-h-[44px] min-w-[44px] flex items-center justify-center">
           {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
       </div>
 
-      {/* Mobile menu */}
+      {/* Mobile menu overlay */}
       {open && (
         <div className="md:hidden fixed inset-0 z-40 bg-black/50" onClick={() => setOpen(false)}>
           <div className="bg-[#5c1020] w-56 h-full pt-16 px-3 space-y-1" onClick={e => e.stopPropagation()}>
@@ -100,7 +135,7 @@ export default function Layout() {
                 key={to}
                 to={to}
                 onClick={() => setOpen(false)}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all min-h-[44px] ${
                   location.pathname === to
                     ? "bg-[#c0392b] text-white"
                     : "text-red-100 hover:bg-[#7a1a30]"
@@ -116,7 +151,23 @@ export default function Layout() {
 
       {/* Main content */}
       <main className="flex-1 overflow-auto md:pt-0 pt-14 md:pb-0 pb-16">
-        <Outlet />
+        {/* Sub-routes (e.g. edit pages) rendered via Outlet */}
+        {showSubRoute && (
+          <div className="h-full">
+            <Outlet />
+          </div>
+        )}
+
+        {/* Primary tab views — always mounted once visited, hidden when inactive */}
+        {navItems.map(({ to, Component }) => {
+          if (!visited.has(to)) return null;
+          const isActive = !showSubRoute && activeTab === to;
+          return (
+            <div key={to} style={{ display: isActive ? "block" : "none" }} className="h-full">
+              <Component />
+            </div>
+          );
+        })}
       </main>
 
       {/* Mobile bottom tab bar */}
@@ -125,8 +176,8 @@ export default function Layout() {
           <Link
             key={to}
             to={to}
-            className={`flex-1 flex flex-col items-center justify-center py-2 text-[10px] font-semibold transition-all ${
-              location.pathname === to || (to !== '/' && location.pathname.startsWith(to))
+            className={`flex-1 flex flex-col items-center justify-center py-2 text-[10px] font-semibold transition-all min-h-[44px] ${
+              activeTab === to && !showSubRoute
                 ? 'text-white'
                 : 'text-red-300 opacity-70'
             }`}

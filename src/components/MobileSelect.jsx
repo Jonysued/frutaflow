@@ -41,7 +41,7 @@ export default function MobileSelect({
           <DrawerHeader>
             <DrawerTitle className="text-[#5c1020]">{label}</DrawerTitle>
           </DrawerHeader>
-          <div className="overflow-y-auto pb-safe" style={{ maxHeight: "55vh" }}>
+          <div className="overflow-y-auto" style={{ maxHeight: "55vh", paddingBottom: "max(1.5rem, env(safe-area-inset-bottom))" }}>
             <button
               type="button"
               onClick={() => { onChange(""); setOpen(false); }}

@@ -138,7 +138,7 @@ export default function ImportModal({ entity, onClose }) {
             </div>
           )}
         </div>
-        <div className="px-5 py-4 border-t flex gap-2 justify-end">
+        <div className="px-5 py-4 border-t flex gap-2 justify-end" style={{ paddingBottom: "max(1rem, env(safe-area-inset-bottom))" }}>
           <button onClick={onClose} className="px-4 py-2 border rounded-lg text-xs text-gray-600 hover:bg-gray-50">
             {status === "success" ? "Cerrar" : "Cancelar"}
           </button>
