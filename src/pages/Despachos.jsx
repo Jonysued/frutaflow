@@ -732,8 +732,8 @@ export default function Despachos() {
         </div>
       ) : (
         <div className="space-y-3">
-          {cargasFiltradas.map((carga) => {
-            const numero = cargas.indexOf(carga) + 1;
+          {cargasFiltradas.map((carga, i) => {
+            const numero = i + 1;
             return (
               <CargaCard
                 key={carga.id}
