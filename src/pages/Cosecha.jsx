@@ -10,12 +10,24 @@ export default function Cosecha() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [showImport, setShowImport] = useState(false);
+  const [filtros, setFiltros] = useState({ fecha: "", cuadrilla: "", procedencia: "" });
+  const [showFiltros, setShowFiltros] = useState(false);
+
+  const setFiltro = (k, v) => setFiltros(f => ({ ...f, [k]: v }));
+  const limpiarFiltros = () => setFiltros({ fecha: "", cuadrilla: "", procedencia: "" });
+  const filtrosActivos = Object.values(filtros).some(v => v !== "");
 
   const { data: registros = [], isLoading: loading, refetch } = useQuery({
     queryKey: ['cosechas'],
     queryFn: () => base44.entities.Cosecha.list('-fecha', 50000),
     staleTime: 1000 * 60 * 5,
   });
+
+  const registrosFiltrados = registros.filter(r =>
+    (!filtros.fecha || r.fecha === filtros.fecha) &&
+    (!filtros.cuadrilla || (r.cuadrilla || "").toLowerCase().includes(filtros.cuadrilla.toLowerCase())) &&
+    (!filtros.procedencia || (r.procedencia || "").toLowerCase().includes(filtros.procedencia.toLowerCase()))
+  );
 
   const { refreshing } = usePullToRefresh(refetch);
 
@@ -41,6 +53,14 @@ export default function Cosecha() {
           <p className="text-sm text-gray-500">Registro de BINs cosechados por fecha y turno</p>
         </div>
         <div className="flex gap-2 flex-wrap">
+          <button
+            onClick={() => setShowFiltros(f => !f)}
+            className={`flex items-center gap-1 px-3 py-2 border rounded-lg text-xs font-semibold transition-all ${
+              filtrosActivos ? "bg-[#c0392b] text-white border-[#c0392b]" : "border-gray-200 text-gray-600 hover:bg-gray-50"
+            }`}
+          >
+            🔍 Filtros {filtrosActivos && `(activos)`}
+          </button>
           <button onClick={() => setShowImport(true)} className="flex items-center gap-1 px-3 py-2 border border-[#7a1a30] rounded-lg text-xs text-[#7a1a30] hover:bg-red-50">
             <Upload className="w-3.5 h-3.5" /> Importar
           </button>
@@ -52,6 +72,31 @@ export default function Cosecha() {
 
 
 
+
+      {showFiltros && (
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-gray-500">Fecha</label>
+              <input type="date" value={filtros.fecha} onChange={e => setFiltro("fecha", e.target.value)} className="border rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#c0392b]" />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-gray-500">Cuadrilla</label>
+              <input value={filtros.cuadrilla} onChange={e => setFiltro("cuadrilla", e.target.value)} placeholder="Buscar..." className="border rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#c0392b]" />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-gray-500">Procedencia</label>
+              <input value={filtros.procedencia} onChange={e => setFiltro("procedencia", e.target.value)} placeholder="Buscar..." className="border rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#c0392b]" />
+            </div>
+          </div>
+          {filtrosActivos && (
+            <div className="mt-3 flex items-center gap-2">
+              <span className="text-xs text-gray-500">{registrosFiltrados.length} registros encontrados</span>
+              <button onClick={limpiarFiltros} className="text-xs text-red-600 hover:underline">Limpiar filtros</button>
+            </div>
+          )}
+        </div>
+      )}
 
       {showImport && <ImportModal entity="Cosecha" onClose={() => { setShowImport(false); refetch(); }} />}
 
@@ -81,10 +126,10 @@ export default function Cosecha() {
                 </tr>
               </thead>
               <tbody>
-                {registros.length === 0 && (
+                {registrosFiltrados.length === 0 && (
                   <tr><td colSpan={13} className="text-center py-10 text-gray-400">No hay registros aún. Cargá manualmente con el botón "Nuevo BIN".</td></tr>
                 )}
-                {registros.map((r, i) => (
+                {registrosFiltrados.map((r, i) => (
                   <tr key={r.id} className={i % 2 === 0 ? "bg-white" : "bg-[#fdf4f5]"}>
                     <td className="px-3 py-2.5 font-medium text-gray-700 whitespace-nowrap">{r.fecha}</td>
                     <td className="px-3 py-2.5">
