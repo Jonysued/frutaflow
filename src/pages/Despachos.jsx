@@ -2,7 +2,7 @@ import { useState } from "react";
 import { formatDate } from "@/utils/dateUtils";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
-import { Plus, Truck, X, CheckCircle, Package, ChevronDown, ChevronUp, Trash2 } from "lucide-react";
+import { Plus, Truck, X, CheckCircle, Package, ChevronDown, ChevronUp, Trash2, Pencil } from "lucide-react";
 
 const ESTADO_COLORS = {
   Borrador: "bg-yellow-100 text-yellow-700",
@@ -335,7 +335,94 @@ function AsignarPalletModal({ despacho, producciones, onClose, onSaved, assigned
   );
 }
 
-function CargaCard({ carga, producciones, onAsignar, onDelete, onToggleEstado }) {
+function EditarDespachoModal({ despacho, onClose, onSaved }) {
+  const [form, setForm] = useState({
+    nro_carga: despacho.nro_carga || "",
+    fecha: despacho.fecha || "",
+    cliente: despacho.cliente || "",
+    destino: despacho.destino || "",
+    cant_pallets_max: despacho.cant_pallets_max || 21,
+    contenedor: despacho.contenedor || "",
+    termografo: despacho.termografo || "",
+    nro_remito: despacho.nro_remito || "",
+  });
+  const [saving, setSaving] = useState(false);
+  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+
+  const handleSave = async () => {
+    if (!form.nro_carga || !form.fecha) return;
+    setSaving(true);
+    const updated = await base44.entities.Despacho.update(despacho.id, form);
+    onSaved(updated);
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-lg flex flex-col max-h-[90vh]">
+        <div className="flex items-center justify-between px-5 py-4 border-b flex-shrink-0">
+          <h2 className="font-semibold text-[#5c1020] text-sm">Editar Despacho — {despacho.nro_carga}</h2>
+          <button onClick={onClose}><X className="w-4 h-4 text-gray-400 hover:text-gray-700" /></button>
+        </div>
+        <div className="p-5 space-y-3 overflow-y-auto">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-gray-500">Nro. de Carga *</label>
+              <input value={form.nro_carga} onChange={e => set("nro_carga", e.target.value)} className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#c0392b]" />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-gray-500">Fecha *</label>
+              <input type="date" value={form.fecha} onChange={e => set("fecha", e.target.value)} className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#c0392b]" />
+            </div>
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-gray-500">Capacidad de pallets *</label>
+            <div className="flex gap-2">
+              {[20, 21].map(n => (
+                <button key={n} onClick={() => set("cant_pallets_max", n)}
+                  className={`flex-1 py-2 rounded-lg border text-sm font-semibold transition-all ${form.cant_pallets_max === n ? "bg-[#c0392b] text-white border-[#c0392b]" : "border-gray-200 text-gray-600 hover:border-[#c0392b]"}`}>
+                  {n} pallets
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-gray-500">Cliente</label>
+            <input value={form.cliente} onChange={e => set("cliente", e.target.value)} className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#c0392b]" placeholder="Nombre del cliente" />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-gray-500">Destino</label>
+            <input value={form.destino} onChange={e => set("destino", e.target.value)} className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#c0392b]" placeholder="País / puerto de destino" />
+          </div>
+          <div className="border-t pt-3 space-y-3">
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Datos de envío</p>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-gray-500">Contenedor</label>
+              <input value={form.contenedor} onChange={e => set("contenedor", e.target.value)} className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#c0392b]" placeholder="Nro. de contenedor" />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-gray-500">Termógrafo</label>
+              <input value={form.termografo} onChange={e => set("termografo", e.target.value)} className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#c0392b]" placeholder="Nro. de termógrafo" />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-gray-500">Número de Remito</label>
+              <input value={form.nro_remito} onChange={e => set("nro_remito", e.target.value)} className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#c0392b]" placeholder="Nro. de remito" />
+            </div>
+          </div>
+        </div>
+        <div className="px-5 py-4 border-t flex gap-2 justify-end flex-shrink-0">
+          <button onClick={onClose} className="px-4 py-2 border rounded-lg text-xs text-gray-600 hover:bg-gray-50">Cancelar</button>
+          <button onClick={handleSave} disabled={saving || !form.nro_carga || !form.fecha}
+            className="px-4 py-2 bg-[#276749] text-white rounded-lg text-xs font-semibold hover:bg-[#1e5438] disabled:opacity-60 flex items-center gap-1">
+            {saving ? <div className="w-3 h-3 border-2 border-white/40 border-t-white rounded-full animate-spin" /> : <CheckCircle className="w-3 h-3" />}
+            Guardar cambios
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CargaCard({ carga, producciones, onAsignar, onDelete, onToggleEstado, onEdit }) {
   const [expanded, setExpanded] = useState(false);
   const pallets = (carga.pallet_ids || []).map(id => producciones.find(p => p.id === id)).filter(Boolean);
   const count = pallets.length;
@@ -380,6 +467,9 @@ function CargaCard({ carga, producciones, onAsignar, onDelete, onToggleEstado })
             </button>
             <button onClick={() => setExpanded(e => !e)} className="p-1.5 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50">
               {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            </button>
+            <button onClick={() => onEdit(carga)} className="p-1.5 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50">
+              <Pencil className="w-4 h-4" />
             </button>
             <button onClick={() => onDelete(carga)} className="p-1.5 rounded-lg text-gray-300 hover:text-red-500">
               <Trash2 className="w-4 h-4" />
@@ -445,6 +535,7 @@ export default function Despachos() {
   const queryClient = useQueryClient();
   const [showNueva, setShowNueva] = useState(false);
   const [asignando, setAsignando] = useState(null);
+  const [editando, setEditando] = useState(null);
 
   const { data: cargas = [], isLoading: loadingCargas } = useQuery({
     queryKey: ["despachos"],
@@ -468,6 +559,11 @@ export default function Despachos() {
   const handleSaved = (updated) => {
     queryClient.setQueryData(["despachos"], old => (old || []).map(c => c.id === updated.id ? updated : c));
     setAsignando(null);
+  };
+
+  const handleEdited = (updated) => {
+    queryClient.setQueryData(["despachos"], old => (old || []).map(c => c.id === updated.id ? updated : c));
+    setEditando(null);
   };
 
   const handleDelete = async (carga) => {
@@ -541,12 +637,14 @@ export default function Despachos() {
               onAsignar={setAsignando}
               onDelete={handleDelete}
               onToggleEstado={handleToggleEstado}
+              onEdit={setEditando}
             />
           ))}
         </div>
       )}
 
       {showNueva && <NuevaCargaModal onClose={() => setShowNueva(false)} onCreated={handleCreated} producciones={producciones} assignedIds={asignadosIds} />}
+      {editando && <EditarDespachoModal despacho={editando} onClose={() => setEditando(null)} onSaved={handleEdited} />}
       {asignando && (
         <AsignarPalletModal
           despacho={asignando}
