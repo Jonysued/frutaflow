@@ -223,7 +223,7 @@ export default function Dashboard() {
         <>
           {/* Métricas */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <MetricCard label="Vuelco" value={totalCosechaKg.toLocaleString()} unit="kg" icon={Wheat} color="#c0392b" />
+            <MetricCard label="Vuelco" value={totalVuelcoKg.toLocaleString()} unit="kg" icon={Wheat} color="#c0392b" />
             <MetricCard label="Producción (kg netos)" value={totalProdKg.toLocaleString()} unit="kg" icon={Package} color="#7a1a30" />
             <MetricCard label="Bultos producidos" value={totalBultos.toLocaleString()} unit="blt" icon={Layers} color="#276749" />
             <MetricCard label="Rendimiento" value={rendimientoDia.toFixed(1)} unit="%" icon={TrendingUp} color="#b7791f" />
