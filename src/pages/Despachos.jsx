@@ -15,8 +15,13 @@ function NuevaCargaModal({ onClose, onCreated, producciones, assignedIds }) {
   const [selected, setSelected] = useState(new Set());
   const [filtro, setFiltro] = useState("");
   const [saving, setSaving] = useState(false);
-  const [step, setStep] = useState(1); // 1: datos, 2: pallets
+  const [step, setStep] = useState(1);
   const [sortDesc, setSortDesc] = useState(true);
+  
+  const handleStepChange = (newStep) => {
+    setFiltro("");
+    setStep(newStep);
+  }
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
   const max = form.cant_pallets_max;
@@ -32,10 +37,10 @@ function NuevaCargaModal({ onClose, onCreated, producciones, assignedIds }) {
   };
 
   const matchFiltro = (p) => {
-    const q = filtro.trim().toLowerCase();
+    const q = filtro.toLowerCase();
     if (!q) return true;
     const fields = [p.nro_romaneo, p.productor, p.calibre, p.variedad, p.envase, p.especie];
-    return fields.some(f => String(f ?? "").trim().toLowerCase().includes(q));
+    return fields.some(f => String(f || "").toLowerCase().includes(q));
   };
 
   const disponibles = producciones.filter(p => {
@@ -193,16 +198,16 @@ function NuevaCargaModal({ onClose, onCreated, producciones, assignedIds }) {
         )}
 
         <div className="px-5 py-4 border-t flex gap-2 justify-between flex-shrink-0">
-          <button onClick={step === 1 ? onClose : () => setStep(s => s - 1)} className="px-4 py-2 border rounded-lg text-xs text-gray-600 hover:bg-gray-50">
+          <button onClick={step === 1 ? onClose : () => handleStepChange(step - 1)} className="px-4 py-2 border rounded-lg text-xs text-gray-600 hover:bg-gray-50">
             {step === 1 ? "Cancelar" : "← Volver"}
           </button>
           {step === 1 ? (
-            <button onClick={() => setStep(2)} disabled={!form.nro_carga || !form.fecha}
+            <button onClick={() => handleStepChange(2)} disabled={!form.nro_carga || !form.fecha}
               className="px-4 py-2 bg-[#c0392b] text-white rounded-lg text-xs font-semibold hover:bg-[#a93226] disabled:opacity-60">
               Seleccionar pallets →
             </button>
           ) : step === 2 ? (
-            <button onClick={() => setStep(3)}
+            <button onClick={() => handleStepChange(3)}
               className="px-4 py-2 bg-[#c0392b] text-white rounded-lg text-xs font-semibold hover:bg-[#a93226]">
               Datos de envío →
             </button>
