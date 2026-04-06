@@ -448,7 +448,7 @@ function EditarDespachoModal({ despacho, onClose, onSaved }) {
   );
 }
 
-function CargaCard({ carga, producciones, onAsignar, onDelete, onToggleEstado, onEdit }) {
+function CargaCard({ numero, carga, producciones, onAsignar, onDelete, onToggleEstado, onEdit }) {
   const [expanded, setExpanded] = useState(false);
   const pallets = (carga.pallet_ids || []).map(id => producciones.find(p => p.id === id)).filter(Boolean);
   const count = pallets.length;
@@ -467,6 +467,7 @@ function CargaCard({ carga, producciones, onAsignar, onDelete, onToggleEstado, o
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
+              <p className="font-bold text-gray-400 text-sm">#{numero}</p>
               <p className="font-bold text-[#5c1020] text-sm">{carga.nro_carga}</p>
               <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${ESTADO_COLORS[carga.estado] || "bg-gray-100 text-gray-600"}`}>{carga.estado}</span>
             </div>
@@ -567,7 +568,7 @@ export default function Despachos() {
 
   const { data: cargas = [], isLoading: loadingCargas } = useQuery({
     queryKey: ["despachos"],
-    queryFn: () => base44.entities.Despacho.list("-fecha", 1000),
+    queryFn: () => base44.entities.Despacho.list("fecha", 1000),
     staleTime: 0,
   });
 
@@ -682,6 +683,7 @@ export default function Despachos() {
             <table className="w-full text-xs">
               <thead className="bg-[#5c1020] text-white">
                 <tr>
+                  <th className="px-3 py-3 text-left">#</th>
                   <th className="px-3 py-3 text-left">Nro. Carga</th>
                   <th className="px-3 py-3 text-left">Fecha</th>
                   <th className="px-3 py-3 text-left">Estado</th>
@@ -704,6 +706,7 @@ export default function Despachos() {
                   const totalKg = pallets.reduce((s, p) => s + (p.kg_netos || 0), 0);
                   return (
                     <tr key={carga.id} className={i % 2 === 0 ? "bg-white" : "bg-[#fdf4f5]"}>
+                      <td className="px-3 py-2.5 font-bold text-gray-400">{i + 1}</td>
                       <td className="px-3 py-2.5 font-bold text-[#5c1020]">{carga.nro_carga}</td>
                       <td className="px-3 py-2.5 text-gray-700 whitespace-nowrap">{formatDate(carga.fecha)}</td>
                       <td className="px-3 py-2.5">
@@ -731,9 +734,10 @@ export default function Despachos() {
         </div>
       ) : (
         <div className="space-y-3">
-          {cargasFiltradas.map(carga => (
+          {cargasFiltradas.map((carga, i) => (
             <CargaCard
               key={carga.id}
+              numero={i + 1}
               carga={carga}
               producciones={producciones}
               onAsignar={setAsignando}
