@@ -4,7 +4,7 @@ import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { format, differenceInDays, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
-import { Wheat, Package, Layers, TrendingUp, AlertTriangle, Thermometer, Trash2 } from "lucide-react";
+import { Wheat, Package, Layers, TrendingUp, AlertTriangle, Thermometer, Trash2, Grape, Leaf } from "lucide-react";
 
 const TURNOS = ["Mañana", "Tarde", "Noche"];
 const TURNO_COLORS = { Mañana: "#c0392b", Tarde: "#7a1a30", Noche: "#2c0a12" };
@@ -109,6 +109,12 @@ export default function Dashboard() {
   // Rendimiento = producción / cosecha
   const rendimientoDia = totalCosechaKg > 0 ? (totalProdKg / totalCosechaKg) * 100 : 0;
 
+  // % Arilos y % Fresco desde Producción (tipo_proceso en cosecha)
+  const kgArilos = cosechasDia.filter(c => c.tipo_proceso === "ARILO").reduce((s, c) => s + (c.neto || 0), 0);
+  const kgFresco = cosechasDia.filter(c => c.tipo_proceso === "FRESCO").reduce((s, c) => s + (c.neto || 0), 0);
+  const pctArilos = totalCosechaKg > 0 ? (kgArilos / totalCosechaKg * 100) : 0;
+  const pctFresco = totalCosechaKg > 0 ? (kgFresco / totalCosechaKg * 100) : 0;
+
   const turnosActivos = TURNOS.filter(t =>
     cosechasDia.some(c => c.turno === t) || produccionesDia.some(p => p.turno === t)
   );
@@ -158,6 +164,8 @@ export default function Dashboard() {
             <MetricCard label="Rendimiento" value={rendimientoDia.toFixed(1)} unit="%" icon={TrendingUp} color="#b7791f" />
             <MetricCard label="Descarte" value={(totalCosechaKg - totalProdKg > 0 ? totalCosechaKg - totalProdKg : 0).toLocaleString()} unit="kg" icon={Trash2} color="#6b7280" />
             <MetricCard label="% Descarte" value={totalCosechaKg > 0 ? ((totalCosechaKg - totalProdKg) / totalCosechaKg * 100).toFixed(1) : "0.0"} unit="%" icon={Trash2} color="#6b7280" />
+            <MetricCard label="% Arilos" value={pctArilos.toFixed(1)} unit="%" icon={Grape} color="#7c3aed" />
+            <MetricCard label="% Fresco" value={pctFresco.toFixed(1)} unit="%" icon={Leaf} color="#276749" />
           </div>
 
           <div>
