@@ -37,7 +37,7 @@ function NuevaCargaModal({ onClose, onCreated, producciones, assignedIds }) {
   };
 
   const matchFiltro = (p) => {
-    const q = (filtro || "").toLowerCase();
+    const q = (filtro || "").trim().toLowerCase();
     if (!q) return true;
     const str = `${p.nro_romaneo || ""} ${p.productor || ""} ${p.calibre || ""} ${p.variedad || ""} ${p.envase || ""} ${p.especie || ""}`.toLowerCase();
     return str.includes(q);
@@ -232,7 +232,7 @@ function AsignarPalletModal({ despacho, producciones, onClose, onSaved, assigned
 
   // Pallets disponibles: excluir los asignados a OTRAS cargas
   const matchFiltroA = (p) => {
-    const q = (filtro || "").toLowerCase();
+    const q = (filtro || "").trim().toLowerCase();
     if (!q) return true;
     const str = `${p.nro_romaneo || ""} ${p.productor || ""} ${p.calibre || ""} ${p.variedad || ""} ${p.envase || ""} ${p.especie || ""}`.toLowerCase();
     return str.includes(q);
