@@ -447,7 +447,9 @@ export default function Despachos() {
   // Resumen
   const totalCargas = cargas.length;
   const despachadas = cargas.filter(c => c.estado === "Despachado").length;
-  const totalPallets = cargas.reduce((s, c) => s + (c.pallet_ids || []).length, 0);
+  const asignadosIds = new Set(cargas.flatMap(c => c.pallet_ids || []));
+  const totalPallets = asignadosIds.size;
+  const palletsNoAsignados = producciones.filter(p => !asignadosIds.has(p.id)).length;
 
   return (
     <div className="p-4 md:p-6 space-y-4">
@@ -462,7 +464,7 @@ export default function Despachos() {
       </div>
 
       {/* Resumen */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div className="bg-white rounded-xl p-4 shadow-sm border-l-4 border-[#c0392b] text-center">
           <p className="text-xs text-gray-400">Total Cargas</p>
           <p className="text-2xl font-bold text-gray-800">{totalCargas}</p>
@@ -474,6 +476,10 @@ export default function Despachos() {
         <div className="bg-white rounded-xl p-4 shadow-sm border-l-4 border-[#7a1a30] text-center">
           <p className="text-xs text-gray-400">Pallets asignados</p>
           <p className="text-2xl font-bold text-gray-800">{totalPallets}</p>
+        </div>
+        <div className="bg-white rounded-xl p-4 shadow-sm border-l-4 border-[#b7791f] text-center">
+          <p className="text-xs text-gray-400">Pallets sin asignar</p>
+          <p className="text-2xl font-bold text-[#b7791f]">{palletsNoAsignados}</p>
         </div>
       </div>
 
