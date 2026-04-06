@@ -93,6 +93,12 @@ Deno.serve(async (req) => {
           y = margin;
         }
         
+        // Dibujar fondo primero
+        if (idx % 2 === 0) {
+          doc.setFillColor(245, 245, 245);
+          doc.rect(margin, y - 4, pageWidth - 2 * margin, 6, 'F');
+        }
+        
         const rowData = [
           p.nro_romaneo || '—',
           p.productor || '—',
@@ -102,17 +108,14 @@ Deno.serve(async (req) => {
           String(p.kg_netos || 0)
         ];
 
+        // Luego dibujar texto
+        doc.setTextColor(0, 0, 0);
         x = margin;
         rowData.forEach((cell, i) => {
           doc.text(cell, x + 2, y);
           x += colWidths[i];
         });
-
-        if (idx % 2 === 0) {
-          doc.setFillColor(245, 245, 245);
-          doc.rect(margin, y - 4, pageWidth - 2 * margin, 5, 'F');
-        }
-        y += 5;
+        y += 6;
       });
 
       // Totales
