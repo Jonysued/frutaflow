@@ -8,14 +8,11 @@ import { Wheat, Package, Layers, TrendingUp, AlertTriangle, Thermometer, Trash2,
 const TURNOS = ["Mañana", "Tarde", "Noche"];
 const TURNO_COLORS = { Mañana: "#c0392b", Tarde: "#7a1a30", Noche: "#2c0a12" };
 
-// Normaliza fechas a yyyy-mm-dd independientemente del formato de origen
 function normDate(f) {
   if (!f) return null;
   const s = String(f).trim();
-  // dd/mm/yyyy o d/m/yyyy
   const dmy = s.match(/^(\d{1,2})[/\-](\d{1,2})[/\-](\d{4})$/);
   if (dmy) return `${dmy[3]}-${dmy[2].padStart(2,'0')}-${dmy[1].padStart(2,'0')}`;
-  // yyyy-mm-dd (ya correcto)
   const ymd = s.match(/^(\d{4})[/\-](\d{1,2})[/\-](\d{1,2})$/);
   if (ymd) return `${ymd[1]}-${ymd[2].padStart(2,'0')}-${ymd[3].padStart(2,'0')}`;
   return s;
@@ -88,6 +85,7 @@ export default function Dashboard() {
   const [fechaHasta, setFechaHasta] = useState(format(new Date(), "yyyy-MM-dd"));
   const [loading, setLoading] = useState(true);
   const [fechaIniciada, setFechaIniciada] = useState(false);
+  const [filtroProductor, setFiltroProductor] = useState("");
 
   const loadData = useCallback(() => {
     setLoading(true);
@@ -95,7 +93,6 @@ export default function Dashboard() {
       base44.entities.Cosecha.list("-fecha", 50000),
       base44.entities.Produccion.list("-fecha", 50000)
     ]).then(([c, p]) => {
-      // Normalizar fechas al cargar
       const cn = c.map(x => ({ ...x, fecha: normDate(x.fecha) }));
       const pn = p.map(x => ({ ...x, fecha: normDate(x.fecha) }));
       setCosechas(cn);
@@ -127,8 +124,17 @@ export default function Dashboard() {
     return f >= fechaDesde && f <= fechaHasta;
   };
 
-  const cosechasDia = cosechas.filter(c => enRango(c.fecha));
-  const produccionesDia = producciones.filter(p => enRango(p.fecha));
+  const todosProductores = [...new Set([
+    ...cosechas.map(c => c.propietario || c.productor),
+    ...producciones.map(p => p.productor || p.propietario)
+  ].filter(Boolean))].sort();
+
+  const cosechasDia = cosechas.filter(c =>
+    enRango(c.fecha) && (!filtroProductor || (c.propietario || c.productor) === filtroProductor)
+  );
+  const produccionesDia = producciones.filter(p =>
+    enRango(p.fecha) && (!filtroProductor || (p.productor || p.propietario) === filtroProductor)
+  );
 
   const totalCosechaKg = cosechasDia.reduce((s, c) => s + (c.neto || 0), 0);
   const totalProdKg = produccionesDia.reduce((s, p) => s + (p.kg_netos || 0), 0);
@@ -168,12 +174,13 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* Header + controles de fecha */}
+      {/* Header + controles */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-[#5c1020]">Dashboard</h1>
           <p className="text-sm text-gray-500">
             {modo === "dia" ? `Balance del ${fecha}` : `Balance del ${fechaDesde} al ${fechaHasta}`}
+            {filtroProductor && <span className="ml-2 text-[#c0392b] font-semibold">— {filtroProductor}</span>}
           </p>
         </div>
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto">
@@ -190,6 +197,14 @@ export default function Dashboard() {
               <input type="date" value={fechaHasta} onChange={e => setFechaHasta(e.target.value)} className="w-full sm:w-auto border border-gray-200 rounded-lg px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-[#c0392b]" />
             </div>
           )}
+          <select
+            value={filtroProductor}
+            onChange={e => setFiltroProductor(e.target.value)}
+            className="w-full sm:w-auto border border-gray-200 rounded-lg px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-[#c0392b] bg-white"
+          >
+            <option value="">Todos los productores</option>
+            {todosProductores.map(p => <option key={p} value={p}>{p}</option>)}
+          </select>
         </div>
       </div>
 
