@@ -92,4 +92,8 @@
     user-select: none;
     -webkit-user-select: none;
   }
+
+  input, textarea, select {
+    color: #000000;
+  }
 }
