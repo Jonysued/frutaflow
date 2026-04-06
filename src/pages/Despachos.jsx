@@ -567,7 +567,7 @@ export default function Despachos() {
 
   const { data: cargas = [], isLoading: loadingCargas } = useQuery({
     queryKey: ["despachos"],
-    queryFn: () => base44.entities.Despacho.list("-fecha", 1000),
+    queryFn: () => base44.entities.Despacho.list("fecha", 1000),
     staleTime: 0,
   });
 
