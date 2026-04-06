@@ -467,7 +467,6 @@ function CargaCard({ numero, carga, producciones, onAsignar, onDelete, onToggleE
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <p className="font-bold text-gray-400 text-sm">#{numero}</p>
               <p className="font-bold text-[#5c1020] text-sm">{carga.nro_carga}</p>
               <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${ESTADO_COLORS[carga.estado] || "bg-gray-100 text-gray-600"}`}>{carga.estado}</span>
             </div>
