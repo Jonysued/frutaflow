@@ -38,12 +38,16 @@ function NuevaCargaModal({ onClose, onCreated, producciones }) {
       (p.calibre || "").toLowerCase().includes(q) ||
       (p.variedad || "").toLowerCase().includes(q);
   }).sort((a, b) => {
-    const ra = (a.nro_romaneo || "");
-    const rb = (b.nro_romaneo || "");
-    const numA = parseFloat(ra) || ra;
-    const numB = parseFloat(rb) || rb;
-    if (numA < numB) return sortDesc ? 1 : -1;
-    if (numA > numB) return sortDesc ? -1 : 1;
+    const parse = (s) => {
+      const m = (s || "").match(/^([A-Za-z]*)([\d]*)(.*)$/);
+      return [m[1].toUpperCase(), parseInt(m[2]) || 0, m[3]];
+    };
+    const [pa, na, sa] = parse(a.nro_romaneo);
+    const [pb, nb, sb] = parse(b.nro_romaneo);
+    const dir = sortDesc ? -1 : 1;
+    if (pa !== pb) return pa < pb ? -dir : dir;
+    if (na !== nb) return na < nb ? -dir : dir;
+    if (sa !== sb) return sa < sb ? -dir : dir;
     return 0;
   });
 
