@@ -698,13 +698,15 @@ export default function Despachos() {
                 </tr>
               </thead>
               <tbody>
-                {cargasFiltradas.map((carga, i) => {
-                  const pallets = (carga.pallet_ids || []).map(id => producciones.find(p => p.id === id)).filter(Boolean);
-                  const totalBultos = pallets.reduce((s, p) => s + (p.cant_bultos || 0), 0);
-                  const totalKg = pallets.reduce((s, p) => s + (p.kg_netos || 0), 0);
-                  return (
-                    <tr key={carga.id} className={i % 2 === 0 ? "bg-white" : "bg-[#fdf4f5]"}>
-                      <td className="px-3 py-2.5 font-bold text-gray-400">{i + 1}</td>
+                {cargasFiltradas.map((carga) => {
+                   const numero = cargas.indexOf(carga) + 1;
+                   const pallets = (carga.pallet_ids || []).map(id => producciones.find(p => p.id === id)).filter(Boolean);
+                   const totalBultos = pallets.reduce((s, p) => s + (p.cant_bultos || 0), 0);
+                   const totalKg = pallets.reduce((s, p) => s + (p.kg_netos || 0), 0);
+                   const isOdd = cargas.indexOf(carga) % 2 === 1;
+                   return (
+                     <tr key={carga.id} className={isOdd ? "bg-[#fdf4f5]" : "bg-white"}>
+                       <td className="px-3 py-2.5 font-bold text-gray-400">{numero}</td>
                       <td className="px-3 py-2.5 text-gray-700 whitespace-nowrap">{formatDate(carga.fecha)}</td>
                       <td className="px-3 py-2.5">
                         <span className={`px-2 py-0.5 rounded-full text-[11px] font-semibold ${ESTADO_COLORS[carga.estado] || "bg-gray-100 text-gray-600"}`}>{carga.estado}</span>
@@ -731,8 +733,8 @@ export default function Despachos() {
         </div>
       ) : (
         <div className="space-y-3">
-          {cargasFiltradas.map((carga, i) => {
-            const numero = i + 1;
+          {cargasFiltradas.map((carga) => {
+            const numero = cargas.indexOf(carga) + 1;
             return (
               <CargaCard
                 key={carga.id}
