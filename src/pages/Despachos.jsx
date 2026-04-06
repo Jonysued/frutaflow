@@ -703,7 +703,7 @@ export default function Despachos() {
                    const pallets = (carga.pallet_ids || []).map(id => producciones.find(p => p.id === id)).filter(Boolean);
                    const totalBultos = pallets.reduce((s, p) => s + (p.cant_bultos || 0), 0);
                    const totalKg = pallets.reduce((s, p) => s + (p.kg_netos || 0), 0);
-                   const isOdd = cargas.indexOf(carga) % 2 === 1;
+                   const isOdd = numero % 2 === 0;
                    return (
                      <tr key={carga.id} className={isOdd ? "bg-[#fdf4f5]" : "bg-white"}>
                        <td className="px-3 py-2.5 font-bold text-gray-400">{numero}</td>
