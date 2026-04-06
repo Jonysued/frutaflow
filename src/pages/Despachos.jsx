@@ -212,10 +212,65 @@ function NuevaCargaModal({ onClose, onCreated, producciones, assignedIds }) {
               Seleccionar pallets →
             </button>
           ) : step === 2 ? (
-            <button onClick={() => handleStepChange(3)}
-              className="px-4 py-2 bg-[#c0392b] text-white rounded-lg text-xs font-semibold hover:bg-[#a93226]">
-              Datos de envío →
-            </button>
+            <>
+            <div className="px-5 py-3 border-b flex-shrink-0">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-xs text-gray-500">Pallets seleccionados</span>
+                <span className={`text-sm font-bold ${count === max ? "text-green-600" : "text-[#5c1020]"}`}>{count} / {max}</span>
+              </div>
+              <div className="w-full bg-gray-100 rounded-full h-2">
+                <div className="h-2 rounded-full transition-all" style={{ width: `${Math.min((count / max) * 100, 100)}%`, backgroundColor: count === max ? "#276749" : "#c0392b" }} />
+              </div>
+            </div>
+            <div className="px-5 py-3 border-b flex-shrink-0">
+              <input value={filtro} onChange={e => setFiltro(e.target.value)} placeholder="Buscar por romaneo, productor, calibre, variedad..." className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#c0392b]" />
+            </div>
+            <div className="flex-1 overflow-y-auto">
+              <table className="w-full text-xs">
+                <thead className="bg-gray-50 sticky top-0">
+                  <tr>
+                    <th className="px-3 py-2 text-left w-8"></th>
+                    <th className="px-3 py-2 text-left cursor-pointer select-none" onClick={() => setSortDesc(d => !d)}>
+                      Romaneo {sortDesc ? "↓" : "↑"}
+                    </th>
+                    <th className="px-3 py-2 text-left">Fecha</th>
+                    <th className="px-3 py-2 text-left">Productor</th>
+                    <th className="px-3 py-2 text-left">Variedad</th>
+                    <th className="px-3 py-2 text-left">Calibre</th>
+                    <th className="px-3 py-2 text-right">Bultos</th>
+                    <th className="px-3 py-2 text-right">Kg netos</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {disponibles.length === 0 && (
+                    <tr><td colSpan={8} className="text-center py-8 text-gray-400">No hay registros de producción disponibles</td></tr>
+                  )}
+                  {disponibles.map((p, i) => {
+                    const sel = selected.has(p.id);
+                    const disabled = !sel && count >= max;
+                    return (
+                      <tr key={p.id}
+                        onClick={() => !disabled && toggle(p.id)}
+                        className={`cursor-pointer transition-colors border-b ${sel ? "bg-green-50" : disabled ? "opacity-40 cursor-not-allowed" : i % 2 === 0 ? "bg-white hover:bg-gray-50" : "bg-gray-50/50 hover:bg-gray-100"}`}>
+                        <td className="px-3 py-2.5">
+                          <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${sel ? "bg-[#276749] border-[#276749]" : "border-gray-300"}`}>
+                            {sel && <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
+                          </div>
+                        </td>
+                        <td className="px-3 py-2.5 font-mono font-semibold text-[#5c1020]">{p.nro_romaneo || "—"}</td>
+                        <td className="px-3 py-2.5 text-gray-600">{formatDate(p.fecha)}</td>
+                        <td className="px-3 py-2.5 text-gray-700">{p.productor}</td>
+                        <td className="px-3 py-2.5 text-gray-700">{p.variedad}</td>
+                        <td className="px-3 py-2.5"><span className="px-1.5 py-0.5 bg-gray-100 rounded text-gray-600">{p.calibre}</span></td>
+                        <td className="px-3 py-2.5 text-right text-gray-700">{p.cant_bultos?.toLocaleString()}</td>
+                        <td className="px-3 py-2.5 text-right font-semibold text-gray-800">{p.kg_netos?.toLocaleString()}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+            </>
           ) : (
             <button onClick={handleSave} disabled={saving}
               className="px-4 py-2 bg-[#276749] text-white rounded-lg text-xs font-semibold hover:bg-[#1e5438] disabled:opacity-60 flex items-center gap-1">
