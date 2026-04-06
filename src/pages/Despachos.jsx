@@ -10,7 +10,7 @@ const ESTADO_COLORS = {
 };
 
 function NuevaCargaModal({ onClose, onCreated, producciones, assignedIds }) {
-  const [form, setForm] = useState({ nro_carga: "", fecha: new Date().toISOString().slice(0,10), cliente: "", destino: "", cant_pallets_max: 21 });
+  const [form, setForm] = useState({ nro_carga: "", fecha: new Date().toISOString().slice(0,10), cliente: "", destino: "", cant_pallets_max: 21, contenedor: "", termografo: "", nro_remito: "" });
   const [selected, setSelected] = useState(new Set());
   const [filtro, setFiltro] = useState("");
   const [saving, setSaving] = useState(false);
@@ -65,10 +65,12 @@ function NuevaCargaModal({ onClose, onCreated, producciones, assignedIds }) {
         <div className="flex items-center justify-between px-5 py-4 border-b flex-shrink-0">
           <div>
             <h2 className="font-semibold text-[#5c1020] text-sm">Nuevo Despacho</h2>
-            <div className="flex items-center gap-2 mt-1">
-              <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${step === 1 ? "bg-[#c0392b] text-white" : "bg-gray-100 text-gray-500"}`}>1. Datos del despacho</span>
+            <div className="flex items-center gap-2 mt-1 flex-wrap">
+              <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${step === 1 ? "bg-[#c0392b] text-white" : "bg-gray-100 text-gray-500"}`}>1. Datos</span>
               <span className="text-gray-300 text-xs">→</span>
-              <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${step === 2 ? "bg-[#c0392b] text-white" : "bg-gray-100 text-gray-500"}`}>2. Seleccionar pallets</span>
+              <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${step === 2 ? "bg-[#c0392b] text-white" : "bg-gray-100 text-gray-500"}`}>2. Pallets</span>
+              <span className="text-gray-300 text-xs">→</span>
+              <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${step === 3 ? "bg-[#c0392b] text-white" : "bg-gray-100 text-gray-500"}`}>3. Envío</span>
             </div>
           </div>
           <button onClick={onClose}><X className="w-4 h-4 text-gray-400 hover:text-gray-700" /></button>
@@ -106,7 +108,7 @@ function NuevaCargaModal({ onClose, onCreated, producciones, assignedIds }) {
               <input value={form.destino} onChange={e => set("destino", e.target.value)} className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#c0392b]" placeholder="País / puerto de destino" />
             </div>
           </div>
-        ) : (
+        ) : step === 2 ? (
           <>
             {/* Contador */}
             <div className="px-5 py-3 border-b flex-shrink-0">
@@ -169,16 +171,36 @@ function NuevaCargaModal({ onClose, onCreated, producciones, assignedIds }) {
               </table>
             </div>
           </>
+        ) : (
+          <div className="p-5 space-y-3 overflow-y-auto">
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-gray-500">Contenedor</label>
+              <input value={form.contenedor} onChange={e => set("contenedor", e.target.value)} className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#c0392b]" placeholder="Nro. de contenedor" />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-gray-500">Termógrafo</label>
+              <input value={form.termografo} onChange={e => set("termografo", e.target.value)} className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#c0392b]" placeholder="Nro. de termógrafo" />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-gray-500">Número de Remito</label>
+              <input value={form.nro_remito} onChange={e => set("nro_remito", e.target.value)} className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#c0392b]" placeholder="Nro. de remito" />
+            </div>
+          </div>
         )}
 
         <div className="px-5 py-4 border-t flex gap-2 justify-between flex-shrink-0">
-          <button onClick={step === 1 ? onClose : () => setStep(1)} className="px-4 py-2 border rounded-lg text-xs text-gray-600 hover:bg-gray-50">
+          <button onClick={step === 1 ? onClose : () => setStep(s => s - 1)} className="px-4 py-2 border rounded-lg text-xs text-gray-600 hover:bg-gray-50">
             {step === 1 ? "Cancelar" : "← Volver"}
           </button>
           {step === 1 ? (
             <button onClick={() => setStep(2)} disabled={!form.nro_carga || !form.fecha}
               className="px-4 py-2 bg-[#c0392b] text-white rounded-lg text-xs font-semibold hover:bg-[#a93226] disabled:opacity-60">
               Seleccionar pallets →
+            </button>
+          ) : step === 2 ? (
+            <button onClick={() => setStep(3)}
+              className="px-4 py-2 bg-[#c0392b] text-white rounded-lg text-xs font-semibold hover:bg-[#a93226]">
+              Datos de envío →
             </button>
           ) : (
             <button onClick={handleSave} disabled={saving}
