@@ -259,9 +259,10 @@ export default function Dashboard() {
 
           {/* Gráfico % por Calibre (Producción Fresco) */}
           {(() => {
+            const NO_CALIBRES = ["ARILO", "Arilo", "arilo", "AG", "AC"];
             const calibreMap = {};
             produccionesDia.forEach(p => {
-              if (!p.calibre) return;
+              if (!p.calibre || NO_CALIBRES.includes(p.calibre)) return;
               calibreMap[p.calibre] = (calibreMap[p.calibre] || 0) + (p.kg_netos || 0);
             });
             const totalCalibre = Object.values(calibreMap).reduce((s, v) => s + v, 0);
