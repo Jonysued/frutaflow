@@ -6,8 +6,8 @@ const navItems = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
   { to: "/cosecha", label: "Cosecha", icon: Wheat },
   { to: "/produccion", label: "Producción", icon: Package },
-  { to: "/reportes", label: "Reportes", icon: BarChart2 },
   { to: "/despachos", label: "Despachos", icon: Truck },
+  { to: "/reportes", label: "Reportes", icon: BarChart2 },
   { to: "/configuracion", label: "Configuración", icon: Settings },
 ];
 
