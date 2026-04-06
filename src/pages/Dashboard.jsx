@@ -109,11 +109,12 @@ export default function Dashboard() {
   // Rendimiento = producción / cosecha
   const rendimientoDia = totalCosechaKg > 0 ? (totalProdKg / totalCosechaKg) * 100 : 0;
 
-  // % Arilos y % Fresco desde Producción (tipo_proceso en cosecha)
-  const kgArilos = cosechasDia.filter(c => c.tipo_proceso === "ARILO").reduce((s, c) => s + (c.neto || 0), 0);
-  const kgFresco = cosechasDia.filter(c => c.tipo_proceso === "FRESCO").reduce((s, c) => s + (c.neto || 0), 0);
-  const pctArilos = totalCosechaKg > 0 ? (kgArilos / totalCosechaKg * 100) : 0;
-  const pctFresco = totalCosechaKg > 0 ? (kgFresco / totalCosechaKg * 100) : 0;
+  // % Arilos y % Fresco desde Producción
+  const ARILOS_CALIBRES = ["ARILO", "AG", "AC"];
+  const kgArilos = produccionesDia.filter(p => ARILOS_CALIBRES.includes((p.calibre || "").toUpperCase())).reduce((s, p) => s + (p.kg_netos || 0), 0);
+  const kgFresco = produccionesDia.filter(p => p.calibre && !ARILOS_CALIBRES.includes((p.calibre || "").toUpperCase())).reduce((s, p) => s + (p.kg_netos || 0), 0);
+  const pctArilos = totalProdKg > 0 ? (kgArilos / totalProdKg * 100) : 0;
+  const pctFresco = totalProdKg > 0 ? (kgFresco / totalProdKg * 100) : 0;
 
   const turnosActivos = TURNOS.filter(t =>
     cosechasDia.some(c => c.turno === t) || produccionesDia.some(p => p.turno === t)
