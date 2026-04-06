@@ -15,6 +15,7 @@ function NuevaCargaModal({ onClose, onCreated, producciones }) {
   const [filtro, setFiltro] = useState("");
   const [saving, setSaving] = useState(false);
   const [step, setStep] = useState(1); // 1: datos, 2: pallets
+  const [sortDesc, setSortDesc] = useState(true);
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
   const max = form.cant_pallets_max;
@@ -36,6 +37,14 @@ function NuevaCargaModal({ onClose, onCreated, producciones }) {
       (p.productor || "").toLowerCase().includes(q) ||
       (p.calibre || "").toLowerCase().includes(q) ||
       (p.variedad || "").toLowerCase().includes(q);
+  }).sort((a, b) => {
+    const ra = (a.nro_romaneo || "");
+    const rb = (b.nro_romaneo || "");
+    const numA = parseFloat(ra) || ra;
+    const numB = parseFloat(rb) || rb;
+    if (numA < numB) return sortDesc ? 1 : -1;
+    if (numA > numB) return sortDesc ? -1 : 1;
+    return 0;
   });
 
   const handleSave = async () => {
@@ -114,7 +123,9 @@ function NuevaCargaModal({ onClose, onCreated, producciones }) {
                 <thead className="bg-gray-50 sticky top-0">
                   <tr>
                     <th className="px-3 py-2 text-left w-8"></th>
-                    <th className="px-3 py-2 text-left">Romaneo</th>
+                    <th className="px-3 py-2 text-left cursor-pointer select-none" onClick={() => setSortDesc(d => !d)}>
+                      Romaneo {sortDesc ? "↓" : "↑"}
+                    </th>
                     <th className="px-3 py-2 text-left">Fecha</th>
                     <th className="px-3 py-2 text-left">Productor</th>
                     <th className="px-3 py-2 text-left">Variedad</th>
