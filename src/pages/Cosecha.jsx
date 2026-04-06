@@ -108,6 +108,24 @@ export default function Cosecha() {
 
       {showImport && <ImportModal entity="Cosecha" onClose={() => { setShowImport(false); refetch(); }} />}
 
+      {/* Totalizadores */}
+      {!loading && (
+        <div className="grid grid-cols-3 gap-3">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 px-4 py-3 text-center">
+            <p className="text-[11px] text-gray-400 mb-1">Total BINs</p>
+            <p className="text-2xl font-bold text-[#5c1020]">{registrosFiltrados.length}</p>
+          </div>
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 px-4 py-3 text-center">
+            <p className="text-[11px] text-gray-400 mb-1">Productores</p>
+            <p className="text-2xl font-bold text-[#5c1020]">{new Set(registrosFiltrados.map(r => r.propietario).filter(Boolean)).size}</p>
+          </div>
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 px-4 py-3 text-center">
+            <p className="text-[11px] text-gray-400 mb-1">Total Neto (kg)</p>
+            <p className="text-2xl font-bold text-[#5c1020]">{registrosFiltrados.reduce((s, r) => s + (r.neto || 0), 0).toLocaleString()}</p>
+          </div>
+        </div>
+      )}
+
       {loading ? (
         <div className="flex justify-center py-16">
           <div className="w-8 h-8 border-4 border-[#f8d7da] border-t-[#c0392b] rounded-full animate-spin" />
