@@ -1,6 +1,7 @@
 import { Link, useLocation, Outlet, useNavigate } from "react-router-dom";
 import { LayoutDashboard, Wheat, Package, BarChart2, Settings, Menu, X, ArrowLeft, Truck } from "lucide-react";
 import { useState, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import Dashboard from "@/pages/Dashboard";
 import Cosecha from "@/pages/Cosecha";
 import Produccion from "@/pages/Produccion";
@@ -159,33 +160,44 @@ export default function Layout() {
         )}
 
         {/* Primary tab views — always mounted once visited, hidden when inactive */}
+        <AnimatePresence mode="wait">
         {navItems.map(({ to, Component }) => {
           if (!visited.has(to)) return null;
           const isActive = !showSubRoute && activeTab === to;
+          if (!isActive) return <div key={to} style={{ display: "none" }}><Component /></div>;
           return (
-            <div key={to} style={{ display: isActive ? "block" : "none" }} className="h-full">
+            <motion.div
+              key={to}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.18 }}
+              className="h-full"
+            >
               <Component />
-            </div>
+            </motion.div>
           );
         })}
+        </AnimatePresence>
       </main>
 
       {/* Mobile bottom tab bar */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#5c1020] text-white flex" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
-        {navItems.map(({ to, label, icon: Icon }) => (
-          <Link
-            key={to}
-            to={to}
-            className={`flex-1 flex flex-col items-center justify-center py-2 text-[10px] font-semibold transition-all min-h-[44px] ${
-              activeTab === to && !showSubRoute
-                ? 'text-white'
-                : 'text-red-300 opacity-70'
-            }`}
-          >
-            <Icon className="w-5 h-5 mb-0.5" />
-            {label}
-          </Link>
-        ))}
+        {navItems.map(({ to, label, icon: Icon }) => {
+          const isActive = activeTab === to && !showSubRoute;
+          return (
+            <button
+              key={to}
+              onClick={() => navigate(to)}
+              className={`flex-1 flex flex-col items-center justify-center py-2 text-[10px] font-semibold transition-all min-h-[44px] ${
+                isActive ? 'text-white' : 'text-red-300 opacity-70'
+              }`}
+            >
+              <Icon className="w-5 h-5 mb-0.5" />
+              {label}
+            </button>
+          );
+        })}
       </nav>
     </div>
   );

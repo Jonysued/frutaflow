@@ -132,7 +132,7 @@ function CuentaSection() {
 
       <div className="border-t pt-6">
         <h3 className="font-semibold text-gray-800 text-sm mb-1">Zona peligrosa</h3>
-        <p className="text-xs text-gray-500 mb-3">Esta acción eliminará permanentemente todos los datos de Cosecha y Producción y cerrará tu sesión.</p>
+        <p className="text-xs text-gray-500 mb-3">Esta acción eliminará permanentemente todos los datos de Cosecha y Producción, <strong>tu cuenta de usuario</strong>, y cerrará tu sesión.</p>
         <button
           onClick={() => setShowDeleteDialog(true)}
           className="flex items-center gap-2 px-4 py-2 border border-red-300 text-red-600 rounded-lg text-sm font-semibold hover:bg-red-50"
@@ -150,7 +150,7 @@ function CuentaSection() {
               </div>
               <div>
                 <h3 className="font-bold text-gray-900 text-sm">Eliminar todos los datos</h3>
-                <p className="text-xs text-gray-500 mt-1">Esta acción es irreversible. Para confirmar, escribí <strong>ELIMINAR</strong> en el campo de abajo.</p>
+                <p className="text-xs text-gray-500 mt-1">Esta acción es irreversible. Se eliminarán todos los datos de cosecha, producción y <strong>tu cuenta de usuario</strong>. Para confirmar, escribí <strong>ELIMINAR</strong> en el campo de abajo.</p>
               </div>
             </div>
             <input

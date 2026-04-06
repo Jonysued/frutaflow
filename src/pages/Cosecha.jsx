@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { normDate, formatDate } from "@/utils/dateUtils";
+import MobileSelect from "@/components/MobileSelect";
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
@@ -115,11 +116,16 @@ export default function Cosecha() {
             </div>
             <div className="flex flex-col gap-1">
               <label className="text-xs text-gray-500">Destino</label>
-              <select value={filtros.destino} onChange={e => setFiltro("destino", e.target.value)} className="border rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#c0392b] bg-white">
-                <option value="">Todos</option>
-                <option value="CAMARA">CAMARA</option>
-                <option value="VUELCO">VUELCO</option>
-              </select>
+              <MobileSelect
+                label="Destino"
+                value={filtros.destino}
+                onChange={v => setFiltro("destino", v)}
+                options={[
+                  { value: "CAMARA", label: "CAMARA" },
+                  { value: "VUELCO", label: "VUELCO" },
+                ]}
+                placeholder="Todos"
+              />
             </div>
           </div>
           {filtrosActivos && (

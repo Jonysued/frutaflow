@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
-import { UserPlus, Save } from "lucide-react";
+import { UserPlus } from "lucide-react";
+import MobileSelect from "@/components/MobileSelect";
 
 const ROLES = ["admin", "supervisor", "operario"];
 
@@ -50,9 +51,13 @@ export default function ConfigUsuarios() {
             placeholder="email@empresa.com"
             className="flex-1 border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#c0392b]"
           />
-          <select value={inviteRole} onChange={e => setInviteRole(e.target.value)} className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#c0392b]">
-            {ROLES.map(r => <option key={r} value={r}>{ROLE_LABELS[r]}</option>)}
-          </select>
+          <MobileSelect
+            label="Rol"
+            value={inviteRole}
+            onChange={setInviteRole}
+            options={ROLES.map(r => ({ value: r, label: ROLE_LABELS[r] }))}
+            placeholder="Seleccionar rol"
+          />
           <button onClick={handleInvite} disabled={inviting || !inviteEmail} className="flex items-center gap-1 px-4 py-2 bg-[#c0392b] text-white rounded-lg text-xs font-semibold hover:bg-[#a93226] disabled:opacity-50 whitespace-nowrap">
             <UserPlus className="w-3.5 h-3.5" /> Invitar
           </button>
@@ -89,9 +94,13 @@ export default function ConfigUsuarios() {
                       </span>
                     </td>
                     <td className="px-4 py-2.5">
-                      <select value={u.role || "operario"} onChange={e => handleRoleChange(u, e.target.value)} className="border rounded-lg px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#c0392b]">
-                        {ROLES.map(r => <option key={r} value={r}>{ROLE_LABELS[r]}</option>)}
-                      </select>
+                      <MobileSelect
+                        label="Cambiar rol"
+                        value={u.role || "operario"}
+                        onChange={v => handleRoleChange(u, v)}
+                        options={ROLES.map(r => ({ value: r, label: ROLE_LABELS[r] }))}
+                        placeholder="Seleccionar"
+                      />
                     </td>
                   </tr>
                 ))}
