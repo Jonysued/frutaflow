@@ -1,20 +1,11 @@
 import { useState, useMemo } from "react";
+import { normDate, formatDate } from "@/utils/dateUtils";
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { Plus, Upload, Trash2 } from "lucide-react";
 import ImportModal from "@/components/ImportModal";
-
-function normDate(f) {
-  if (!f) return "";
-  const s = String(f).trim();
-  const dmy = s.match(/^(\d{1,2})[/\-](\d{1,2})[/\-](\d{4})$/);
-  if (dmy) return `${dmy[3]}-${dmy[2].padStart(2,'0')}-${dmy[1].padStart(2,'0')}`;
-  const ymd = s.match(/^(\d{4})[/\-](\d{1,2})[/\-](\d{1,2})$/);
-  if (ymd) return `${ymd[1]}-${ymd[2].padStart(2,'0')}-${ymd[3].padStart(2,'0')}`;
-  return s;
-}
 
 export default function Cosecha() {
   const navigate = useNavigate();
@@ -148,7 +139,7 @@ export default function Cosecha() {
                 )}
                 {registrosFiltrados.map((r, i) => (
                   <tr key={r.id} className={i % 2 === 0 ? "bg-white" : "bg-[#fdf4f5]"}>
-                    <td className="px-3 py-2.5 font-medium text-gray-700 whitespace-nowrap">{r.fecha}</td>
+                    <td className="px-3 py-2.5 font-medium text-gray-700 whitespace-nowrap">{formatDate(r.fecha)}</td>
                     <td className="px-3 py-2.5">
                       {r.turno && <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#f8d7da] text-[#7a1a30]">{r.turno}</span>}
                     </td>

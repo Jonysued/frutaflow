@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { formatDate } from "@/utils/dateUtils";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Plus, Truck, X, CheckCircle, Package, ChevronDown, ChevronUp, Trash2 } from "lucide-react";
@@ -139,7 +140,7 @@ function NuevaCargaModal({ onClose, onCreated, producciones }) {
                           </div>
                         </td>
                         <td className="px-3 py-2.5 font-mono font-semibold text-[#5c1020]">{p.nro_romaneo || "—"}</td>
-                        <td className="px-3 py-2.5 text-gray-600">{p.fecha}</td>
+                        <td className="px-3 py-2.5 text-gray-600">{formatDate(p.fecha)}</td>
                         <td className="px-3 py-2.5 text-gray-700">{p.productor}</td>
                         <td className="px-3 py-2.5 text-gray-700">{p.variedad}</td>
                         <td className="px-3 py-2.5"><span className="px-1.5 py-0.5 bg-gray-100 rounded text-gray-600">{p.calibre}</span></td>
@@ -270,7 +271,7 @@ function AsignarPalletModal({ despacho, producciones, onClose, onSaved }) {
                       </div>
                     </td>
                     <td className="px-3 py-2.5 font-mono font-semibold text-[#5c1020]">{p.nro_romaneo || "—"}</td>
-                    <td className="px-3 py-2.5 text-gray-600">{p.fecha}</td>
+                    <td className="px-3 py-2.5 text-gray-600">{formatDate(p.fecha)}</td>
                     <td className="px-3 py-2.5 text-gray-700">{p.productor}</td>
                     <td className="px-3 py-2.5 text-gray-700">{p.variedad}</td>
                     <td className="px-3 py-2.5"><span className="px-1.5 py-0.5 bg-gray-100 rounded text-gray-600">{p.calibre}</span></td>
@@ -318,7 +319,7 @@ function CargaCard({ carga, producciones, onAsignar, onDelete, onToggleEstado })
               <p className="font-bold text-[#5c1020] text-sm">{carga.nro_carga}</p>
               <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${ESTADO_COLORS[carga.estado] || "bg-gray-100 text-gray-600"}`}>{carga.estado}</span>
             </div>
-            <p className="text-xs text-gray-400">{carga.fecha}{carga.destino ? ` — ${carga.destino}` : ""}{carga.contenedor ? ` | ${carga.contenedor}` : ""}</p>
+            <p className="text-xs text-gray-400">{formatDate(carga.fecha)}{carga.destino ? ` — ${carga.destino}` : ""}{carga.contenedor ? ` | ${carga.contenedor}` : ""}</p>
           </div>
         </div>
 
@@ -379,7 +380,7 @@ function CargaCard({ carga, producciones, onAsignar, onDelete, onToggleEstado })
                   {pallets.map((p, i) => (
                     <tr key={p.id} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
                       <td className="px-3 py-2 font-mono font-semibold text-[#5c1020]">{p.nro_romaneo || "—"}</td>
-                      <td className="px-3 py-2 text-gray-600">{p.fecha}</td>
+                      <td className="px-3 py-2 text-gray-600">{formatDate(p.fecha)}</td>
                       <td className="px-3 py-2 text-gray-700">{p.productor}</td>
                       <td className="px-3 py-2 text-gray-700">{p.variedad}</td>
                       <td className="px-3 py-2"><span className="px-1.5 py-0.5 bg-gray-100 rounded text-gray-600">{p.calibre}</span></td>

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { formatDate } from "@/utils/dateUtils";
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
@@ -143,7 +144,7 @@ export default function Produccion() {
                 )}
                 {registrosFiltrados.map((r, i) => (
                   <tr key={r.id} className={i % 2 === 0 ? "bg-white" : "bg-[#f4fbf7]"}>
-                    <td className="px-3 py-2.5 font-medium text-gray-700 whitespace-nowrap">{r.fecha}</td>
+                    <td className="px-3 py-2.5 font-medium text-gray-700 whitespace-nowrap">{formatDate(r.fecha)}</td>
                     <td className="px-3 py-2.5">
                       {r.turno && <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#d5f0e1] text-[#276749]">{r.turno}</span>}
                     </td>
