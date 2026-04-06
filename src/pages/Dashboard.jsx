@@ -8,6 +8,19 @@ import { Wheat, Package, Layers, TrendingUp, AlertTriangle, Thermometer, Trash2,
 const TURNOS = ["Mañana", "Tarde", "Noche"];
 const TURNO_COLORS = { Mañana: "#c0392b", Tarde: "#7a1a30", Noche: "#2c0a12" };
 
+// Normaliza fechas a yyyy-mm-dd independientemente del formato de origen
+function normDate(f) {
+  if (!f) return null;
+  const s = String(f).trim();
+  // dd/mm/yyyy o d/m/yyyy
+  const dmy = s.match(/^(\d{1,2})[/\-](\d{1,2})[/\-](\d{4})$/);
+  if (dmy) return `${dmy[3]}-${dmy[2].padStart(2,'0')}-${dmy[1].padStart(2,'0')}`;
+  // yyyy-mm-dd (ya correcto)
+  const ymd = s.match(/^(\d{4})[/\-](\d{1,2})[/\-](\d{1,2})$/);
+  if (ymd) return `${ymd[1]}-${ymd[2].padStart(2,'0')}-${ymd[3].padStart(2,'0')}`;
+  return s;
+}
+
 function MetricCard({ label, value, unit, icon: Icon, color }) {
   return (
     <div className="bg-white rounded-xl p-4 shadow-sm border-l-4 flex items-center gap-4" style={{ borderColor: color }}>
@@ -82,13 +95,16 @@ export default function Dashboard() {
       base44.entities.Cosecha.list("-fecha", 50000),
       base44.entities.Produccion.list("-fecha", 50000)
     ]).then(([c, p]) => {
-      setCosechas(c);
-      setProducciones(p);
+      // Normalizar fechas al cargar
+      const cn = c.map(x => ({ ...x, fecha: normDate(x.fecha) }));
+      const pn = p.map(x => ({ ...x, fecha: normDate(x.fecha) }));
+      setCosechas(cn);
+      setProducciones(pn);
       setLoading(false);
       if (!fechaIniciada) {
         const todasFechas = [...new Set([
-          ...c.map(x => x.fecha),
-          ...p.map(x => x.fecha)
+          ...cn.map(x => x.fecha),
+          ...pn.map(x => x.fecha)
         ].filter(Boolean))].sort();
         if (todasFechas.length > 0) {
           const ultima = todasFechas[todasFechas.length - 1];
@@ -129,7 +145,10 @@ export default function Dashboard() {
     cosechasDia.some(c => c.turno === t) || produccionesDia.some(p => p.turno === t)
   );
 
-  const fechas = [...new Set(producciones.map(p => p.fecha).filter(Boolean))].sort().slice(-7);
+  const fechas = [...new Set([
+    ...cosechas.map(c => c.fecha),
+    ...producciones.map(p => p.fecha)
+  ].filter(Boolean))].sort().slice(-7);
   const chartData = fechas.map(f => {
     const cKg = cosechas.filter(c => c.fecha === f).reduce((s, c) => s + (c.neto || 0), 0);
     const pKg = producciones.filter(p => p.fecha === f).reduce((s, p) => s + (p.kg_netos || 0), 0);
