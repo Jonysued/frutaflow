@@ -40,12 +40,12 @@ const AuthenticatedApp = () => {
     <Routes>
       <Route element={<Layout />}>
         {/* Primary tabs: Layout handles rendering these persistently */}
-        <Route path="/" />
-        <Route path="/cosecha" />
-        <Route path="/produccion" />
-        <Route path="/despachos" />
-        <Route path="/reportes" />
-        <Route path="/configuracion" />
+        <Route path="/" element={null} />
+        <Route path="/cosecha" element={null} />
+        <Route path="/produccion" element={null} />
+        <Route path="/despachos" element={null} />
+        <Route path="/reportes" element={null} />
+        <Route path="/configuracion" element={null} />
         {/* Sub-routes: rendered via Outlet with lazy loading */}
         <Route path="/cosecha/new" element={<Suspense fallback={<LoadingPage />}><CosechaEdit /></Suspense>} />
         <Route path="/cosecha/edit/:id" element={<Suspense fallback={<LoadingPage />}><CosechaEdit /></Suspense>} />
