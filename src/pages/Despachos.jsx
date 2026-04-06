@@ -501,11 +501,16 @@ export default function Despachos() {
   const totalPallets = asignadosIds.size;
   const palletsNoAsignados = producciones.filter(p => !asignadosIds.has(p.id)).length;
 
-  // Pallets despachados separados por tipo (arilos vs fresco)
-  const despachosDespachadosIds = new Set(cargas.filter(c => c.estado === "Despachado").flatMap(c => c.pallet_ids || []));
-  const palletsDespachados = producciones.filter(p => despachosDespachadosIds.has(p.id));
-  const contenedoresArilos = palletsDespachados.filter(p => !/^\d+$/.test(p.calibre || "")).length;
-  const contenedoresFresco = palletsDespachados.filter(p => /^\d+$/.test(p.calibre || "")).length;
+  // Despachos despachados separados por tipo (arilos vs fresco)
+  const despachosDespachados = cargas.filter(c => c.estado === "Despachado");
+  const contenedoresArilos = despachosDespachados.filter(despacho => {
+    const pallets = (despacho.pallet_ids || []).map(id => producciones.find(p => p.id === id)).filter(Boolean);
+    return pallets.some(p => !/^\d+$/.test(p.calibre || ""));
+  }).length;
+  const contenedoresFresco = despachosDespachados.filter(despacho => {
+    const pallets = (despacho.pallet_ids || []).map(id => producciones.find(p => p.id === id)).filter(Boolean);
+    return pallets.some(p => /^\d+$/.test(p.calibre || ""));
+  }).length;
 
   return (
     <div className="p-4 md:p-6 space-y-4">
