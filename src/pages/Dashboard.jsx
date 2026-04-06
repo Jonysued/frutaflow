@@ -86,7 +86,10 @@ export default function Dashboard() {
       setProducciones(p);
       setLoading(false);
       if (!fechaIniciada) {
-        const todasFechas = [...new Set(p.map(x => x.fecha).filter(Boolean))].sort();
+        const todasFechas = [...new Set([
+          ...c.map(x => x.fecha),
+          ...p.map(x => x.fecha)
+        ].filter(Boolean))].sort();
         if (todasFechas.length > 0) {
           const ultima = todasFechas[todasFechas.length - 1];
           setFecha(ultima);
