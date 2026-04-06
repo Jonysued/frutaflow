@@ -11,6 +11,10 @@
       "format": "date",
       "title": "Fecha"
     },
+    "cliente": {
+      "type": "string",
+      "title": "Cliente"
+    },
     "destino": {
       "type": "string",
       "title": "Destino"

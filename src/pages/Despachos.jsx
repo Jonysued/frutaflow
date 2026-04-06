@@ -9,7 +9,7 @@ const ESTADO_COLORS = {
 };
 
 function NuevaCargaModal({ onClose, onCreated, producciones }) {
-  const [form, setForm] = useState({ nro_carga: "", fecha: new Date().toISOString().slice(0,10), destino: "", contenedor: "", nro_remito: "", cant_pallets_max: 21, observaciones: "" });
+  const [form, setForm] = useState({ nro_carga: "", fecha: new Date().toISOString().slice(0,10), cliente: "", destino: "", contenedor: "", nro_remito: "", cant_pallets_max: 21, observaciones: "" });
   const [selected, setSelected] = useState(new Set());
   const [filtro, setFiltro] = useState("");
   const [saving, setSaving] = useState(false);
@@ -81,6 +81,10 @@ function NuevaCargaModal({ onClose, onCreated, producciones }) {
                   </button>
                 ))}
               </div>
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-gray-500">Cliente</label>
+              <input value={form.cliente} onChange={e => set("cliente", e.target.value)} className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#c0392b]" placeholder="Nombre del cliente" />
             </div>
             <div className="flex flex-col gap-1">
               <label className="text-xs text-gray-500">Destino</label>
