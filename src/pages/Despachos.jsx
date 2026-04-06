@@ -684,7 +684,6 @@ export default function Despachos() {
               <thead className="bg-[#5c1020] text-white">
                 <tr>
                   <th className="px-3 py-3 text-left">#</th>
-                  <th className="px-3 py-3 text-left">Nro. Carga</th>
                   <th className="px-3 py-3 text-left">Fecha</th>
                   <th className="px-3 py-3 text-left">Estado</th>
                   <th className="px-3 py-3 text-left">Cliente</th>
@@ -707,7 +706,6 @@ export default function Despachos() {
                   return (
                     <tr key={carga.id} className={i % 2 === 0 ? "bg-white" : "bg-[#fdf4f5]"}>
                       <td className="px-3 py-2.5 font-bold text-gray-400">{i + 1}</td>
-                      <td className="px-3 py-2.5 font-bold text-[#5c1020]">{carga.nro_carga}</td>
                       <td className="px-3 py-2.5 text-gray-700 whitespace-nowrap">{formatDate(carga.fecha)}</td>
                       <td className="px-3 py-2.5">
                         <span className={`px-2 py-0.5 rounded-full text-[11px] font-semibold ${ESTADO_COLORS[carga.estado] || "bg-gray-100 text-gray-600"}`}>{carga.estado}</span>
