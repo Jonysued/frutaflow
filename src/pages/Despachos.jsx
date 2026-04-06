@@ -9,7 +9,7 @@ const ESTADO_COLORS = {
 };
 
 function NuevaCargaModal({ onClose, onCreated, producciones }) {
-  const [form, setForm] = useState({ nro_carga: "", fecha: new Date().toISOString().slice(0,10), cliente: "", destino: "", contenedor: "", nro_remito: "", cant_pallets_max: 21, observaciones: "" });
+  const [form, setForm] = useState({ nro_carga: "", fecha: new Date().toISOString().slice(0,10), cliente: "", destino: "", cant_pallets_max: 21 });
   const [selected, setSelected] = useState(new Set());
   const [filtro, setFiltro] = useState("");
   const [saving, setSaving] = useState(false);
@@ -89,20 +89,6 @@ function NuevaCargaModal({ onClose, onCreated, producciones }) {
             <div className="flex flex-col gap-1">
               <label className="text-xs text-gray-500">Destino</label>
               <input value={form.destino} onChange={e => set("destino", e.target.value)} className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#c0392b]" placeholder="País / puerto de destino" />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="flex flex-col gap-1">
-                <label className="text-xs text-gray-500">Contenedor</label>
-                <input value={form.contenedor} onChange={e => set("contenedor", e.target.value)} className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-[#c0392b]" />
-              </div>
-              <div className="flex flex-col gap-1">
-                <label className="text-xs text-gray-500">Nro. Remito</label>
-                <input value={form.nro_remito} onChange={e => set("nro_remito", e.target.value)} className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-[#c0392b]" />
-              </div>
-            </div>
-            <div className="flex flex-col gap-1">
-              <label className="text-xs text-gray-500">Observaciones</label>
-              <textarea value={form.observaciones} onChange={e => set("observaciones", e.target.value)} rows={2} className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#c0392b] resize-none" />
             </div>
           </div>
         ) : (
