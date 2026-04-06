@@ -18,6 +18,13 @@ function normDate(f) {
   return s;
 }
 
+// Retorna true si el calibre es de tipo arilo (debe excluirse del gráfico de fresco)
+function esArilo(calibre) {
+  if (!calibre) return false;
+  const u = calibre.toUpperCase().replace(/[\s.]/g, "");
+  return u.startsWith("ARILO") || u === "AG" || u === "AM" || u === "AC";
+}
+
 function MetricCard({ label, value, unit, icon: Icon, color }) {
   return (
     <div className="bg-white rounded-xl p-4 shadow-sm border-l-4 flex items-center gap-4" style={{ borderColor: color }}>
@@ -141,9 +148,8 @@ export default function Dashboard() {
   const totalBultos = produccionesDia.reduce((s, p) => s + (p.cant_bultos || 0), 0);
   const rendimientoDia = totalCosechaKg > 0 ? (totalProdKg / totalCosechaKg) * 100 : 0;
 
-  const ARILOS_CALIBRES = ["ARILO", "AG", "AC"];
-  const kgArilos = produccionesDia.filter(p => ARILOS_CALIBRES.includes((p.calibre || "").toUpperCase())).reduce((s, p) => s + (p.kg_netos || 0), 0);
-  const kgFresco = produccionesDia.filter(p => p.calibre && !ARILOS_CALIBRES.includes((p.calibre || "").toUpperCase())).reduce((s, p) => s + (p.kg_netos || 0), 0);
+  const kgArilos = produccionesDia.filter(p => esArilo(p.calibre)).reduce((s, p) => s + (p.kg_netos || 0), 0);
+  const kgFresco = produccionesDia.filter(p => p.calibre && !esArilo(p.calibre)).reduce((s, p) => s + (p.kg_netos || 0), 0);
   const pctArilos = totalProdKg > 0 ? (kgArilos / totalProdKg * 100) : 0;
   const pctFresco = totalProdKg > 0 ? (kgFresco / totalProdKg * 100) : 0;
 
@@ -298,10 +304,9 @@ export default function Dashboard() {
 
           {/* Gráfico % por Calibre */}
           {(() => {
-            const NO_CALIBRES = ["ARILO", "arilo", "AG", "AC"];
             const calibreMap = {};
             produccionesDia.forEach(p => {
-              if (!p.calibre || NO_CALIBRES.includes(p.calibre)) return;
+              if (!p.calibre || esArilo(p.calibre)) return;
               calibreMap[p.calibre] = (calibreMap[p.calibre] || 0) + (p.kg_netos || 0);
             });
             const totalCalibre = Object.values(calibreMap).reduce((s, v) => s + v, 0);
