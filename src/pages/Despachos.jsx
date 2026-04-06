@@ -59,6 +59,7 @@ function NuevaCargaModal({ onClose, onCreated, producciones, assignedIds }) {
     if (!form.nro_carga || !form.fecha) return;
     setSaving(true);
     const created = await base44.entities.Despacho.create({ ...form, pallet_ids: [...selected], estado: "Borrador" });
+    setSelected(new Set());
     onCreated(created);
   };
 
