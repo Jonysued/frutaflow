@@ -356,7 +356,8 @@ function EditarDespachoModal({ despacho, onClose, onSaved }) {
   const handleSave = async () => {
     if (!form.nro_carga || !form.fecha) return;
     setSaving(true);
-    const updated = await base44.entities.Despacho.update(despacho.id, form);
+    // Merge con datos existentes para no pisar pallet_ids, estado, etc.
+    const updated = await base44.entities.Despacho.update(despacho.id, { ...despacho, ...form });
     onSaved(updated);
   };
 
