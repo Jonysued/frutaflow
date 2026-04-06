@@ -9,12 +9,15 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { despacho_id, producciones } = await req.json();
-    const despacho = producciones.find(p => p.id === despacho_id);
+    const { despacho } = await req.json();
     
     if (!despacho) {
       return Response.json({ error: 'Despacho no encontrado' }, { status: 404 });
     }
+
+    // Obtener las producciones asignadas a este despacho
+    const allProducciones = await base44.entities.Produccion.list('-fecha', 100000);
+    const pallets = (despacho.pallet_ids || []).map(id => allProducciones.find(p => p.id === id)).filter(Boolean);
 
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
@@ -58,17 +61,14 @@ Deno.serve(async (req) => {
     doc.setTextColor(92, 16, 32);
     doc.text('Pallets Asignados', margin, y);
     y += 8;
-
-    // Encabezados de tabla
-    const pallets = (despacho.pallet_ids || []).map(id => producciones.find(p => p.id === id)).filter(Boolean);
     
     if (pallets.length === 0) {
       doc.setFontSize(10);
       doc.setTextColor(150, 150, 150);
       doc.text('No hay pallets asignados', margin, y);
     } else {
-      const colWidths = [25, 25, 20, 25, 20, 25, 20];
-      const headers = ['Romaneo', 'Productor', 'Variedad', 'Calibre', 'Bultos', 'Kg Netos', ''];
+      const colWidths = [25, 25, 20, 25, 20, 25];
+      const headers = ['Romaneo', 'Productor', 'Variedad', 'Calibre', 'Bultos', 'Kg Netos'];
 
       // Encabezados
       doc.setFontSize(9);
@@ -99,8 +99,7 @@ Deno.serve(async (req) => {
           p.variedad || '—',
           p.calibre || '—',
           String(p.cant_bultos || 0),
-          String(p.kg_netos || 0),
-          ''
+          String(p.kg_netos || 0)
         ];
 
         x = margin;

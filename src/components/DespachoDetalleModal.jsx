@@ -10,8 +10,7 @@ export default function DespachoDetalleModal({ despacho, producciones, onClose, 
   const handleExportPDF = async () => {
     try {
       const response = await base44.functions.invoke('exportDespacho', {
-        despacho_id: despacho.id,
-        producciones: producciones
+        despacho: despacho
       });
       const blob = new Blob([response.data], { type: 'application/pdf' });
       const url = window.URL.createObjectURL(blob);
@@ -25,7 +24,7 @@ export default function DespachoDetalleModal({ despacho, producciones, onClose, 
     } catch (error) {
       console.error('Error al exportar:', error);
     }
-  };
+  }
 
   return (
     <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
