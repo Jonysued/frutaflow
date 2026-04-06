@@ -110,8 +110,9 @@ export default function Dashboard() {
     return f >= fechaDesde && f <= fechaHasta;
   };
 
-  // Cosecha: filtrar por fecha de cosecha (mismo criterio que Producción)
-  const cosechasDia = cosechas.filter(c => enRango(c.fecha));
+  // Cosecha: filtrar por fecha_vuelco (fecha en que el BIN fue volcado/procesado)
+  // Esto alinea con la fecha de Producción
+  const cosechasDia = cosechas.filter(c => enRango(c.fecha_vuelco));
   // Producción: filtrar por fecha de producción
   const produccionesDia = producciones.filter(p => enRango(p.fecha));
 
