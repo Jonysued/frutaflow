@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { formatDate } from "@/utils/dateUtils";
+import { formatDate, normDate } from "@/utils/dateUtils";
 import { base44 } from "@/api/base44Client";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { format, differenceInDays, parseISO } from "date-fns";
@@ -8,16 +8,6 @@ import { Wheat, Package, Layers, TrendingUp, AlertTriangle, Thermometer, Trash2,
 
 const TURNOS = ["Mañana", "Tarde", "Noche"];
 const TURNO_COLORS = { Mañana: "#c0392b", Tarde: "#7a1a30", Noche: "#2c0a12" };
-
-function normDate(f) {
-  if (!f) return null;
-  const s = String(f).trim();
-  const dmy = s.match(/^(\d{1,2})[/\-](\d{1,2})[/\-](\d{4})$/);
-  if (dmy) return `${dmy[3]}-${dmy[2].padStart(2,'0')}-${dmy[1].padStart(2,'0')}`;
-  const ymd = s.match(/^(\d{4})[/\-](\d{1,2})[/\-](\d{1,2})$/);
-  if (ymd) return `${ymd[1]}-${ymd[2].padStart(2,'0')}-${ymd[3].padStart(2,'0')}`;
-  return s;
-}
 
 function esArilo(calibre) {
   if (!calibre) return false;
