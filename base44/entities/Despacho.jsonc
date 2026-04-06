@@ -1,0 +1,59 @@
+{
+  "name": "Despacho",
+  "type": "object",
+  "properties": {
+    "nro_carga": {
+      "type": "string",
+      "title": "Nro. de Carga"
+    },
+    "fecha": {
+      "type": "string",
+      "format": "date",
+      "title": "Fecha"
+    },
+    "destino": {
+      "type": "string",
+      "title": "Destino"
+    },
+    "contenedor": {
+      "type": "string",
+      "title": "Contenedor"
+    },
+    "nro_remito": {
+      "type": "string",
+      "title": "Nro. Remito"
+    },
+    "cant_pallets_max": {
+      "type": "number",
+      "title": "Capacidad de pallets",
+      "enum": [
+        20,
+        21
+      ]
+    },
+    "pallet_ids": {
+      "type": "array",
+      "title": "Pallets asignados",
+      "items": {
+        "type": "string"
+      }
+    },
+    "estado": {
+      "type": "string",
+      "title": "Estado",
+      "enum": [
+        "Borrador",
+        "Despachado"
+      ]
+    },
+    "observaciones": {
+      "type": "string",
+      "title": "Observaciones"
+    }
+  },
+  "required": [
+    "fecha",
+    "nro_carga",
+    "cant_pallets_max"
+  ]
+}

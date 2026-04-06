@@ -15,6 +15,7 @@ import Produccion from './pages/Produccion';
 import ProduccionEdit from './pages/ProduccionEdit';
 import Reportes from './pages/Reportes';
 import Configuracion from './pages/Configuracion';
+import Despachos from './pages/Despachos';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -49,6 +50,7 @@ const AuthenticatedApp = () => {
           <Route path="/produccion/new" element={<PageWrapper><ProduccionEdit /></PageWrapper>} />
           <Route path="/produccion/edit/:id" element={<PageWrapper><ProduccionEdit /></PageWrapper>} />
           <Route path="/reportes" element={<PageWrapper><Reportes /></PageWrapper>} />
+          <Route path="/despachos" element={<PageWrapper><Despachos /></PageWrapper>} />
           <Route path="/configuracion" element={<PageWrapper><Configuracion /></PageWrapper>} />
         </Route>
         <Route path="*" element={<PageNotFound />} />

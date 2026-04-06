@@ -1,5 +1,5 @@
 import { Link, useLocation, Outlet, useNavigate, matchPath } from "react-router-dom";
-import { LayoutDashboard, Wheat, Package, BarChart2, Settings, Menu, X, ArrowLeft } from "lucide-react";
+import { LayoutDashboard, Wheat, Package, BarChart2, Settings, Menu, X, ArrowLeft, Truck } from "lucide-react";
 import { useState } from "react";
 
 const navItems = [
@@ -7,6 +7,7 @@ const navItems = [
   { to: "/cosecha", label: "Cosecha", icon: Wheat },
   { to: "/produccion", label: "Producción", icon: Package },
   { to: "/reportes", label: "Reportes", icon: BarChart2 },
+  { to: "/despachos", label: "Despachos", icon: Truck },
   { to: "/configuracion", label: "Configuración", icon: Settings },
 ];
 
