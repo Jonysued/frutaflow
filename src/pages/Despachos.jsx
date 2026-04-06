@@ -699,7 +699,7 @@ export default function Despachos() {
               </thead>
               <tbody>
                 {cargasFiltradas.map((carga) => {
-                   const numero = cargas.findIndex(c => c.id === carga.id) + 1;
+                   const numero = cargas.indexOf(carga) + 1;
                    const pallets = (carga.pallet_ids || []).map(id => producciones.find(p => p.id === id)).filter(Boolean);
                    const totalBultos = pallets.reduce((s, p) => s + (p.cant_bultos || 0), 0);
                    const totalKg = pallets.reduce((s, p) => s + (p.kg_netos || 0), 0);
