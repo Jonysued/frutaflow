@@ -562,6 +562,7 @@ export default function Despachos() {
   const handleCreated = (nueva) => {
     queryClient.setQueryData(["despachos"], old => [nueva, ...(old || [])]);
     setShowNueva(false);
+    setFiltroCliente("");
   };
 
   const handleSaved = (updated) => {
