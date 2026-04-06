@@ -70,7 +70,10 @@ function TurnoCard({ turno, cosechaKg, produccionKg, bultos }) {
 export default function Dashboard() {
   const [cosechas, setCosechas] = useState([]);
   const [producciones, setProducciones] = useState([]);
+  const [modo, setModo] = useState("dia"); // "dia" | "rango"
   const [fecha, setFecha] = useState(format(new Date(), "yyyy-MM-dd"));
+  const [fechaDesde, setFechaDesde] = useState(format(new Date(), "yyyy-MM-dd"));
+  const [fechaHasta, setFechaHasta] = useState(format(new Date(), "yyyy-MM-dd"));
   const [loading, setLoading] = useState(true);
   const [fechaIniciada, setFechaIniciada] = useState(false);
 
@@ -85,7 +88,12 @@ export default function Dashboard() {
       setLoading(false);
       if (!fechaIniciada) {
         const todasFechas = [...new Set([...c.map(x => x.fecha_vuelco).filter(Boolean), ...p.map(x => x.fecha)])].filter(Boolean).sort();
-        if (todasFechas.length > 0) setFecha(todasFechas[todasFechas.length - 1]);
+        if (todasFechas.length > 0) {
+          const ultima = todasFechas[todasFechas.length - 1];
+          setFecha(ultima);
+          setFechaDesde(ultima);
+          setFechaHasta(ultima);
+        }
         setFechaIniciada(true);
       }
     });
@@ -95,10 +103,17 @@ export default function Dashboard() {
 
   const { refreshing } = usePullToRefresh(loadData);
 
-  // Cosecha: filtrar por fecha_vuelco (cuando el BIN fue volcado/procesado)
-  const cosechasDia = cosechas.filter(c => c.fecha_vuelco === fecha);
+  // Filtro por día o rango
+  const enRango = (f) => {
+    if (!f) return false;
+    if (modo === "dia") return f === fecha;
+    return f >= fechaDesde && f <= fechaHasta;
+  };
+
+  // Cosecha: filtrar por fecha_vuelco
+  const cosechasDia = cosechas.filter(c => enRango(c.fecha_vuelco));
   // Producción: filtrar por fecha de producción
-  const produccionesDia = producciones.filter(p => p.fecha === fecha);
+  const produccionesDia = producciones.filter(p => enRango(p.fecha));
 
   // Cosecha = suma de netos del día
   const totalCosechaKg = cosechasDia.reduce((s, c) => s + (c.neto || 0), 0);
@@ -142,14 +157,46 @@ export default function Dashboard() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-[#5c1020]">Dashboard</h1>
-          <p className="text-sm text-gray-500">Balance por fecha de vuelco y fecha de producción</p>
+          <p className="text-sm text-gray-500">
+            {modo === "dia" ? `Balance del ${fecha}` : `Balance del ${fechaDesde} al ${fechaHasta}`}
+          </p>
         </div>
-        <input
-          type="date"
-          value={fecha}
-          onChange={e => setFecha(e.target.value)}
-          className="border border-gray-200 rounded-lg px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-[#c0392b]"
-        />
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+          <div className="flex rounded-lg border border-gray-200 overflow-hidden text-xs font-semibold">
+            <button
+              onClick={() => setModo("dia")}
+              className={`px-3 py-2 transition-colors ${modo === "dia" ? "bg-[#c0392b] text-white" : "bg-white text-gray-600 hover:bg-gray-50"}`}
+            >Día</button>
+            <button
+              onClick={() => setModo("rango")}
+              className={`px-3 py-2 transition-colors ${modo === "rango" ? "bg-[#c0392b] text-white" : "bg-white text-gray-600 hover:bg-gray-50"}`}
+            >Rango</button>
+          </div>
+          {modo === "dia" ? (
+            <input
+              type="date"
+              value={fecha}
+              onChange={e => setFecha(e.target.value)}
+              className="border border-gray-200 rounded-lg px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-[#c0392b]"
+            />
+          ) : (
+            <div className="flex items-center gap-2">
+              <input
+                type="date"
+                value={fechaDesde}
+                onChange={e => setFechaDesde(e.target.value)}
+                className="border border-gray-200 rounded-lg px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-[#c0392b]"
+              />
+              <span className="text-gray-400 text-xs">hasta</span>
+              <input
+                type="date"
+                value={fechaHasta}
+                onChange={e => setFechaHasta(e.target.value)}
+                className="border border-gray-200 rounded-lg px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-[#c0392b]"
+              />
+            </div>
+          )}
+        </div>
       </div>
 
       {loading ? (
