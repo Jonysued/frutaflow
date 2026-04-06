@@ -2,7 +2,7 @@ import { useState } from "react";
 import { formatDate } from "@/utils/dateUtils";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
-import { Plus, Truck, X, CheckCircle, Package, ChevronDown, ChevronUp, Trash2, Pencil } from "lucide-react";
+import { Plus, Truck, X, CheckCircle, Package, ChevronDown, ChevronUp, Trash2, Pencil, LayoutList, Table2 } from "lucide-react";
 
 const ESTADO_COLORS = {
   Borrador: "bg-yellow-100 text-yellow-700",
@@ -542,6 +542,7 @@ export default function Despachos() {
   const [asignando, setAsignando] = useState(null);
   const [editando, setEditando] = useState(null);
   const [filtroCliente, setFiltroCliente] = useState("");
+  const [vistaTabla, setVistaTabla] = useState(false);
 
   const { data: cargas = [], isLoading: loadingCargas } = useQuery({
     queryKey: ["despachos"],
@@ -611,6 +612,13 @@ export default function Despachos() {
             <option value="">Todos los clientes</option>
             {clientes.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
+          <button
+            onClick={() => setVistaTabla(v => !v)}
+            className="flex items-center gap-1 px-3 py-2 border border-gray-200 rounded-lg text-xs text-gray-600 hover:bg-gray-50"
+            title={vistaTabla ? "Vista tarjetas" : "Vista tabla"}
+          >
+            {vistaTabla ? <LayoutList className="w-3.5 h-3.5" /> : <Table2 className="w-3.5 h-3.5" />}
+          </button>
           <button onClick={() => setShowNueva(true)} className="flex items-center gap-1 px-4 py-2 bg-[#c0392b] text-white rounded-lg text-xs font-semibold hover:bg-[#a93226]">
             <Plus className="w-3.5 h-3.5" /> Nuevo Despacho
           </button>
@@ -645,6 +653,59 @@ export default function Despachos() {
         <div className="bg-white rounded-xl p-12 text-center shadow-sm border border-gray-100">
           <Truck className="w-12 h-12 text-gray-200 mx-auto mb-3" />
           <p className="text-gray-400 text-sm">No hay cargas de despacho. Creá la primera con el botón "Nueva Carga".</p>
+        </div>
+      ) : vistaTabla ? (
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead className="bg-[#5c1020] text-white">
+                <tr>
+                  <th className="px-3 py-3 text-left">Nro. Carga</th>
+                  <th className="px-3 py-3 text-left">Fecha</th>
+                  <th className="px-3 py-3 text-left">Estado</th>
+                  <th className="px-3 py-3 text-left">Cliente</th>
+                  <th className="px-3 py-3 text-left">Destino</th>
+                  <th className="px-3 py-3 text-left">Contenedor</th>
+                  <th className="px-3 py-3 text-left">Nro. Remito</th>
+                  <th className="px-3 py-3 text-left">Termógrafo</th>
+                  <th className="px-3 py-3 text-center">Cap. Pallets</th>
+                  <th className="px-3 py-3 text-center">Pallets asig.</th>
+                  <th className="px-3 py-3 text-right">Bultos</th>
+                  <th className="px-3 py-3 text-right">Kg Netos</th>
+                  <th className="px-3 py-3 text-center">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {cargasFiltradas.map((carga, i) => {
+                  const pallets = (carga.pallet_ids || []).map(id => producciones.find(p => p.id === id)).filter(Boolean);
+                  const totalBultos = pallets.reduce((s, p) => s + (p.cant_bultos || 0), 0);
+                  const totalKg = pallets.reduce((s, p) => s + (p.kg_netos || 0), 0);
+                  return (
+                    <tr key={carga.id} className={i % 2 === 0 ? "bg-white" : "bg-[#fdf4f5]"}>
+                      <td className="px-3 py-2.5 font-bold text-[#5c1020]">{carga.nro_carga}</td>
+                      <td className="px-3 py-2.5 text-gray-700 whitespace-nowrap">{formatDate(carga.fecha)}</td>
+                      <td className="px-3 py-2.5">
+                        <span className={`px-2 py-0.5 rounded-full text-[11px] font-semibold ${ESTADO_COLORS[carga.estado] || "bg-gray-100 text-gray-600"}`}>{carga.estado}</span>
+                      </td>
+                      <td className="px-3 py-2.5 text-gray-700">{carga.cliente || "—"}</td>
+                      <td className="px-3 py-2.5 text-gray-700">{carga.destino || "—"}</td>
+                      <td className="px-3 py-2.5 font-mono text-gray-600">{carga.contenedor || "—"}</td>
+                      <td className="px-3 py-2.5 text-gray-600">{carga.nro_remito || "—"}</td>
+                      <td className="px-3 py-2.5 text-gray-600">{carga.termografo || "—"}</td>
+                      <td className="px-3 py-2.5 text-center text-gray-700">{carga.cant_pallets_max}</td>
+                      <td className="px-3 py-2.5 text-center font-semibold" style={{ color: pallets.length === carga.cant_pallets_max ? "#276749" : "#c0392b" }}>{pallets.length}</td>
+                      <td className="px-3 py-2.5 text-right text-gray-700">{totalBultos.toLocaleString()}</td>
+                      <td className="px-3 py-2.5 text-right font-semibold text-gray-800">{totalKg.toLocaleString()}</td>
+                      <td className="px-3 py-2.5 text-center whitespace-nowrap">
+                        <button onClick={() => setEditando(carga)} className="text-gray-400 hover:text-[#c0392b] mr-2"><Pencil className="w-3.5 h-3.5 inline" /></button>
+                        <button onClick={() => handleDelete(carga)} className="text-gray-400 hover:text-red-600"><Trash2 className="w-3.5 h-3.5 inline" /></button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       ) : (
         <div className="space-y-3">
