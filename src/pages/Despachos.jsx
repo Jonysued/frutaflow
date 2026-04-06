@@ -49,9 +49,9 @@ function NuevaCargaModal({ onClose, onCreated, producciones }) {
       <div className="bg-white rounded-xl shadow-xl w-full max-w-3xl flex flex-col max-h-[90vh]">
         <div className="flex items-center justify-between px-5 py-4 border-b flex-shrink-0">
           <div>
-            <h2 className="font-semibold text-[#5c1020] text-sm">Nueva Carga de Despacho</h2>
+            <h2 className="font-semibold text-[#5c1020] text-sm">Nuevo Despacho</h2>
             <div className="flex items-center gap-2 mt-1">
-              <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${step === 1 ? "bg-[#c0392b] text-white" : "bg-gray-100 text-gray-500"}`}>1. Datos</span>
+              <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${step === 1 ? "bg-[#c0392b] text-white" : "bg-gray-100 text-gray-500"}`}>1. Datos del despacho</span>
               <span className="text-gray-300 text-xs">→</span>
               <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${step === 2 ? "bg-[#c0392b] text-white" : "bg-gray-100 text-gray-500"}`}>2. Seleccionar pallets</span>
             </div>
@@ -432,7 +432,7 @@ export default function Despachos() {
   };
 
   const handleDelete = async (carga) => {
-    if (!confirm(`¿Eliminar la carga ${carga.nro_carga}?`)) return;
+    if (!confirm(`¿Eliminar el despacho ${carga.nro_carga}?`)) return;
     queryClient.setQueryData(["despachos"], old => (old || []).filter(c => c.id !== carga.id));
     await base44.entities.Despacho.delete(carga.id);
     queryClient.invalidateQueries({ queryKey: ["despachos"] });
@@ -457,7 +457,7 @@ export default function Despachos() {
           <p className="text-sm text-gray-500">Asignación de pallets a cargas de despacho</p>
         </div>
         <button onClick={() => setShowNueva(true)} className="flex items-center gap-1 px-4 py-2 bg-[#c0392b] text-white rounded-lg text-xs font-semibold hover:bg-[#a93226]">
-          <Plus className="w-3.5 h-3.5" /> Nueva Carga
+          <Plus className="w-3.5 h-3.5" /> Nuevo Despacho
         </button>
       </div>
 
