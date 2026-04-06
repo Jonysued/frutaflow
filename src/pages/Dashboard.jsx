@@ -257,6 +257,35 @@ export default function Dashboard() {
             );
           })()}
 
+          {/* Gráfico % por Calibre (Producción Fresco) */}
+          {(() => {
+            const calibreMap = {};
+            produccionesDia.forEach(p => {
+              if (!p.calibre) return;
+              calibreMap[p.calibre] = (calibreMap[p.calibre] || 0) + (p.kg_netos || 0);
+            });
+            const totalCalibre = Object.values(calibreMap).reduce((s, v) => s + v, 0);
+            const calibreData = Object.entries(calibreMap)
+              .map(([calibre, kg]) => ({ calibre, pct: totalCalibre > 0 ? parseFloat((kg / totalCalibre * 100).toFixed(1)) : 0, kg }))
+              .sort((a, b) => b.pct - a.pct);
+            if (calibreData.length === 0) return null;
+            return (
+              <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                <h2 className="text-base font-semibold text-[#5c1020] mb-1">% por Calibre — Producción Fresco</h2>
+                <p className="text-xs text-gray-400 mb-4">Distribución de kg netos por calibre en la fecha seleccionada</p>
+                <ResponsiveContainer width="100%" height={220}>
+                  <BarChart data={calibreData} barCategoryGap="30%">
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f3e6e8" />
+                    <XAxis dataKey="calibre" tick={{ fontSize: 11 }} />
+                    <YAxis tick={{ fontSize: 11 }} unit="%" domain={[0, 100]} />
+                    <Tooltip formatter={(v, _n, props) => [`${v}% (${props.payload.kg.toLocaleString()} kg)`, "Participación"]} />
+                    <Bar dataKey="pct" fill="#276749" radius={[4, 4, 0, 0]} label={{ position: 'top', fontSize: 11, formatter: v => v + '%' }} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            );
+          })()}
+
           {chartData.length > 0 && (
             <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
               <h2 className="text-base font-semibold text-[#5c1020] mb-4">Últimos 7 días — Cosecha vs Producción (kg netos)</h2>
