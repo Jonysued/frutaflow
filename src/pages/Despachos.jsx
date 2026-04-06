@@ -18,6 +18,7 @@ function NuevaCargaModal({ onClose, onCreated, producciones, assignedIds }) {
   const [saving, setSaving] = useState(false);
   const [step, setStep] = useState(1);
   const [sortDesc, setSortDesc] = useState(true);
+  const [successMessage, setSuccessMessage] = useState("");
   
   const handleStepChange = (newStep) => {
     setFiltro("");
@@ -72,13 +73,24 @@ function NuevaCargaModal({ onClose, onCreated, producciones, assignedIds }) {
     if (!form.nro_carga || !form.fecha) return;
     setSaving(true);
     const created = await base44.entities.Despacho.create({ ...form, pallet_ids: [...selected], estado: "Borrador" });
+    setForm({ nro_carga: "", fecha: new Date().toISOString().slice(0,10), cliente: "", destino: "", cant_pallets_max: 21, contenedor: "", termografo: "", nro_remito: "" });
     setSelected(new Set());
+    setStep(1);
+    setSaving(false);
+    setSuccessMessage(`Despacho ${created.nro_carga} creado exitosamente`);
+    setTimeout(() => setSuccessMessage(""), 2000);
     onCreated(created);
   };
 
   return (
     <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-3xl flex flex-col max-h-[90vh]">
+        {successMessage && (
+          <div className="px-5 py-3 bg-green-50 border-b border-green-200 text-green-700 text-sm font-semibold flex items-center justify-between">
+            {successMessage}
+            <button onClick={() => setSuccessMessage("")} className="text-green-600 hover:text-green-800">×</button>
+          </div>
+        )}
         <div className="flex items-center justify-between px-5 py-4 border-b flex-shrink-0">
           <div>
             <h2 className="font-semibold text-[#5c1020] text-sm">Nuevo Despacho</h2>
