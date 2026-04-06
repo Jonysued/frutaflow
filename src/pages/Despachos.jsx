@@ -202,8 +202,8 @@ function NuevaCargaModal({ onClose, onCreated, producciones, assignedIds }) {
               <label className="text-xs text-gray-500">Número de Remito</label>
               <input value={form.nro_remito} onChange={e => set("nro_remito", e.target.value)} className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#c0392b]" placeholder="Nro. de remito" />
             </div>
-          </div>
-        )}
+            </div>
+            )}
 
         <div className="px-5 py-4 border-t flex gap-2 justify-between flex-shrink-0">
           <button onClick={step === 1 ? onClose : () => handleStepChange(step - 1)} className="px-4 py-2 border rounded-lg text-xs text-gray-600 hover:bg-gray-50">
@@ -549,15 +549,10 @@ function CargaCard({ numero, carga, producciones, onAsignar, onDelete, onToggleE
                     <td className="px-3 py-2 text-right text-[#276749]">{totalKg.toLocaleString()}</td>
                   </tr>
                 </tbody>
-              </table>
-            </div>
-          )}
-      )
-    </div>
-  );
-}
-
-export default function Despachos() {
+                </table>
+                </div>
+                )}
+                )}
   const queryClient = useQueryClient();
   const [showNueva, setShowNueva] = useState(false);
   const [asignando, setAsignando] = useState(null);
