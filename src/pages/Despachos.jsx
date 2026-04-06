@@ -553,8 +553,8 @@ export default function Despachos() {
 
   const { data: producciones = [], isLoading: loadingProd } = useQuery({
     queryKey: ["producciones"],
-    queryFn: () => base44.entities.Produccion.list("-fecha", 50000),
-    staleTime: 1000 * 60 * 5,
+    queryFn: () => base44.entities.Produccion.list("-fecha", 100000),
+    staleTime: 0,
   });
 
   const loading = loadingCargas || loadingProd;
@@ -593,8 +593,8 @@ export default function Despachos() {
   // Resumen
   const totalCargas = cargas.length;
   const despachadas = cargas.filter(c => c.estado === "Despachado").length;
-  // Solo excluir pallets asignados a cargas activas (Borrador). Los de cargas Despachadas quedan disponibles.
-  const asignadosIds = new Set(cargas.filter(c => c.estado !== "Despachado").flatMap(c => c.pallet_ids || []));
+  // Excluir pallets asignados a cualquier carga (Borrador o Despachado)
+  const asignadosIds = new Set(cargas.flatMap(c => c.pallet_ids || []));
   const totalPallets = asignadosIds.size;
   const palletsNoAsignados = producciones.filter(p => !asignadosIds.has(p.id)).length;
 
