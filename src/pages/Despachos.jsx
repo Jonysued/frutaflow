@@ -536,6 +536,7 @@ export default function Despachos() {
   const [showNueva, setShowNueva] = useState(false);
   const [asignando, setAsignando] = useState(null);
   const [editando, setEditando] = useState(null);
+  const [filtroCliente, setFiltroCliente] = useState("");
 
   const { data: cargas = [], isLoading: loadingCargas } = useQuery({
     queryKey: ["despachos"],
@@ -579,6 +580,9 @@ export default function Despachos() {
     await base44.entities.Despacho.update(carga.id, { estado: nuevoEstado });
   };
 
+  const clientes = [...new Set(cargas.map(c => c.cliente).filter(Boolean))].sort();
+  const cargasFiltradas = filtroCliente ? cargas.filter(c => c.cliente === filtroCliente) : cargas;
+
   // Resumen
   const totalCargas = cargas.length;
   const despachadas = cargas.filter(c => c.estado === "Despachado").length;
@@ -593,9 +597,19 @@ export default function Despachos() {
           <h1 className="text-2xl font-bold text-[#5c1020]">Despachos</h1>
           <p className="text-sm text-gray-500">Asignación de pallets a cargas de despacho</p>
         </div>
-        <button onClick={() => setShowNueva(true)} className="flex items-center gap-1 px-4 py-2 bg-[#c0392b] text-white rounded-lg text-xs font-semibold hover:bg-[#a93226]">
-          <Plus className="w-3.5 h-3.5" /> Nuevo Despacho
-        </button>
+        <div className="flex items-center gap-2">
+          <select
+            value={filtroCliente}
+            onChange={e => setFiltroCliente(e.target.value)}
+            className="border border-gray-200 rounded-lg px-3 py-2 text-xs bg-white focus:outline-none focus:ring-1 focus:ring-[#c0392b] text-gray-600"
+          >
+            <option value="">Todos los clientes</option>
+            {clientes.map(c => <option key={c} value={c}>{c}</option>)}
+          </select>
+          <button onClick={() => setShowNueva(true)} className="flex items-center gap-1 px-4 py-2 bg-[#c0392b] text-white rounded-lg text-xs font-semibold hover:bg-[#a93226]">
+            <Plus className="w-3.5 h-3.5" /> Nuevo Despacho
+          </button>
+        </div>
       </div>
 
       {/* Resumen */}
@@ -629,7 +643,7 @@ export default function Despachos() {
         </div>
       ) : (
         <div className="space-y-3">
-          {cargas.map(carga => (
+          {cargasFiltradas.map(carga => (
             <CargaCard
               key={carga.id}
               carga={carga}
