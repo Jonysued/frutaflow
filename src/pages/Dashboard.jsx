@@ -87,7 +87,7 @@ export default function Dashboard() {
       setProducciones(p);
       setLoading(false);
       if (!fechaIniciada) {
-        const todasFechas = [...new Set([...c.map(x => x.fecha_vuelco).filter(Boolean), ...p.map(x => x.fecha)])].filter(Boolean).sort();
+        const todasFechas = [...new Set(p.map(x => x.fecha).filter(Boolean))].sort();
         if (todasFechas.length > 0) {
           const ultima = todasFechas[todasFechas.length - 1];
           setFecha(ultima);
@@ -110,8 +110,8 @@ export default function Dashboard() {
     return f >= fechaDesde && f <= fechaHasta;
   };
 
-  // Cosecha: filtrar por fecha_vuelco
-  const cosechasDia = cosechas.filter(c => enRango(c.fecha_vuelco));
+  // Cosecha: filtrar por fecha de cosecha (mismo criterio que Producción)
+  const cosechasDia = cosechas.filter(c => enRango(c.fecha));
   // Producción: filtrar por fecha de producción
   const produccionesDia = producciones.filter(p => enRango(p.fecha));
 
@@ -135,10 +135,10 @@ export default function Dashboard() {
     cosechasDia.some(c => c.turno === t) || produccionesDia.some(p => p.turno === t)
   );
 
-  // Chart last 7 unique dates (cosecha por fecha_vuelco, producción por fecha)
-  const fechas = [...new Set([...cosechas.map(c => c.fecha_vuelco).filter(Boolean), ...producciones.map(p => p.fecha)])].sort().slice(-7);
+  // Chart last 7 unique dates (basado en Producción)
+  const fechas = [...new Set(producciones.map(p => p.fecha).filter(Boolean))].sort().slice(-7);
   const chartData = fechas.map(f => {
-    const cKg = cosechas.filter(c => c.fecha_vuelco === f).reduce((s, c) => s + (c.neto || 0), 0);
+    const cKg = cosechas.filter(c => c.fecha === f).reduce((s, c) => s + (c.neto || 0), 0);
     const pKg = producciones.filter(p => p.fecha === f).reduce((s, p) => s + (p.kg_netos || 0), 0);
     return {
       fecha: f.slice(5),
