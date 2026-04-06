@@ -11,11 +11,14 @@ export default function Cosecha() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [showImport, setShowImport] = useState(false);
-  const [filtros, setFiltros] = useState({ fecha: "", cuadrilla: "", procedencia: "" });
+  const [filtros, setFiltros] = useState({ fecha: "", cuadrilla: "", procedencia: "", destino: "" });
+  const [showCambioDestino, setShowCambioDestino] = useState(false);
+  const [nuevoDestino, setNuevoDestino] = useState("");
+  const [cambiando, setCambiando] = useState(false);
   const [showFiltros, setShowFiltros] = useState(false);
 
   const setFiltro = (k, v) => setFiltros(f => ({ ...f, [k]: v }));
-  const limpiarFiltros = () => setFiltros({ fecha: "", cuadrilla: "", procedencia: "" });
+  const limpiarFiltros = () => setFiltros({ fecha: "", cuadrilla: "", procedencia: "", destino: "" });
   const filtrosActivos = Object.values(filtros).some(v => v !== "");
 
   const { data: rawRegistros = [], isLoading: loading, refetch } = useQuery({
@@ -34,8 +37,19 @@ export default function Cosecha() {
   const registrosFiltrados = registros.filter(r =>
     (!filtros.fecha || r.fecha === filtros.fecha) &&
     (!filtros.cuadrilla || (r.cuadrilla || "").toLowerCase().includes(filtros.cuadrilla.toLowerCase())) &&
-    (!filtros.procedencia || (r.procedencia || "").toLowerCase().includes(filtros.procedencia.toLowerCase()))
+    (!filtros.procedencia || (r.procedencia || "").toLowerCase().includes(filtros.procedencia.toLowerCase())) &&
+    (!filtros.destino || r.destino === filtros.destino)
   );
+
+  const handleCambioDestino = async () => {
+    if (!nuevoDestino) return;
+    setCambiando(true);
+    await Promise.all(registrosFiltrados.map(r => base44.entities.Cosecha.update(r.id, { destino: nuevoDestino })));
+    queryClient.invalidateQueries({ queryKey: ['cosechas'] });
+    setCambiando(false);
+    setShowCambioDestino(false);
+    setNuevoDestino("");
+  };
 
   const { refreshing } = usePullToRefresh(refetch);
 
@@ -69,6 +83,9 @@ export default function Cosecha() {
           >
             🔍 Filtros {filtrosActivos && `(activos)`}
           </button>
+          <button onClick={() => setShowCambioDestino(true)} className="flex items-center gap-1 px-3 py-2 border border-blue-400 rounded-lg text-xs text-blue-700 hover:bg-blue-50">
+            ✏️ Cambiar Destino
+          </button>
           <button onClick={() => setShowImport(true)} className="flex items-center gap-1 px-3 py-2 border border-[#7a1a30] rounded-lg text-xs text-[#7a1a30] hover:bg-red-50">
             <Upload className="w-3.5 h-3.5" /> Importar
           </button>
@@ -96,6 +113,14 @@ export default function Cosecha() {
               <label className="text-xs text-gray-500">Procedencia</label>
               <input value={filtros.procedencia} onChange={e => setFiltro("procedencia", e.target.value)} placeholder="Buscar..." className="border rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#c0392b]" />
             </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-gray-500">Destino</label>
+              <select value={filtros.destino} onChange={e => setFiltro("destino", e.target.value)} className="border rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#c0392b] bg-white">
+                <option value="">Todos</option>
+                <option value="CAMARA">CAMARA</option>
+                <option value="VUELCO">VUELCO</option>
+              </select>
+            </div>
           </div>
           {filtrosActivos && (
             <div className="mt-3 flex items-center gap-2">
@@ -107,6 +132,29 @@ export default function Cosecha() {
       )}
 
       {showImport && <ImportModal entity="Cosecha" onClose={() => { setShowImport(false); refetch(); }} />}
+
+      {showCambioDestino && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-sm p-5 space-y-4">
+            <h2 className="font-semibold text-[#5c1020] text-sm">Cambiar Destino</h2>
+            <p className="text-xs text-gray-500">Se aplicará a <strong>{registrosFiltrados.length} registros</strong> visibles actualmente.</p>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-gray-500">Nuevo destino</label>
+              <select value={nuevoDestino} onChange={e => setNuevoDestino(e.target.value)} className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#c0392b] bg-white">
+                <option value="">-- Seleccionar --</option>
+                <option value="CAMARA">CAMARA</option>
+                <option value="VUELCO">VUELCO</option>
+              </select>
+            </div>
+            <div className="flex gap-2 justify-end">
+              <button onClick={() => { setShowCambioDestino(false); setNuevoDestino(""); }} className="px-4 py-2 border rounded-lg text-xs text-gray-600 hover:bg-gray-50">Cancelar</button>
+              <button onClick={handleCambioDestino} disabled={!nuevoDestino || cambiando} className="px-4 py-2 bg-[#c0392b] text-white rounded-lg text-xs font-semibold hover:bg-[#a93226] disabled:opacity-60 flex items-center gap-1">
+                {cambiando ? <><div className="w-3 h-3 border-2 border-white/40 border-t-white rounded-full animate-spin" /> Aplicando...</> : "Confirmar"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Totalizadores */}
       {!loading && (
@@ -132,7 +180,8 @@ export default function Cosecha() {
         </div>
       ) : (
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded [&::-webkit-scrollbar-thumb]:bg-gray-300" style={{ direction: 'ltr', transform: 'rotateX(180deg)' }}>
+          <div style={{ transform: 'rotateX(180deg)' }}>
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-[#5c1020] text-white text-xs">
@@ -181,6 +230,7 @@ export default function Cosecha() {
                 ))}
               </tbody>
             </table>
+          </div>
           </div>
         </div>
       )}
