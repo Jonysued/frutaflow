@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { formatDate } from "@/utils/dateUtils";
+import MobileSelect from "@/components/MobileSelect";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Plus, Truck, X, CheckCircle, Package, ChevronDown, ChevronUp, Trash2, Pencil, LayoutList, Table2 } from "lucide-react";
@@ -604,14 +605,13 @@ export default function Despachos() {
           <p className="text-sm text-gray-500">Asignación de pallets a cargas de despacho</p>
         </div>
         <div className="flex items-center gap-2">
-          <select
+          <MobileSelect
+            label="Cliente"
             value={filtroCliente}
-            onChange={e => setFiltroCliente(e.target.value)}
-            className="border border-gray-200 rounded-lg px-3 py-2 text-xs bg-white focus:outline-none focus:ring-1 focus:ring-[#c0392b] text-gray-600"
-          >
-            <option value="">Todos los clientes</option>
-            {clientes.map(c => <option key={c} value={c}>{c}</option>)}
-          </select>
+            onChange={v => setFiltroCliente(v)}
+            options={clientes.map(c => ({ value: c, label: c }))}
+            placeholder="Todos los clientes"
+          />
           <button
             onClick={() => setVistaTabla(v => !v)}
             className="flex items-center gap-1 px-3 py-2 border border-gray-200 rounded-lg text-xs text-gray-600 hover:bg-gray-50"

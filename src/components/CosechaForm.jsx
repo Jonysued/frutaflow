@@ -144,7 +144,7 @@ export default function CosechaForm({ item, onSave, onCancel }) {
     mutation.mutate(data);
   };
 
-  const inputCls = "border rounded-lg px-2 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#c0392b]";
+  const inputCls = "border rounded-lg px-3 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-[#c0392b] min-h-[44px]";
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-[#f8d7da] p-4">
@@ -252,8 +252,8 @@ export default function CosechaForm({ item, onSave, onCancel }) {
         <F label="Stock en Cámara (kg)"><input type="number" value={form.stock_camara} onChange={e => set("stock_camara", e.target.value)} className={inputCls} /></F>
 
         <div className="col-span-2 sm:col-span-3 md:col-span-4 flex gap-2 justify-end pt-1">
-          <button type="button" onClick={onCancel} className="px-4 py-2 border rounded-lg text-xs text-gray-600 hover:bg-gray-50">Cancelar</button>
-          <button type="submit" disabled={mutation.isPending} className="px-4 py-2 bg-[#c0392b] text-white rounded-lg text-xs font-semibold hover:bg-[#a93226] disabled:opacity-60">
+          <button type="button" onClick={onCancel} className="px-4 py-3 border rounded-lg text-xs text-gray-600 hover:bg-gray-50 min-h-[44px]">Cancelar</button>
+          <button type="submit" disabled={mutation.isPending} className="px-4 py-3 bg-[#c0392b] text-white rounded-lg text-xs font-semibold hover:bg-[#a93226] disabled:opacity-60 min-h-[44px]">
             {mutation.isPending ? "Guardando..." : "Guardar"}
           </button>
         </div>

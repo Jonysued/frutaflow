@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { Plus, Trash2, Save } from "lucide-react";
+import MobileSelect from "@/components/MobileSelect";
 
 const CATEGORIAS = ["Cosecha", "Produccion", "Ambos"];
 
@@ -21,9 +22,12 @@ function EnvaseRow({ item, onDelete, onUpdate }) {
     <tr className="border-b">
       <td className="px-3 py-2"><input value={form.nombre} onChange={e => setForm(f => ({ ...f, nombre: e.target.value }))} className={inputCls} /></td>
       <td className="px-3 py-2">
-        <select value={form.categoria} onChange={e => setForm(f => ({ ...f, categoria: e.target.value }))} className={inputCls}>
-          {CATEGORIAS.map(c => <option key={c}>{c}</option>)}
-        </select>
+        <MobileSelect
+          label="Categoría"
+          value={form.categoria}
+          onChange={v => setForm(f => ({ ...f, categoria: v }))}
+          options={CATEGORIAS.map(c => ({ value: c, label: c }))}
+        />
       </td>
       <td className="px-3 py-2 w-24"><input type="number" step="0.01" value={form.tara_kg} onChange={e => setForm(f => ({ ...f, tara_kg: e.target.value }))} className={inputCls} /></td>
       <td className="px-3 py-2 w-24"><input type="number" value={form.bultos_por_palet} onChange={e => setForm(f => ({ ...f, bultos_por_palet: e.target.value }))} className={inputCls} placeholder="-" /></td>
@@ -82,9 +86,12 @@ export default function ConfigEnvases() {
             <tr className="border-t bg-gray-50">
               <td className="px-3 py-2"><input value={newRow.nombre} onChange={e => setNewRow(f => ({ ...f, nombre: e.target.value }))} className={inputCls} placeholder="Ej: CAJA WENCO" /></td>
               <td className="px-3 py-2">
-                <select value={newRow.categoria} onChange={e => setNewRow(f => ({ ...f, categoria: e.target.value }))} className={inputCls}>
-                  {CATEGORIAS.map(c => <option key={c}>{c}</option>)}
-                </select>
+                <MobileSelect
+                  label="Categoría"
+                  value={newRow.categoria}
+                  onChange={v => setNewRow(f => ({ ...f, categoria: v }))}
+                  options={CATEGORIAS.map(c => ({ value: c, label: c }))}
+                />
               </td>
               <td className="px-3 py-2"><input type="number" step="0.01" value={newRow.tara_kg} onChange={e => setNewRow(f => ({ ...f, tara_kg: e.target.value }))} className={inputCls} placeholder="kg" /></td>
               <td className="px-3 py-2"><input type="number" value={newRow.bultos_por_palet} onChange={e => setNewRow(f => ({ ...f, bultos_por_palet: e.target.value }))} className={inputCls} placeholder="-" /></td>

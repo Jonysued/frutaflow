@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { Plus, Trash2, Save } from "lucide-react";
+import MobileSelect from "@/components/MobileSelect";
 
 export default function ConfigProcedencias() {
   const [items, setItems] = useState([]);
@@ -67,10 +68,13 @@ export default function ConfigProcedencias() {
             {items.map(item => (
               <tr key={item.id} className="border-b">
                 <td className="px-3 py-2 w-36">
-                  <select value={editMap[item.id]?.propietario || ""} onChange={e => setEdit(item.id, "propietario", e.target.value)} className={inputCls}>
-                    <option value="">--</option>
-                    {propietarios.map(p => <option key={p.id} value={p.nombre}>{p.nombre}</option>)}
-                  </select>
+                  <MobileSelect
+                    label="Propietario"
+                    value={editMap[item.id]?.propietario || ""}
+                    onChange={v => setEdit(item.id, "propietario", v)}
+                    options={propietarios.map(p => ({ value: p.nombre, label: p.nombre }))}
+                    placeholder="--"
+                  />
                 </td>
                 <td className="px-3 py-2">
                   <input value={editMap[item.id]?.nombre || ""} onChange={e => setEdit(item.id, "nombre", e.target.value)} className={inputCls} />
@@ -86,10 +90,13 @@ export default function ConfigProcedencias() {
             ))}
             <tr className="border-t bg-gray-50">
               <td className="px-3 py-2">
-                <select value={newRow.propietario} onChange={e => setNewRow(f => ({ ...f, propietario: e.target.value }))} className={inputCls}>
-                  <option value="">-- Propietario --</option>
-                  {propietarios.map(p => <option key={p.id} value={p.nombre}>{p.nombre}</option>)}
-                </select>
+                <MobileSelect
+                  label="Propietario"
+                  value={newRow.propietario}
+                  onChange={v => setNewRow(f => ({ ...f, propietario: v }))}
+                  options={propietarios.map(p => ({ value: p.nombre, label: p.nombre }))}
+                  placeholder="-- Propietario --"
+                />
               </td>
               <td className="px-3 py-2">
                 <input value={newRow.nombre} onChange={e => setNewRow(f => ({ ...f, nombre: e.target.value }))} className={inputCls} placeholder="Ej: OP1SE" />

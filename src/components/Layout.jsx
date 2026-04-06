@@ -188,7 +188,7 @@ export default function Layout() {
           return (
             <button
               key={to}
-              onClick={() => navigate(to)}
+              onClick={() => navigate(to, { replace: true })}
               className={`flex-1 flex flex-col items-center justify-center py-2 text-[10px] font-semibold transition-all min-h-[44px] ${
                 isActive ? 'text-white' : 'text-red-300 opacity-70'
               }`}
