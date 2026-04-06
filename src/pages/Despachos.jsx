@@ -37,10 +37,16 @@ function NuevaCargaModal({ onClose, onCreated, producciones, assignedIds }) {
   };
 
   const matchFiltro = (p) => {
-    const q = filtro.trim().toLowerCase();
+    const q = (filtro || "").trim().toLowerCase();
     if (!q) return true;
-    const fields = [p.nro_romaneo, p.productor, p.calibre, p.variedad, p.envase, p.especie];
-    return fields.some(f => (f ? String(f).trim().toLowerCase().includes(q) : false));
+    return (
+      (p.nro_romaneo && String(p.nro_romaneo).toLowerCase().includes(q)) ||
+      (p.productor && String(p.productor).toLowerCase().includes(q)) ||
+      (p.calibre && String(p.calibre).toLowerCase().includes(q)) ||
+      (p.variedad && String(p.variedad).toLowerCase().includes(q)) ||
+      (p.envase && String(p.envase).toLowerCase().includes(q)) ||
+      (p.especie && String(p.especie).toLowerCase().includes(q))
+    );
   };
 
   const disponibles = producciones.filter(p => {
@@ -232,10 +238,16 @@ function AsignarPalletModal({ despacho, producciones, onClose, onSaved, assigned
 
   // Pallets disponibles: excluir los asignados a OTRAS cargas
   const matchFiltroA = (p) => {
-    const q = filtro.trim().toLowerCase();
+    const q = (filtro || "").trim().toLowerCase();
     if (!q) return true;
-    const fields = [p.nro_romaneo, p.productor, p.calibre, p.variedad, p.envase, p.especie];
-    return fields.some(f => (f ? String(f).trim().toLowerCase().includes(q) : false));
+    return (
+      (p.nro_romaneo && String(p.nro_romaneo).toLowerCase().includes(q)) ||
+      (p.productor && String(p.productor).toLowerCase().includes(q)) ||
+      (p.calibre && String(p.calibre).toLowerCase().includes(q)) ||
+      (p.variedad && String(p.variedad).toLowerCase().includes(q)) ||
+      (p.envase && String(p.envase).toLowerCase().includes(q)) ||
+      (p.especie && String(p.especie).toLowerCase().includes(q))
+    );
   };
 
   const disponibles = producciones.filter(p => {
