@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { formatDate } from "@/utils/dateUtils";
 import MobileSelect from "@/components/MobileSelect";
+import DespachoDetalleModal from "@/components/DespachoDetalleModal";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Plus, Truck, X, CheckCircle, Package, ChevronDown, ChevronUp, Trash2, Pencil, LayoutList, Table2 } from "lucide-react";
@@ -551,8 +552,7 @@ function CargaCard({ numero, carga, producciones, onAsignar, onDelete, onToggleE
               </table>
             </div>
           )}
-        </div>
-      )}
+      )
     </div>
   );
 }
@@ -563,7 +563,7 @@ export default function Despachos() {
   const [asignando, setAsignando] = useState(null);
   const [editando, setEditando] = useState(null);
   const [filtroCliente, setFiltroCliente] = useState("");
-  const [vistaTabla, setVistaTabla] = useState(false);
+  const [detalleDespacho, setDetalleDespacho] = useState(null);
 
   const { data: cargas = [], isLoading: loadingCargas } = useQuery({
     queryKey: ["despachos"],
@@ -634,13 +634,7 @@ export default function Despachos() {
             options={clientes.map(c => ({ value: c, label: c }))}
             placeholder="Todos los clientes"
           />
-          <button
-            onClick={() => setVistaTabla(v => !v)}
-            className="flex items-center gap-1 px-3 py-2 border border-gray-200 rounded-lg text-xs text-gray-600 hover:bg-gray-50"
-            title={vistaTabla ? "Vista tarjetas" : "Vista tabla"}
-          >
-            {vistaTabla ? <LayoutList className="w-3.5 h-3.5" /> : <Table2 className="w-3.5 h-3.5" />}
-          </button>
+
           <button onClick={() => setShowNueva(true)} className="flex items-center gap-1 px-4 py-2 bg-[#c0392b] text-white rounded-lg text-xs font-semibold hover:bg-[#a93226]">
             <Plus className="w-3.5 h-3.5" /> Nuevo Despacho
           </button>
@@ -676,7 +670,7 @@ export default function Despachos() {
           <Truck className="w-12 h-12 text-gray-200 mx-auto mb-3" />
           <p className="text-gray-400 text-sm">No hay cargas de despacho. Creá la primera con el botón "Nueva Carga".</p>
         </div>
-      ) : vistaTabla ? (
+      ) : (
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
@@ -720,8 +714,9 @@ export default function Despachos() {
                       <td className="px-3 py-2.5 text-center font-semibold" style={{ color: pallets.length === carga.cant_pallets_max ? "#276749" : "#c0392b" }}>{pallets.length}</td>
                       <td className="px-3 py-2.5 text-right text-gray-700">{totalBultos.toLocaleString()}</td>
                       <td className="px-3 py-2.5 text-right font-semibold text-gray-800">{totalKg.toLocaleString()}</td>
-                      <td className="px-3 py-2.5 text-center whitespace-nowrap">
-                        <button onClick={() => setEditando(carga)} className="text-gray-400 hover:text-[#c0392b] mr-2"><Pencil className="w-3.5 h-3.5 inline" /></button>
+                      <td className="px-3 py-2.5 text-center whitespace-nowrap space-x-2">
+                        <button onClick={() => setDetalleDespacho(carga)} className="text-gray-400 hover:text-blue-600" title="Ver detalle"><Package className="w-3.5 h-3.5 inline" /></button>
+                        <button onClick={() => setEditando(carga)} className="text-gray-400 hover:text-[#c0392b]"><Pencil className="w-3.5 h-3.5 inline" /></button>
                         <button onClick={() => handleDelete(carga)} className="text-gray-400 hover:text-red-600"><Trash2 className="w-3.5 h-3.5 inline" /></button>
                       </td>
                     </tr>
@@ -731,28 +726,11 @@ export default function Despachos() {
             </table>
           </div>
         </div>
-      ) : (
-        <div className="space-y-3">
-          {cargasFiltradas.map((carga) => {
-            const numero = cargas.indexOf(carga) + 1;
-            return (
-              <CargaCard
-                key={carga.id}
-                numero={numero}
-                carga={carga}
-                producciones={producciones}
-                onAsignar={setAsignando}
-                onDelete={handleDelete}
-                onToggleEstado={handleToggleEstado}
-                onEdit={setEditando}
-              />
-            );
-          })}
-          </div>
-      )}
+        )}
 
       {showNueva && <NuevaCargaModal onClose={() => setShowNueva(false)} onCreated={handleCreated} producciones={producciones} assignedIds={asignadosIds} />}
       {editando && <EditarDespachoModal despacho={editando} onClose={() => setEditando(null)} onSaved={handleEdited} />}
+      {detalleDespacho && <DespachoDetalleModal despacho={detalleDespacho} producciones={producciones} onClose={() => setDetalleDespacho(null)} onToggleEstado={(carga) => { handleToggleEstado(carga); setDetalleDespacho(null); }} />}
       {asignando && (
         <AsignarPalletModal
           despacho={asignando}
