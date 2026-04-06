@@ -18,7 +18,6 @@ function normDate(f) {
   return s;
 }
 
-// Retorna true si el calibre es de tipo arilo (debe excluirse del gráfico de fresco)
 function esArilo(calibre) {
   if (!calibre) return false;
   const u = calibre.toUpperCase().replace(/[\s.]/g, "");
@@ -91,11 +90,13 @@ export default function Dashboard() {
   const [fechaDesde, setFechaDesde] = useState(format(new Date(), "yyyy-MM-dd"));
   const [fechaHasta, setFechaHasta] = useState(format(new Date(), "yyyy-MM-dd"));
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [fechaIniciada, setFechaIniciada] = useState(false);
   const [filtroProductor, setFiltroProductor] = useState("");
 
   const loadData = useCallback(() => {
     setLoading(true);
+    setError(null);
     return Promise.all([
       base44.entities.Cosecha.list("-fecha", 50000),
       base44.entities.Produccion.list("-fecha", 50000)
@@ -118,6 +119,9 @@ export default function Dashboard() {
         }
         setFechaIniciada(true);
       }
+    }).catch(err => {
+      setError(err?.message || "Error de red");
+      setLoading(false);
     });
   }, [fechaIniciada]);
 
@@ -217,6 +221,11 @@ export default function Dashboard() {
       {loading ? (
         <div className="flex justify-center py-20">
           <div className="w-8 h-8 border-4 border-[#f8d7da] border-t-[#c0392b] rounded-full animate-spin" />
+        </div>
+      ) : error ? (
+        <div className="flex flex-col items-center justify-center py-20 gap-4">
+          <p className="text-red-600 font-medium">Error al cargar los datos: {error}</p>
+          <button onClick={loadData} className="px-4 py-2 bg-[#c0392b] text-white rounded-lg text-sm font-semibold hover:bg-[#a93226]">Reintentar</button>
         </div>
       ) : (
         <>
