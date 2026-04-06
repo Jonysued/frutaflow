@@ -34,13 +34,13 @@ function NuevaCargaModal({ onClose, onCreated, producciones, assignedIds }) {
     if (assignedIds.has(p.id)) return false;
     if (!filtro) return true;
     const q = filtro.toLowerCase();
-    return (p.nro_romaneo || "").toLowerCase().includes(q) ||
-      (p.productor || "").toLowerCase().includes(q) ||
-      (p.calibre || "").toLowerCase().includes(q) ||
-      (p.variedad || "").toLowerCase().includes(q);
+    return String(p.nro_romaneo || "").toLowerCase().includes(q) ||
+      String(p.productor || "").toLowerCase().includes(q) ||
+      String(p.calibre || "").toLowerCase().includes(q) ||
+      String(p.variedad || "").toLowerCase().includes(q);
   }).sort((a, b) => {
     const parse = (s) => {
-      const m = (s || "").match(/^([A-Za-z]*)([\d]*)(.*)$/);
+      const m = String(s || "").match(/^([A-Za-z]*)(\d*)(.*)$/);
       return [m[1].toUpperCase(), parseInt(m[2]) || 0, m[3]];
     };
     const [pa, na, sa] = parse(a.nro_romaneo);
@@ -226,10 +226,10 @@ function AsignarPalletModal({ despacho, producciones, onClose, onSaved, assigned
     if (assignedIds.has(p.id) && !asignados.includes(p.id)) return false;
     if (!filtro) return true;
     const q = filtro.toLowerCase();
-    return (p.nro_romaneo || "").toLowerCase().includes(q) ||
-      (p.productor || "").toLowerCase().includes(q) ||
-      (p.calibre || "").toLowerCase().includes(q) ||
-      (p.variedad || "").toLowerCase().includes(q);
+    return String(p.nro_romaneo || "").toLowerCase().includes(q) ||
+      String(p.productor || "").toLowerCase().includes(q) ||
+      String(p.calibre || "").toLowerCase().includes(q) ||
+      String(p.variedad || "").toLowerCase().includes(q);
   });
 
   const toggle = (id) => {
