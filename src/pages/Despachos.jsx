@@ -501,6 +501,12 @@ export default function Despachos() {
   const totalPallets = asignadosIds.size;
   const palletsNoAsignados = producciones.filter(p => !asignadosIds.has(p.id)).length;
 
+  // Pallets despachados separados por tipo (arilos vs fresco)
+  const despachosDespachadosIds = new Set(cargas.filter(c => c.estado === "Despachado").flatMap(c => c.pallet_ids || []));
+  const palletsDespachados = producciones.filter(p => despachosDespachadosIds.has(p.id));
+  const contenedoresArilos = palletsDespachados.filter(p => !/^\d+$/.test(p.calibre || "")).length;
+  const contenedoresFresco = palletsDespachados.filter(p => /^\d+$/.test(p.calibre || "")).length;
+
   return (
     <div className="p-4 md:p-6 space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -539,6 +545,17 @@ export default function Despachos() {
         <div className="bg-white rounded-xl p-4 shadow-sm border-l-4 border-[#b7791f] text-center">
           <p className="text-xs text-gray-400">Pallets sin asignar</p>
           <p className="text-2xl font-bold text-[#b7791f]">{palletsNoAsignados}</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-2 gap-3">
+        <div className="bg-white rounded-xl p-4 shadow-sm border-l-4 border-purple-500 text-center">
+          <p className="text-xs text-gray-400">Contenedores Arilos</p>
+          <p className="text-2xl font-bold text-purple-700">{contenedoresArilos}</p>
+        </div>
+        <div className="bg-white rounded-xl p-4 shadow-sm border-l-4 border-orange-500 text-center">
+          <p className="text-xs text-gray-400">Contenedores Fresco</p>
+          <p className="text-2xl font-bold text-orange-700">{contenedoresFresco}</p>
         </div>
       </div>
 
