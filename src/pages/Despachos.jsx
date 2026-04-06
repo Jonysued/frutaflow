@@ -593,7 +593,8 @@ export default function Despachos() {
   // Resumen
   const totalCargas = cargas.length;
   const despachadas = cargas.filter(c => c.estado === "Despachado").length;
-  const asignadosIds = new Set(cargas.flatMap(c => c.pallet_ids || []));
+  // Solo excluir pallets asignados a cargas activas (Borrador). Los de cargas Despachadas quedan disponibles.
+  const asignadosIds = new Set(cargas.filter(c => c.estado !== "Despachado").flatMap(c => c.pallet_ids || []));
   const totalPallets = asignadosIds.size;
   const palletsNoAsignados = producciones.filter(p => !asignadosIds.has(p.id)).length;
 
