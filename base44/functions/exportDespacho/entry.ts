@@ -67,7 +67,7 @@ Deno.serve(async (req) => {
       doc.setTextColor(150, 150, 150);
       doc.text('No hay pallets asignados', margin, y);
     } else {
-      const colWidths = [25, 25, 20, 25, 20, 25];
+      const colWidths = [20, 25, 35, 20, 20, 20];
       const headers = ['Romaneo', 'Productor', 'Variedad', 'Calibre', 'Bultos', 'Kg Netos'];
 
       // Encabezados
