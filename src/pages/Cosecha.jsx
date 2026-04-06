@@ -1,10 +1,20 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { Plus, Upload, Trash2 } from "lucide-react";
 import ImportModal from "@/components/ImportModal";
+
+function normDate(f) {
+  if (!f) return "";
+  const s = String(f).trim();
+  const dmy = s.match(/^(\d{1,2})[/\-](\d{1,2})[/\-](\d{4})$/);
+  if (dmy) return `${dmy[3]}-${dmy[2].padStart(2,'0')}-${dmy[1].padStart(2,'0')}`;
+  const ymd = s.match(/^(\d{4})[/\-](\d{1,2})[/\-](\d{1,2})$/);
+  if (ymd) return `${ymd[1]}-${ymd[2].padStart(2,'0')}-${ymd[3].padStart(2,'0')}`;
+  return s;
+}
 
 export default function Cosecha() {
   const navigate = useNavigate();
@@ -17,11 +27,18 @@ export default function Cosecha() {
   const limpiarFiltros = () => setFiltros({ fecha: "", cuadrilla: "", procedencia: "" });
   const filtrosActivos = Object.values(filtros).some(v => v !== "");
 
-  const { data: registros = [], isLoading: loading, refetch } = useQuery({
+  const { data: rawRegistros = [], isLoading: loading, refetch } = useQuery({
     queryKey: ['cosechas'],
     queryFn: () => base44.entities.Cosecha.list('-fecha'),
     staleTime: 1000 * 60 * 5,
   });
+
+  const registros = useMemo(() =>
+    rawRegistros
+      .map(r => ({ ...r, fecha: normDate(r.fecha) }))
+      .sort((a, b) => b.fecha.localeCompare(a.fecha)),
+    [rawRegistros]
+  );
 
   const registrosFiltrados = registros.filter(r =>
     (!filtros.fecha || r.fecha === filtros.fecha) &&
