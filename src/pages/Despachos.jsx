@@ -9,7 +9,7 @@ const ESTADO_COLORS = {
   Despachado: "bg-green-100 text-green-700",
 };
 
-function NuevaCargaModal({ onClose, onCreated, producciones }) {
+function NuevaCargaModal({ onClose, onCreated, producciones, assignedIds }) {
   const [form, setForm] = useState({ nro_carga: "", fecha: new Date().toISOString().slice(0,10), cliente: "", destino: "", cant_pallets_max: 21 });
   const [selected, setSelected] = useState(new Set());
   const [filtro, setFiltro] = useState("");
@@ -31,6 +31,7 @@ function NuevaCargaModal({ onClose, onCreated, producciones }) {
   };
 
   const disponibles = producciones.filter(p => {
+    if (assignedIds.has(p.id)) return false;
     if (!filtro) return true;
     const q = filtro.toLowerCase();
     return (p.nro_romaneo || "").toLowerCase().includes(q) ||
@@ -192,15 +193,15 @@ function NuevaCargaModal({ onClose, onCreated, producciones }) {
   );
 }
 
-function AsignarPalletModal({ despacho, producciones, onClose, onSaved }) {
+function AsignarPalletModal({ despacho, producciones, onClose, onSaved, assignedIds }) {
   const asignados = despacho.pallet_ids || [];
-  // Pallets ya asignados a OTRAS cargas (para evitar duplicados)
   const [selected, setSelected] = useState(new Set(asignados));
   const [filtro, setFiltro] = useState("");
   const [saving, setSaving] = useState(false);
 
-  // Pallets disponibles: los de Produccion que tienen nro_romaneo o id individual
+  // Pallets disponibles: excluir los asignados a OTRAS cargas
   const disponibles = producciones.filter(p => {
+    if (assignedIds.has(p.id) && !asignados.includes(p.id)) return false;
     if (!filtro) return true;
     const q = filtro.toLowerCase();
     return (p.nro_romaneo || "").toLowerCase().includes(q) ||
@@ -523,13 +524,14 @@ export default function Despachos() {
         </div>
       )}
 
-      {showNueva && <NuevaCargaModal onClose={() => setShowNueva(false)} onCreated={handleCreated} producciones={producciones} />}
+      {showNueva && <NuevaCargaModal onClose={() => setShowNueva(false)} onCreated={handleCreated} producciones={producciones} assignedIds={asignadosIds} />}
       {asignando && (
         <AsignarPalletModal
           despacho={asignando}
           producciones={producciones}
           onClose={() => setAsignando(null)}
           onSaved={handleSaved}
+          assignedIds={asignadosIds}
         />
       )}
     </div>
