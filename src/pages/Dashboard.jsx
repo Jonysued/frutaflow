@@ -340,6 +340,34 @@ export default function Dashboard() {
             );
           })()}
 
+          {/* Gráfico kg netos por Procedencia */}
+          {(() => {
+            const procMap = {};
+            cosechasDia.forEach(c => {
+              if (!c.procedencia) return;
+              procMap[c.procedencia] = (procMap[c.procedencia] || 0) + (c.neto || 0);
+            });
+            const procData = Object.entries(procMap)
+              .map(([procedencia, kg]) => ({ procedencia, kg }))
+              .sort((a, b) => b.kg - a.kg);
+            if (procData.length === 0) return null;
+            return (
+              <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                <h2 className="text-base font-semibold text-[#5c1020] mb-1">Kg netos por Procedencia</h2>
+                <p className="text-xs text-gray-400 mb-4">Totales de kg netos de cosecha por procedencia en la fecha seleccionada</p>
+                <ResponsiveContainer width="100%" height={220}>
+                  <BarChart data={procData} barCategoryGap="30%">
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f3e6e8" />
+                    <XAxis dataKey="procedencia" tick={{ fontSize: 11 }} />
+                    <YAxis tick={{ fontSize: 11 }} />
+                    <Tooltip formatter={v => v.toLocaleString() + " kg"} />
+                    <Bar dataKey="kg" fill="#1a4a6b" radius={[4, 4, 0, 0]} label={{ position: 'top', fontSize: 10, formatter: v => v.toLocaleString() }} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            );
+          })()}
+
           {/* Gráfico últimos 7 días */}
           {chartData.length > 0 && (
             <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
