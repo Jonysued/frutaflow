@@ -149,6 +149,7 @@ export default function Dashboard() {
   );
 
   const totalCosechaKg = cosechasDia.reduce((s, c) => s + (c.neto || 0), 0);
+  const totalVuelcoKg = cosechasDia.filter(c => c.destino === "VUELCO").reduce((s, c) => s + (c.neto || 0), 0);
   const totalProdKg = produccionesDia.reduce((s, p) => s + (p.kg_netos || 0), 0);
   const totalBultos = produccionesDia.reduce((s, p) => s + (p.cant_bultos || 0), 0);
   const rendimientoDia = totalCosechaKg > 0 ? (totalProdKg / totalCosechaKg) * 100 : 0;
@@ -236,8 +237,8 @@ export default function Dashboard() {
             <MetricCard label="Producción (kg netos)" value={totalProdKg.toLocaleString()} unit="kg" icon={Package} color="#7a1a30" />
             <MetricCard label="Bultos producidos" value={totalBultos.toLocaleString()} unit="blt" icon={Layers} color="#276749" />
             <MetricCard label="Rendimiento" value={rendimientoDia.toFixed(1)} unit="%" icon={TrendingUp} color="#b7791f" />
-            <MetricCard label="Descarte" value={(totalCosechaKg - totalProdKg > 0 ? totalCosechaKg - totalProdKg : 0).toLocaleString()} unit="kg" icon={Trash2} color="#6b7280" />
-            <MetricCard label="% Descarte" value={totalCosechaKg > 0 ? ((totalCosechaKg - totalProdKg) / totalCosechaKg * 100).toFixed(1) : "0.0"} unit="%" icon={Trash2} color="#6b7280" />
+            <MetricCard label="Descarte" value={(totalVuelcoKg - totalProdKg > 0 ? totalVuelcoKg - totalProdKg : 0).toLocaleString()} unit="kg" icon={Trash2} color="#6b7280" />
+            <MetricCard label="% Descarte" value={totalVuelcoKg > 0 ? ((totalVuelcoKg - totalProdKg) / totalVuelcoKg * 100).toFixed(1) : "0.0"} unit="%" icon={Trash2} color="#6b7280" />
             <MetricCard label="% Arilos" value={pctArilos.toFixed(1)} unit="%" icon={Grape} color="#7c3aed" />
             <MetricCard label="% Fresco" value={pctFresco.toFixed(1)} unit="%" icon={Leaf} color="#276749" />
           </div>
