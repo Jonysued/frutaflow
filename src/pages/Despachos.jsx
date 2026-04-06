@@ -503,14 +503,23 @@ export default function Despachos() {
 
   // Despachos despachados separados por tipo (arilos vs fresco)
   const despachosDespachados = cargas.filter(c => c.estado === "Despachado");
-  const contenedoresArilos = despachosDespachados.filter(despacho => {
+  let contenedoresArilos = 0;
+  let contenedoresFresco = 0;
+  
+  despachosDespachados.forEach(despacho => {
     const pallets = (despacho.pallet_ids || []).map(id => producciones.find(p => p.id === id)).filter(Boolean);
-    return pallets.some(p => !/^\d+$/.test(p.calibre || ""));
-  }).length;
-  const contenedoresFresco = despachosDespachados.filter(despacho => {
-    const pallets = (despacho.pallet_ids || []).map(id => producciones.find(p => p.id === id)).filter(Boolean);
-    return pallets.some(p => /^\d+$/.test(p.calibre || ""));
-  }).length;
+    const arilosCount = pallets.filter(p => !/^\d+$/.test(p.calibre || "")).length;
+    const frescoCount = pallets.filter(p => /^\d+$/.test(p.calibre || "")).length;
+    
+    if (arilosCount > frescoCount) {
+      contenedoresArilos++;
+    } else if (frescoCount > arilosCount) {
+      contenedoresFresco++;
+    } else if (arilosCount > 0) {
+      // Si son iguales pero hay ambos, contar como arilos
+      contenedoresArilos++;
+    }
+  });
 
   return (
     <div className="p-4 md:p-6 space-y-4">
