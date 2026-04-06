@@ -566,7 +566,6 @@ export default function Despachos() {
                   <th className="px-3 py-3 text-left">Nro. Remito</th>
                   <th className="px-3 py-3 text-left">Termógrafo</th>
                   <th className="px-3 py-3 text-center">Cap. Pallets</th>
-                  <th className="px-3 py-3 text-center">Pallets asig.</th>
                   <th className="px-3 py-3 text-right">Bultos</th>
                   <th className="px-3 py-3 text-right">Kg Netos</th>
                   <th className="px-3 py-3 text-center">Acciones</th>
@@ -592,7 +591,6 @@ export default function Despachos() {
                       <td className="px-3 py-2.5 text-gray-600">{carga.nro_remito || "—"}</td>
                       <td className="px-3 py-2.5 text-gray-600">{carga.termografo || "—"}</td>
                       <td className="px-3 py-2.5 text-center text-gray-700">{carga.cant_pallets_max}</td>
-                      <td className="px-3 py-2.5 text-center font-semibold" style={{ color: pallets.length === carga.cant_pallets_max ? "#276749" : "#c0392b" }}>{pallets.length}</td>
                       <td className="px-3 py-2.5 text-right text-gray-700">{totalBultos.toLocaleString()}</td>
                       <td className="px-3 py-2.5 text-right font-semibold text-gray-800">{totalKg.toLocaleString()}</td>
                       <td className="px-3 py-2.5 text-center whitespace-nowrap space-x-2">
