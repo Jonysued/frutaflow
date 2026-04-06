@@ -1,10 +1,31 @@
-import { X, CheckCircle, Package } from "lucide-react";
+import { X, CheckCircle, Package, Download } from "lucide-react";
 import { formatDate } from "@/utils/dateUtils";
+import { base44 } from "@/api/base44Client";
 
 export default function DespachoDetalleModal({ despacho, producciones, onClose, onToggleEstado }) {
   const pallets = (despacho.pallet_ids || []).map(id => producciones.find(p => p.id === id)).filter(Boolean);
   const totalBultos = pallets.reduce((s, p) => s + (p.cant_bultos || 0), 0);
   const totalKg = pallets.reduce((s, p) => s + (p.kg_netos || 0), 0);
+
+  const handleExportPDF = async () => {
+    try {
+      const response = await base44.functions.invoke('exportDespacho', {
+        despacho_id: despacho.id,
+        producciones: producciones
+      });
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Despacho_${despacho.nro_carga}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Error al exportar:', error);
+    }
+  };
 
   return (
     <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
@@ -101,6 +122,7 @@ export default function DespachoDetalleModal({ despacho, producciones, onClose, 
 
         <div className="px-5 py-4 border-t flex gap-2 justify-end flex-shrink-0">
           <button onClick={onClose} className="px-4 py-2 border rounded-lg text-xs text-gray-600 hover:bg-gray-50">Cerrar</button>
+          <button onClick={handleExportPDF} className="px-4 py-2 border border-blue-400 text-blue-700 rounded-lg text-xs font-semibold hover:bg-blue-50 flex items-center gap-1"><Download className="w-3 h-3" /> Exportar PDF</button>
           <button
             onClick={() => onToggleEstado(despacho)}
             className={`px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all ${
