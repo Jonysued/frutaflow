@@ -27,6 +27,10 @@
       "type": "string",
       "title": "Nro. Remito"
     },
+    "termografo": {
+      "type": "string",
+      "title": "Term\u00f3grafo Nro."
+    },
     "cant_pallets_max": {
       "type": "number",
       "title": "Capacidad de pallets",
