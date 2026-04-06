@@ -24,9 +24,23 @@ export default function Layout() {
       <aside className="hidden md:flex flex-col w-60 bg-[#5c1020] text-white shadow-xl h-screen sticky top-0 flex-shrink-0">
         <div className="px-6 py-5 border-b border-[#7a1a30]">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-[#c0392b] flex items-center justify-center text-xs font-bold">🍎</div>
+            <div className="w-8 h-8 rounded-full bg-[#c0392b] flex items-center justify-center flex-shrink-0">
+              <svg viewBox="0 0 32 32" width="20" height="20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="16" cy="18" r="11" fill="#e74c3c" />
+                <path d="M13 7 Q16 2 19 7" stroke="#c0392b" strokeWidth="2" fill="none" strokeLinecap="round"/>
+                <path d="M16 7 Q18 4 21 5" stroke="#27ae60" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
+                <path d="M16 8 Q14 4 11 5" stroke="#27ae60" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
+                <ellipse cx="16" cy="7.5" rx="3" ry="1.5" fill="#c0392b" />
+                <circle cx="12" cy="16" r="1.5" fill="#fff" opacity="0.3" />
+                <circle cx="18" cy="14" r="1" fill="#fff" opacity="0.3" />
+                <circle cx="14" cy="20" r="1.2" fill="#fff" opacity="0.3" />
+                <circle cx="20" cy="19" r="1" fill="#fff" opacity="0.3" />
+                <circle cx="11" cy="22" r="0.8" fill="#fff" opacity="0.3" />
+                <circle cx="17" cy="23" r="1" fill="#fff" opacity="0.3" />
+              </svg>
+            </div>
             <div>
-              <p className="font-bold text-sm leading-tight">FrutaPack</p>
+              <p className="font-bold text-sm leading-tight">Rimonim</p>
               <p className="text-[10px] text-red-200 opacity-80">Gestión de Empaque</p>
             </div>
           </div>
@@ -48,7 +62,7 @@ export default function Layout() {
           ))}
         </nav>
         <div className="px-4 py-4 border-t border-[#7a1a30]">
-          <p className="text-[10px] text-red-300 opacity-60 text-center">FrutaPack v1.0</p>
+          <p className="text-[10px] text-red-300 opacity-60 text-center">Rimonim v1.0</p>
         </div>
       </aside>
 
@@ -60,8 +74,17 @@ export default function Layout() {
               <ArrowLeft className="w-5 h-5" />
             </button>
           ) : null}
-          <span className="text-lg">🍎</span>
-          <span className="font-bold text-sm">FrutaPack</span>
+          <svg viewBox="0 0 32 32" width="22" height="22" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="16" cy="18" r="11" fill="#e74c3c" />
+            <path d="M13 7 Q16 2 19 7" stroke="#c0392b" strokeWidth="2" fill="none" strokeLinecap="round"/>
+            <path d="M16 7 Q18 4 21 5" stroke="#27ae60" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
+            <path d="M16 8 Q14 4 11 5" stroke="#27ae60" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
+            <ellipse cx="16" cy="7.5" rx="3" ry="1.5" fill="#c0392b" />
+            <circle cx="12" cy="16" r="1.5" fill="#fff" opacity="0.3" />
+            <circle cx="18" cy="14" r="1" fill="#fff" opacity="0.3" />
+            <circle cx="14" cy="20" r="1.2" fill="#fff" opacity="0.3" />
+          </svg>
+          <span className="font-bold text-sm">Rimonim</span>
         </div>
         <button onClick={() => setOpen(!open)} className="p-1">
           {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
