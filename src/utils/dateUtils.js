@@ -13,8 +13,14 @@ export function normDate(f) {
     }
   }
   const s = String(f).trim();
-  // ISO datetime con T (ej: 2024-03-15T00:00:00.000Z)
-  if (s.includes('T')) return s.slice(0, 10);
+  // ISO datetime con T (ej: 2024-03-15T00:00:00.000Z) — usar fecha LOCAL para evitar desfase de zona horaria
+  if (s.includes('T')) {
+    const d = new Date(s);
+    if (!isNaN(d.getTime())) {
+      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    }
+    return s.slice(0, 10);
+  }
   // Fecha con espacio (ej: 2024-03-15 00:00:00)
   if (s.match(/^\d{4}-\d{2}-\d{2} /)) return s.slice(0, 10);
   // DD/MM/YYYY o DD-MM-YYYY
