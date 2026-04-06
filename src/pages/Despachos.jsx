@@ -568,7 +568,7 @@ export default function Despachos() {
 
   const { data: cargas = [], isLoading: loadingCargas } = useQuery({
     queryKey: ["despachos"],
-    queryFn: () => base44.entities.Despacho.list("fecha", 1000),
+    queryFn: () => base44.entities.Despacho.list("-fecha", 1000),
     staleTime: 0,
   });
 
@@ -732,19 +732,22 @@ export default function Despachos() {
         </div>
       ) : (
         <div className="space-y-3">
-          {cargasFiltradas.map((carga, i) => (
-            <CargaCard
-              key={carga.id}
-              numero={i + 1}
-              carga={carga}
-              producciones={producciones}
-              onAsignar={setAsignando}
-              onDelete={handleDelete}
-              onToggleEstado={handleToggleEstado}
-              onEdit={setEditando}
-            />
-          ))}
-        </div>
+          {cargasFiltradas.map((carga) => {
+            const numero = cargas.indexOf(carga) + 1;
+            return (
+              <CargaCard
+                key={carga.id}
+                numero={numero}
+                carga={carga}
+                producciones={producciones}
+                onAsignar={setAsignando}
+                onDelete={handleDelete}
+                onToggleEstado={handleToggleEstado}
+                onEdit={setEditando}
+              />
+            );
+          })}
+          </div>
       )}
 
       {showNueva && <NuevaCargaModal onClose={() => setShowNueva(false)} onCreated={handleCreated} producciones={producciones} assignedIds={asignadosIds} />}
