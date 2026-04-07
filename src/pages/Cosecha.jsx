@@ -12,14 +12,14 @@ export default function Cosecha() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [showImport, setShowImport] = useState(false);
-  const [filtros, setFiltros] = useState({ fecha: "", cuadrilla: "", procedencia: "", destino: "" });
+  const [filtros, setFiltros] = useState({ fecha_desde: "", fecha_hasta: "", cuadrilla: "", procedencia: "", destino: "" });
   const [showCambioDestino, setShowCambioDestino] = useState(false);
   const [nuevoDestino, setNuevoDestino] = useState("");
   const [cambiando, setCambiando] = useState(false);
   const [showFiltros, setShowFiltros] = useState(false);
 
   const setFiltro = (k, v) => setFiltros(f => ({ ...f, [k]: v }));
-  const limpiarFiltros = () => setFiltros({ fecha: "", cuadrilla: "", procedencia: "", destino: "" });
+  const limpiarFiltros = () => setFiltros({ fecha_desde: "", fecha_hasta: "", cuadrilla: "", procedencia: "", destino: "" });
   const filtrosActivos = Object.values(filtros).some(v => v !== "");
 
   const { data: rawRegistros = [], isLoading: loading, refetch } = useQuery({
@@ -36,7 +36,8 @@ export default function Cosecha() {
   );
 
   const registrosFiltrados = registros.filter(r =>
-    (!filtros.fecha || r.fecha === filtros.fecha) &&
+    (!filtros.fecha_desde || r.fecha >= filtros.fecha_desde) &&
+    (!filtros.fecha_hasta || r.fecha <= filtros.fecha_hasta) &&
     (!filtros.cuadrilla || (r.cuadrilla || "").toLowerCase().includes(filtros.cuadrilla.toLowerCase())) &&
     (!filtros.procedencia || (r.procedencia || "").toLowerCase().includes(filtros.procedencia.toLowerCase())) &&
     (!filtros.destino || r.destino === filtros.destino)
@@ -103,8 +104,12 @@ export default function Cosecha() {
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             <div className="flex flex-col gap-1">
-              <label className="text-xs text-gray-500">Fecha</label>
-              <input type="date" value={filtros.fecha} onChange={e => setFiltro("fecha", e.target.value)} className="border rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#c0392b]" />
+              <label className="text-xs text-gray-500">Fecha desde</label>
+              <input type="date" value={filtros.fecha_desde} onChange={e => setFiltro("fecha_desde", e.target.value)} className="border rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#c0392b]" />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-gray-500">Fecha hasta</label>
+              <input type="date" value={filtros.fecha_hasta} onChange={e => setFiltro("fecha_hasta", e.target.value)} className="border rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#c0392b]" />
             </div>
             <div className="flex flex-col gap-1">
               <label className="text-xs text-gray-500">Cuadrilla</label>
