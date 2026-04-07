@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { normDate } from "@/utils/dateUtils";
 
 import { base44 } from "@/api/base44Client";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend, LineChart, Line } from "recharts";
@@ -16,12 +17,12 @@ export default function Reportes() {
     ]).then(([c, p]) => { setCosechas(c); setProducciones(p); setLoading(false); });
   }, []);
 
-  const fechas = [...new Set([...cosechas.map(c => c.fecha), ...producciones.map(p => p.fecha)])].sort().slice(-30);
+  const fechas = [...new Set([...cosechas.map(c => normDate(c.fecha)), ...producciones.map(p => normDate(p.fecha))])].filter(Boolean).sort().slice(-30);
 
   const dataDiaria = fechas.map(f => {
-    const cKg = cosechas.filter(c => c.fecha === f).reduce((s, c) => s + (c.neto || 0), 0);
-    const pKg = producciones.filter(p => p.fecha === f).reduce((s, p) => s + (p.kg_netos || 0), 0);
-    const bultos = producciones.filter(p => p.fecha === f).reduce((s, p) => s + (p.cant_bultos || 0), 0);
+    const cKg = cosechas.filter(c => normDate(c.fecha) === f).reduce((s, c) => s + (c.neto || 0), 0);
+    const pKg = producciones.filter(p => normDate(p.fecha) === f).reduce((s, p) => s + (p.kg_netos || 0), 0);
+    const bultos = producciones.filter(p => normDate(p.fecha) === f).reduce((s, p) => s + (p.cant_bultos || 0), 0);
     const rendimiento = cKg > 0 ? parseFloat(((pKg / cKg) * 100).toFixed(1)) : 0;
     return { label: f.slice(5), Cosecha: cKg, Producción: pKg, Bultos: bultos, Rendimiento: rendimiento };
   });
