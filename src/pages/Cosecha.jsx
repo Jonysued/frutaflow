@@ -49,10 +49,9 @@ export default function Cosecha() {
     setCambiando(true);
     const cantidad = cantidadACambiar ? Math.min(parseInt(cantidadACambiar), registrosFiltrados.length) : registrosFiltrados.length;
     const registros = registrosFiltrados.slice(0, cantidad);
-    const BATCH = 2;
-    for (let i = 0; i < registros.length; i += BATCH) {
-      await Promise.all(registros.slice(i, i + BATCH).map(r => base44.entities.Cosecha.update(r.id, { destino: nuevoDestino })));
-      if (i + BATCH < registros.length) await new Promise(r => setTimeout(r, 300));
+    for (let i = 0; i < registros.length; i++) {
+      await base44.entities.Cosecha.update(registros[i].id, { destino: nuevoDestino });
+      if (i < registros.length - 1) await new Promise(r => setTimeout(r, 500));
     }
     queryClient.invalidateQueries({ queryKey: ['cosechas'] });
     setCambiando(false);
