@@ -34,13 +34,16 @@ export default function Produccion() {
     staleTime: 1000 * 60 * 5,
   });
 
-  const registrosFiltrados = registros.filter(r =>
-    (!filtros.fecha_desde || r.fecha >= filtros.fecha_desde) &&
-    (!filtros.fecha_hasta || r.fecha <= filtros.fecha_hasta) &&
-    (!filtros.productor || (r.productor || "").toLowerCase().includes(filtros.productor.toLowerCase())) &&
-    (!filtros.envase || (r.envase || "").toLowerCase().includes(filtros.envase.toLowerCase())) &&
-    (!filtros.romaneo || (r.nro_romaneo || "").toLowerCase().includes(filtros.romaneo.toLowerCase()))
-  );
+  const registrosFiltrados = registros.filter(r => {
+    const fecha = (r.fecha || "").slice(0, 10);
+    return (
+      (!filtros.fecha_desde || fecha >= filtros.fecha_desde) &&
+      (!filtros.fecha_hasta || fecha <= filtros.fecha_hasta) &&
+      (!filtros.productor || (r.productor || "").toLowerCase().includes(filtros.productor.toLowerCase())) &&
+      (!filtros.envase || (r.envase || "").toLowerCase().includes(filtros.envase.toLowerCase())) &&
+      (!filtros.romaneo || (r.nro_romaneo || "").toLowerCase().includes(filtros.romaneo.toLowerCase()))
+    );
+  });
 
   const { refreshing } = usePullToRefresh(refetch);
 
