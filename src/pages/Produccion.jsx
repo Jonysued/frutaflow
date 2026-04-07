@@ -43,6 +43,18 @@ export default function Produccion() {
 
   const { refreshing } = usePullToRefresh(refetch);
 
+  // Estadística de peso promedio por calibre (dinámico según filtros)
+  const pesoPorCalibre = Object.values(
+    registrosFiltrados.reduce((acc, r) => {
+      if (!r.calibre) return acc;
+      if (!acc[r.calibre]) acc[r.calibre] = { calibre: r.calibre, kg: 0, bultos: 0 };
+      acc[r.calibre].kg += r.kg_netos || 0;
+      acc[r.calibre].bultos += r.cant_bultos || 0;
+      return acc;
+    }, {})
+  ).map(c => ({ ...c, promedio: c.bultos > 0 ? (c.kg / c.bultos).toFixed(2) : null }))
+    .sort((a, b) => a.calibre.localeCompare(b.calibre, undefined, { numeric: true }));
+
   const handleDelete = async (id) => {
     if (!confirm("¿Eliminar este registro?")) return;
     queryClient.setQueryData(['producciones'], (old = []) => old.filter(r => r.id !== id));
@@ -115,6 +127,23 @@ export default function Produccion() {
 
 
       {showImport && <ImportModal entity="Produccion" onClose={() => { setShowImport(false); refetch(); }} />}
+
+      {!loading && pesoPorCalibre.length > 0 && (
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
+            Peso promedio por calibre {filtrosActivos ? <span className="text-[#276749] normal-case font-normal">(filtrado)</span> : ""}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {pesoPorCalibre.map(c => (
+              <div key={c.calibre} className="flex flex-col items-center bg-[#f0faf4] border border-[#276749]/20 rounded-lg px-4 py-2 min-w-[80px]">
+                <span className="text-xs text-gray-500 font-medium">{c.calibre}</span>
+                <span className="text-lg font-bold text-[#276749]">{c.promedio ?? '—'}</span>
+                <span className="text-[10px] text-gray-400">kg/bulto</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {loading ? (
         <div className="flex justify-center py-16">
