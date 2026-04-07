@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import ResumenRomaneo from "@/components/ResumenRomaneo";
+
 import { base44 } from "@/api/base44Client";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend, LineChart, Line } from "recharts";
 
@@ -125,7 +125,6 @@ export default function Reportes() {
             </div>
           )}
 
-          <ResumenRomaneo producciones={producciones} />
 
           {/* Por Productor */}
           {(() => {
