@@ -40,7 +40,7 @@ export default function Cosecha() {
     (!filtros.fecha_hasta || r.fecha <= filtros.fecha_hasta) &&
     (!filtros.cuadrilla || (r.cuadrilla || "").toLowerCase().includes(filtros.cuadrilla.toLowerCase())) &&
     (!filtros.procedencia || (r.procedencia || "").toLowerCase().includes(filtros.procedencia.toLowerCase())) &&
-    (!filtros.destino || r.destino === filtros.destino)
+    (!filtros.destino || (r.destino || "").toUpperCase() === filtros.destino.toUpperCase())
   );
 
   const handleCambioDestino = async () => {
@@ -128,6 +128,8 @@ export default function Cosecha() {
                 options={[
                   { value: "CAMARA", label: "CAMARA" },
                   { value: "VUELCO", label: "VUELCO" },
+                  { value: "PROCESO", label: "PROCESO" },
+                  { value: "OTRO", label: "OTRO" },
                 ]}
                 placeholder="Todos"
               />
