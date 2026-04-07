@@ -256,7 +256,7 @@ export default function Cosecha() {
                     <td className="px-3 py-2.5 text-gray-600 text-xs hidden lg:table-cell">{r.tipo_proceso}</td>
                     <td className="px-3 py-2.5 text-center whitespace-nowrap">
                       <button onClick={() => navigate(`/cosecha/edit/${r.id}`)} className="text-[#c0392b] hover:underline text-xs mr-2">Editar</button>
-                      <button onClick={() => handleDelete(r.id)} className="text-gray-400 hover:text-red-600"><Trash2 className="w-3.5 h-3.5 inline" /></button>
+                      <button onClick={() => handleDelete(r.id)} aria-label="Eliminar BIN" className="text-gray-400 hover:text-red-600"><Trash2 className="w-3.5 h-3.5 inline" /></button>
                     </td>
                   </tr>
                 ))}

@@ -119,7 +119,7 @@ export default function DespachoDetalleModal({ despacho, producciones, onClose, 
           </div>
         </div>
 
-        <div className="px-5 py-4 border-t flex gap-2 justify-end flex-shrink-0">
+        <div className="px-5 py-4 border-t flex gap-2 justify-end flex-shrink-0" style={{ paddingBottom: "max(1rem, env(safe-area-inset-bottom))" }}>
           <button onClick={onClose} className="px-4 py-2 border rounded-lg text-xs text-gray-600 hover:bg-gray-50">Cerrar</button>
           <button onClick={handleExportPDF} className="px-4 py-2 border border-blue-400 text-blue-700 rounded-lg text-xs font-semibold hover:bg-blue-50 flex items-center gap-1"><Download className="w-3 h-3" /> Exportar PDF</button>
           <button

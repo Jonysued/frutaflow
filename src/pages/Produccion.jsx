@@ -207,7 +207,7 @@ export default function Produccion() {
                     <td className="px-3 py-2.5 text-gray-600 hidden lg:table-cell font-mono text-xs">{r.nro_romaneo}</td>
                     <td className="px-3 py-2.5 text-center whitespace-nowrap">
                       <button onClick={() => navigate(`/produccion/edit/${r.id}`)} className="text-[#c0392b] hover:underline text-xs mr-2">Editar</button>
-                      <button onClick={() => handleDelete(r.id)} className="text-gray-400 hover:text-red-600"><Trash2 className="w-3.5 h-3.5 inline" /></button>
+                      <button onClick={() => handleDelete(r.id)} aria-label="Eliminar registro" className="text-gray-400 hover:text-red-600"><Trash2 className="w-3.5 h-3.5 inline" /></button>
                     </td>
                     <td className="px-3 py-2.5 text-right font-bold text-[#276749] hidden md:table-cell border-l-4 border-l-[#276749] bg-[#f0faf4]">
                       {r.cant_bultos > 0 ? (r.kg_netos / r.cant_bultos).toFixed(2) : '—'}

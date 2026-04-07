@@ -637,9 +637,9 @@ export default function Despachos() {
                       <td className="px-3 py-2.5 text-right text-gray-700">{totalBultos.toLocaleString()}</td>
                       <td className="px-3 py-2.5 text-right font-semibold text-gray-800">{totalKg.toLocaleString()}</td>
                       <td className="px-3 py-2.5 text-center whitespace-nowrap space-x-2">
-                        <button onClick={() => setDetalleDespacho(carga)} className="text-gray-400 hover:text-blue-600" title="Ver detalle"><Package className="w-3.5 h-3.5 inline" /></button>
-                        <button onClick={() => setEditando(carga)} className="text-gray-400 hover:text-[#c0392b]"><Pencil className="w-3.5 h-3.5 inline" /></button>
-                        <button onClick={() => handleDelete(carga)} className="text-gray-400 hover:text-red-600"><Trash2 className="w-3.5 h-3.5 inline" /></button>
+                        <button onClick={() => setDetalleDespacho(carga)} aria-label="Ver detalle" className="text-gray-400 hover:text-blue-600"><Package className="w-3.5 h-3.5 inline" /></button>
+                        <button onClick={() => setEditando(carga)} aria-label="Editar despacho" className="text-gray-400 hover:text-[#c0392b]"><Pencil className="w-3.5 h-3.5 inline" /></button>
+                        <button onClick={() => handleDelete(carga)} aria-label="Eliminar despacho" className="text-gray-400 hover:text-red-600"><Trash2 className="w-3.5 h-3.5 inline" /></button>
                       </td>
                     </tr>
                    );

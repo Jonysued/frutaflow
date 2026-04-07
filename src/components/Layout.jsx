@@ -106,7 +106,7 @@ export default function Layout() {
       <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-[#5c1020] text-white px-4 flex items-center justify-between shadow-lg" style={{ paddingTop: 'calc(12px + env(safe-area-inset-top))', paddingBottom: '12px', minHeight: '44px' }}>
         <div className="flex items-center gap-2">
           {canGoBack ? (
-            <button onClick={() => navigate(-1)} className="p-1 mr-1 min-h-[44px] min-w-[44px] flex items-center justify-center">
+            <button onClick={() => navigate(-1)} aria-label="Volver" className="p-1 mr-1 min-h-[44px] min-w-[44px] flex items-center justify-center">
               <ArrowLeft className="w-5 h-5" />
             </button>
           ) : null}
@@ -122,7 +122,7 @@ export default function Layout() {
           </svg>
           <span className="font-bold text-sm">Rimonim</span>
         </div>
-        <button onClick={() => setOpen(!open)} className="p-1 min-h-[44px] min-w-[44px] flex items-center justify-center">
+        <button onClick={() => setOpen(!open)} aria-label={open ? "Cerrar menú" : "Abrir menú"} className="p-1 min-h-[44px] min-w-[44px] flex items-center justify-center">
           {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
       </div>

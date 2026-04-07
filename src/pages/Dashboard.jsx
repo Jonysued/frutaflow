@@ -5,6 +5,7 @@ import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { format, differenceInDays, parseISO } from "date-fns";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { Wheat, Package, Layers, TrendingUp, AlertTriangle, Thermometer, Trash2, Grape, Leaf } from "lucide-react";
+import MobileSelect from "@/components/MobileSelect";
 
 const TURNOS = ["Mañana", "Tarde", "Noche"];
 const TURNO_COLORS = { Mañana: "#c0392b", Tarde: "#7a1a30", Noche: "#2c0a12" };
@@ -199,14 +200,14 @@ export default function Dashboard() {
               <input type="date" value={fechaHasta} onChange={e => setFechaHasta(e.target.value)} className="w-full sm:w-auto border border-gray-200 rounded-lg px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-[#c0392b]" />
             </div>
           )}
-          <select
+          <MobileSelect
+            label="Productor"
             value={filtroProductor}
-            onChange={e => setFiltroProductor(e.target.value)}
-            className="w-full sm:w-auto border border-gray-200 rounded-lg px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-[#c0392b] bg-white"
-          >
-            <option value="">Todos los productores</option>
-            {todosProductores.map(p => <option key={p} value={p}>{p}</option>)}
-          </select>
+            onChange={setFiltroProductor}
+            options={todosProductores.map(p => ({ value: p, label: p }))}
+            placeholder="Todos los productores"
+            className="w-full sm:w-48"
+          />
         </div>
       </div>
 
