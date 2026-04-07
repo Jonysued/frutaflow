@@ -137,20 +137,29 @@ export default function Produccion() {
 
       {showImport && <ImportModal entity="Produccion" onClose={() => { setShowImport(false); refetch(); }} />}
 
-      {!loading && pesoPorCalibre.length > 0 && (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
-            Peso promedio por calibre {filtrosActivos ? <span className="text-[#276749] normal-case font-normal">(filtrado)</span> : ""}
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {pesoPorCalibre.map(c => (
-              <div key={c.calibre} className="flex flex-col items-center bg-[#f0faf4] border border-[#276749]/20 rounded-lg px-4 py-2 min-w-[80px]">
-                <span className="text-xs text-gray-500 font-medium">{c.calibre}</span>
-                <span className="text-lg font-bold text-[#276749]">{c.promedio ?? '—'}</span>
-                <span className="text-[10px] text-gray-400">kg/bulto</span>
-              </div>
-            ))}
+      {!loading && (
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex flex-wrap gap-4 items-center">
+          <div className="flex flex-col items-center bg-[#fdf4f5] border border-[#c0392b]/20 rounded-lg px-6 py-3 min-w-[140px]">
+            <span className="text-xs text-gray-500 font-medium">Kg totales producidos</span>
+            <span className="text-2xl font-bold text-[#c0392b]">{registrosFiltrados.reduce((s, r) => s + (r.kg_netos || 0), 0).toLocaleString()}</span>
+            <span className="text-[10px] text-gray-400">kg netos</span>
           </div>
+          {pesoPorCalibre.length > 0 && (
+            <div className="flex flex-col gap-1 flex-1">
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                Peso promedio por calibre {filtrosActivos ? <span className="text-[#276749] normal-case font-normal">(filtrado)</span> : ""}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {pesoPorCalibre.map(c => (
+                  <div key={c.calibre} className="flex flex-col items-center bg-[#f0faf4] border border-[#276749]/20 rounded-lg px-4 py-2 min-w-[80px]">
+                    <span className="text-xs text-gray-500 font-medium">{c.calibre}</span>
+                    <span className="text-lg font-bold text-[#276749]">{c.promedio ?? '—'}</span>
+                    <span className="text-[10px] text-gray-400">kg/bulto</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
