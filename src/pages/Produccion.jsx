@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { formatDate } from "@/utils/dateUtils";
+import { formatDate, normDate } from "@/utils/dateUtils";
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
@@ -35,7 +35,7 @@ export default function Produccion() {
   });
 
   const registrosFiltrados = registros.filter(r => {
-    const fecha = (r.fecha || "").slice(0, 10);
+    const fecha = normDate(r.fecha) || "";
     return (
       (!filtros.fecha_desde || fecha >= filtros.fecha_desde) &&
       (!filtros.fecha_hasta || fecha <= filtros.fecha_hasta) &&
