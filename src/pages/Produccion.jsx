@@ -12,8 +12,8 @@ export default function Produccion() {
   const queryClient = useQueryClient();
   const [showImport, setShowImport] = useState(false);
   const [filtros, setFiltros] = useState(() => {
-    try { return JSON.parse(sessionStorage.getItem('prod_filtros')) || { fecha: "", productor: "", envase: "", romaneo: "" }; }
-    catch { return { fecha: "", productor: "", envase: "", romaneo: "" }; }
+    try { return JSON.parse(sessionStorage.getItem('prod_filtros')) || { fecha_desde: "", fecha_hasta: "", productor: "", envase: "", romaneo: "" }; }
+    catch { return { fecha_desde: "", fecha_hasta: "", productor: "", envase: "", romaneo: "" }; }
   });
   const [showFiltros, setShowFiltros] = useState(false);
 
@@ -24,7 +24,7 @@ export default function Produccion() {
   });
   const limpiarFiltros = () => {
     sessionStorage.removeItem('prod_filtros');
-    setFiltros({ fecha: "", productor: "", envase: "", romaneo: "" });
+    setFiltros({ fecha_desde: "", fecha_hasta: "", productor: "", envase: "", romaneo: "" });
   };
   const filtrosActivos = Object.values(filtros).some(v => v !== "");
 
@@ -35,7 +35,8 @@ export default function Produccion() {
   });
 
   const registrosFiltrados = registros.filter(r =>
-    (!filtros.fecha || r.fecha === filtros.fecha) &&
+    (!filtros.fecha_desde || r.fecha >= filtros.fecha_desde) &&
+    (!filtros.fecha_hasta || r.fecha <= filtros.fecha_hasta) &&
     (!filtros.productor || (r.productor || "").toLowerCase().includes(filtros.productor.toLowerCase())) &&
     (!filtros.envase || (r.envase || "").toLowerCase().includes(filtros.envase.toLowerCase())) &&
     (!filtros.romaneo || (r.nro_romaneo || "").toLowerCase().includes(filtros.romaneo.toLowerCase()))
@@ -99,8 +100,12 @@ export default function Produccion() {
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div className="flex flex-col gap-1">
-              <label className="text-xs text-gray-500">Fecha</label>
-              <input type="date" value={filtros.fecha} onChange={e => setFiltro("fecha", e.target.value)} className="border rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#276749]" />
+              <label className="text-xs text-gray-500">Fecha desde</label>
+              <input type="date" value={filtros.fecha_desde} onChange={e => setFiltro("fecha_desde", e.target.value)} className="border rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#276749]" />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-gray-500">Fecha hasta</label>
+              <input type="date" value={filtros.fecha_hasta} onChange={e => setFiltro("fecha_hasta", e.target.value)} className="border rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#276749]" />
             </div>
             <div className="flex flex-col gap-1">
               <label className="text-xs text-gray-500">Productor</label>
