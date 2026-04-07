@@ -15,6 +15,7 @@ export default function Cosecha() {
   const [filtros, setFiltros] = useState({ fecha_desde: "", fecha_hasta: "", cuadrilla: "", procedencia: "", destino: "" });
   const [showCambioDestino, setShowCambioDestino] = useState(false);
   const [nuevoDestino, setNuevoDestino] = useState("");
+  const [cantidadACambiar, setCantidadACambiar] = useState("");
   const [cambiando, setCambiando] = useState(false);
   const [showFiltros, setShowFiltros] = useState(false);
 
@@ -46,11 +47,13 @@ export default function Cosecha() {
   const handleCambioDestino = async () => {
     if (!nuevoDestino) return;
     setCambiando(true);
-    await Promise.all(registrosFiltrados.map(r => base44.entities.Cosecha.update(r.id, { destino: nuevoDestino })));
+    const cantidad = cantidadACambiar ? Math.min(parseInt(cantidadACambiar), registrosFiltrados.length) : registrosFiltrados.length;
+    await Promise.all(registrosFiltrados.slice(0, cantidad).map(r => base44.entities.Cosecha.update(r.id, { destino: nuevoDestino })));
     queryClient.invalidateQueries({ queryKey: ['cosechas'] });
     setCambiando(false);
     setShowCambioDestino(false);
     setNuevoDestino("");
+    setCantidadACambiar("");
   };
 
   const { refreshing } = usePullToRefresh(refetch);
@@ -150,7 +153,19 @@ export default function Cosecha() {
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-sm p-5 space-y-4">
             <h2 className="font-semibold text-[#5c1020] text-sm">Cambiar Destino</h2>
-            <p className="text-xs text-gray-500">Se aplicará a <strong>{registrosFiltrados.length} registros</strong> visibles actualmente.</p>
+            <p className="text-xs text-gray-500">{registrosFiltrados.length} registros visibles actualmente.</p>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-gray-500">Cantidad a cambiar</label>
+              <input
+                type="number"
+                min="1"
+                max={registrosFiltrados.length}
+                value={cantidadACambiar}
+                onChange={e => setCantidadACambiar(e.target.value)}
+                placeholder={`Todos (${registrosFiltrados.length})`}
+                className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#c0392b]"
+              />
+            </div>
             <div className="flex flex-col gap-1">
               <label className="text-xs text-gray-500">Nuevo destino</label>
               <select value={nuevoDestino} onChange={e => setNuevoDestino(e.target.value)} className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#c0392b] bg-white">
