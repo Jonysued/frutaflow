@@ -44,16 +44,17 @@ export default function Produccion() {
   const { refreshing } = usePullToRefresh(refetch);
 
   // Estadística de peso promedio por calibre (dinámico según filtros)
+  const CALIBRES_VALIDOS = ['5', '6', '7', '8', '10', '12'];
   const pesoPorCalibre = Object.values(
     registrosFiltrados.reduce((acc, r) => {
-      if (!r.calibre) return acc;
+      if (!r.calibre || !CALIBRES_VALIDOS.includes(String(r.calibre))) return acc;
       if (!acc[r.calibre]) acc[r.calibre] = { calibre: r.calibre, kg: 0, bultos: 0 };
       acc[r.calibre].kg += r.kg_netos || 0;
       acc[r.calibre].bultos += r.cant_bultos || 0;
       return acc;
     }, {})
   ).map(c => ({ ...c, promedio: c.bultos > 0 ? (c.kg / c.bultos).toFixed(2) : null }))
-    .sort((a, b) => a.calibre.localeCompare(b.calibre, undefined, { numeric: true }));
+    .sort((a, b) => CALIBRES_VALIDOS.indexOf(String(a.calibre)) - CALIBRES_VALIDOS.indexOf(String(b.calibre)));
 
   const handleDelete = async (id) => {
     if (!confirm("¿Eliminar este registro?")) return;
