@@ -133,7 +133,8 @@ export default function Produccion() {
                   <th className="px-3 py-3 text-left hidden sm:table-cell">Variedad</th>
                   <th className="px-3 py-3 text-left hidden md:table-cell">Envase</th>
                   <th className="px-3 py-3 text-left hidden md:table-cell">Calibre</th>
-                  <th className="px-3 py-3 text-left hidden md:table-cell">Categoría</th>
+                  <th className="px-3 py-3 text-right hidden md:table-cell">Kg Netos</th>
+                  <th className="px-3 py-3 text-right hidden md:table-cell">Bultos</th>
                   <th className="px-3 py-3 text-left hidden lg:table-cell">Romaneo</th>
                   <th className="px-3 py-3 text-center">Acción</th>
                 </tr>
@@ -153,7 +154,8 @@ export default function Produccion() {
                     <td className="px-3 py-2.5 text-gray-700 hidden sm:table-cell">{r.variedad}</td>
                     <td className="px-3 py-2.5 text-gray-600 hidden md:table-cell">{r.envase}</td>
                     <td className="px-3 py-2.5 text-gray-600 hidden md:table-cell">{r.calibre}</td>
-                    <td className="px-3 py-2.5 text-gray-600 hidden md:table-cell">{r.categoria}</td>
+                    <td className="px-3 py-2.5 text-right font-semibold text-gray-800 hidden md:table-cell">{r.kg_netos?.toLocaleString() || "—"}</td>
+                    <td className="px-3 py-2.5 text-right text-gray-700 hidden md:table-cell">{r.cant_bultos?.toLocaleString() || "—"}</td>
                     <td className="px-3 py-2.5 text-gray-600 hidden lg:table-cell font-mono text-xs">{r.nro_romaneo}</td>
                     <td className="px-3 py-2.5 text-center whitespace-nowrap">
                       <button onClick={() => navigate(`/produccion/edit/${r.id}`)} className="text-[#c0392b] hover:underline text-xs mr-2">Editar</button>
