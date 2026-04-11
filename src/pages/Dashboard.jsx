@@ -89,14 +89,21 @@ export default function Dashboard() {
   const loadData = useCallback(() => {
     setLoading(true);
     setError(null);
+    const fetchAll = async (entity) => {
+      const PAGE = 10000;
+      let all = [], skip = 0;
+      while (true) {
+        const batch = await entity.list('-fecha', PAGE, skip);
+        all = all.concat(batch);
+        if (batch.length < PAGE) break;
+        skip += PAGE;
+      }
+      return all;
+    };
     return Promise.all([
-      base44.entities.Cosecha.list("-fecha", 50000),
-      base44.entities.Produccion.list("-fecha", 50000)
+      fetchAll(base44.entities.Cosecha),
+      fetchAll(base44.entities.Produccion)
     ]).then(([c, p]) => {
-      const cn = c.map(x => ({ ...x, fecha: normDate(x.fecha) }));
-      const pn = p.map(x => ({ ...x, fecha: normDate(x.fecha) }));
-      setCosechas(cn);
-      setProducciones(pn);
       setLoading(false);
       if (!fechaIniciada) {
         const todasFechas = [...new Set([
