@@ -104,11 +104,13 @@ export default function Dashboard() {
       fetchAll(base44.entities.Cosecha),
       fetchAll(base44.entities.Produccion)
     ]).then(([c, p]) => {
+      setCosechas(c);
+      setProducciones(p);
       setLoading(false);
       if (!fechaIniciada) {
         const todasFechas = [...new Set([
-          ...cn.map(x => x.fecha),
-          ...pn.map(x => x.fecha)
+          ...c.map(x => x.fecha),
+          ...p.map(x => x.fecha)
         ].filter(Boolean))].sort();
         if (todasFechas.length > 0) {
           const ultima = todasFechas[todasFechas.length - 1];
