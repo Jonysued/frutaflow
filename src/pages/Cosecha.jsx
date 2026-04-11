@@ -25,7 +25,7 @@ export default function Cosecha() {
 
   const { data: rawRegistros = [], isLoading: loading, refetch } = useQuery({
     queryKey: ['cosechas'],
-    queryFn: () => base44.entities.Cosecha.list('-fecha'),
+    queryFn: () => base44.entities.Cosecha.list('-fecha', 50000),
     staleTime: 1000 * 60 * 5,
   });
 
