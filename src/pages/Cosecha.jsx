@@ -25,7 +25,18 @@ export default function Cosecha() {
 
   const { data: rawRegistros = [], isLoading: loading, refetch } = useQuery({
     queryKey: ['cosechas'],
-    queryFn: () => base44.entities.Cosecha.list('-fecha', 50000),
+    queryFn: async () => {
+      const PAGE = 5000;
+      let all = [];
+      let skip = 0;
+      while (true) {
+        const batch = await base44.entities.Cosecha.list('-fecha', PAGE, skip);
+        all = all.concat(batch);
+        if (batch.length < PAGE) break;
+        skip += PAGE;
+      }
+      return all;
+    },
     staleTime: 0,
   });
 
