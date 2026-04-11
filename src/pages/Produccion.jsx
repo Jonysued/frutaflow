@@ -30,8 +30,18 @@ export default function Produccion() {
 
   const { data: registros = [], isLoading: loading, refetch } = useQuery({
     queryKey: ['producciones'],
-    queryFn: () => base44.entities.Produccion.list('-fecha', 50000),
-    staleTime: 1000 * 60 * 5,
+    queryFn: async () => {
+      const PAGE = 10000;
+      let all = [], skip = 0;
+      while (true) {
+        const batch = await base44.entities.Produccion.list('-fecha', PAGE, skip);
+        all = all.concat(batch);
+        if (batch.length < PAGE) break;
+        skip += PAGE;
+      }
+      return all;
+    },
+    staleTime: 0,
   });
 
   const registrosFiltrados = registros.filter(r => {

@@ -469,7 +469,17 @@ export default function Despachos() {
 
   const { data: producciones = [], isLoading: loadingProd } = useQuery({
     queryKey: ["producciones"],
-    queryFn: () => base44.entities.Produccion.list("-fecha", 100000),
+    queryFn: async () => {
+      const PAGE = 10000;
+      let all = [], skip = 0;
+      while (true) {
+        const batch = await base44.entities.Produccion.list('-fecha', PAGE, skip);
+        all = all.concat(batch);
+        if (batch.length < PAGE) break;
+        skip += PAGE;
+      }
+      return all;
+    },
     staleTime: 0,
   });
 

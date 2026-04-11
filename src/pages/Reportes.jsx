@@ -11,9 +11,20 @@ export default function Reportes() {
   const [vista, setVista] = useState("diario");
 
   useEffect(() => {
+    const fetchAll = async (entity) => {
+      const PAGE = 10000;
+      let all = [], skip = 0;
+      while (true) {
+        const batch = await entity.list('-fecha', PAGE, skip);
+        all = all.concat(batch);
+        if (batch.length < PAGE) break;
+        skip += PAGE;
+      }
+      return all;
+    };
     Promise.all([
-      base44.entities.Cosecha.list("-fecha", 50000),
-      base44.entities.Produccion.list("-fecha", 50000)
+      fetchAll(base44.entities.Cosecha),
+      fetchAll(base44.entities.Produccion)
     ]).then(([c, p]) => { setCosechas(c); setProducciones(p); setLoading(false); });
   }, []);
 
