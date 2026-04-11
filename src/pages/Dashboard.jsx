@@ -90,7 +90,7 @@ export default function Dashboard() {
     setLoading(true);
     setError(null);
     const fetchAll = async (entity) => {
-      const PAGE = 10000;
+      const PAGE = 20000;
       let all = [], skip = 0;
       while (true) {
         const batch = await entity.list('-fecha', PAGE, skip);

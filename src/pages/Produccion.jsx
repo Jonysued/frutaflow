@@ -31,7 +31,7 @@ export default function Produccion() {
   const { data: registros = [], isLoading: loading, refetch } = useQuery({
     queryKey: ['producciones'],
     queryFn: async () => {
-      const PAGE = 10000;
+      const PAGE = 20000;
       let all = [], skip = 0;
       while (true) {
         const batch = await base44.entities.Produccion.list('-fecha', PAGE, skip);
