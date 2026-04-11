@@ -38,6 +38,7 @@ export default function Cosecha() {
       return all;
     },
     staleTime: 0,
+    refetchOnWindowFocus: true,
   });
 
   const registros = useMemo(() =>
