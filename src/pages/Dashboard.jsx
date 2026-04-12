@@ -90,7 +90,7 @@ export default function Dashboard() {
     setLoading(true);
     setError(null);
     const fetchAll = async (entity) => {
-      const PAGE = 20000;
+      const PAGE = 5000;
       let all = [], skip = 0;
       while (true) {
         const batch = await entity.list('-fecha', PAGE, skip);
@@ -98,7 +98,8 @@ export default function Dashboard() {
         if (batch.length < PAGE) break;
         skip += PAGE;
       }
-      return all;
+      const seen = new Set();
+      return all.filter(r => { if (seen.has(r.id)) return false; seen.add(r.id); return true; });
     };
     return Promise.all([
       fetchAll(base44.entities.Cosecha),
