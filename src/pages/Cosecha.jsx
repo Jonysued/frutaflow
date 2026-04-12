@@ -5,7 +5,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
-import { Plus, Upload, Trash2 } from "lucide-react";
+import { Plus, Upload, Trash2, Download } from "lucide-react";
 import ImportModal from "@/components/ImportModal";
 
 export default function Cosecha() {
@@ -74,6 +74,21 @@ export default function Cosecha() {
     setCantidadACambiar("");
   };
 
+  const exportarExcel = () => {
+    const cols = ["fecha","turno","nro_bin","especie","propietario","tipo_cosecha","cuadrilla","procedencia","variedad","bruto","tara","neto","destino","tipo_proceso","fecha_vuelco","kgs_vuelco","stock_camara"];
+    const headers = ["Fecha","Turno","Nro BIN","Especie","Propietario","Tipo Cosecha","Cuadrilla","Procedencia","Variedad","Bruto (kg)","Tara (kg)","Neto (kg)","Destino","Tipo Proceso","Fecha Vuelco","Kgs Vuelco","Stock Cámara"];
+    const sep = ";";
+    const rows = [headers.join(sep)];
+    registrosFiltrados.forEach(r => {
+      rows.push(cols.map(c => String(r[c] ?? "").replace(/;/g, ",")).join(sep));
+    });
+    const csv = "\uFEFF" + rows.join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a"); a.href = url; a.download = "cosecha.csv"; a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const { refreshing } = usePullToRefresh(refetch);
 
   const handleDelete = async (id) => {
@@ -105,6 +120,9 @@ export default function Cosecha() {
             }`}
           >
             🔍 Filtros {filtrosActivos && `(activos)`}
+          </button>
+          <button onClick={exportarExcel} className="flex items-center gap-1 px-3 py-2 border border-[#276749] rounded-lg text-xs text-[#276749] hover:bg-green-50">
+            <Download className="w-3.5 h-3.5" /> Exportar
           </button>
           <button onClick={() => setShowCambioDestino(true)} className="flex items-center gap-1 px-3 py-2 border border-blue-400 rounded-lg text-xs text-blue-700 hover:bg-blue-50">
             ✏️ Cambiar Destino
