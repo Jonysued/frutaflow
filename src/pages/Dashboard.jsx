@@ -143,10 +143,12 @@ export default function Dashboard() {
   ].filter(Boolean))].sort();
 
   const cosechasDia = cosechas.filter(c =>
-    enRango(normDate(c.fecha)) && (!filtroProductor || (c.propietario || c.productor) === filtroProductor)
+    (modo === "todo" || enRango(normDate(c.fecha))) &&
+    (!filtroProductor || (c.propietario || c.productor) === filtroProductor)
   );
   const produccionesDia = producciones.filter(p =>
-    enRango(normDate(p.fecha)) && (!filtroProductor || (p.productor || p.propietario) === filtroProductor)
+    (modo === "todo" || enRango(normDate(p.fecha))) &&
+    (!filtroProductor || (p.productor || p.propietario) === filtroProductor)
   );
 
   const totalCosechaKg = cosechasDia.reduce((s, c) => s + (c.neto || 0), 0);
