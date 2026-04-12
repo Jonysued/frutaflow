@@ -93,7 +93,7 @@ export default function Dashboard() {
       const PAGE = 5000;
       let all = [], skip = 0;
       while (true) {
-        const batch = await entity.list('-fecha', PAGE, skip);
+        const batch = await entity.list('-created_date', PAGE, skip);
         all = all.concat(batch);
         if (batch.length < PAGE) break;
         skip += PAGE;

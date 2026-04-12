@@ -34,7 +34,7 @@ export default function Produccion() {
       const PAGE = 5000;
       let all = [], skip = 0;
       while (true) {
-        const batch = await base44.entities.Cosecha.list('-fecha', PAGE, skip);
+        const batch = await base44.entities.Cosecha.list('-created_date', PAGE, skip);
         all = all.concat(batch);
         if (batch.length < PAGE) break;
         skip += PAGE;
