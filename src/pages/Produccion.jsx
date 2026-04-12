@@ -189,16 +189,6 @@ export default function Produccion() {
       {!loading && (
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex flex-wrap gap-4 items-center">
           <div className="flex flex-col items-center bg-[#fdf4f5] border border-[#c0392b]/20 rounded-lg px-6 py-3 min-w-[140px]">
-            <span className="text-xs text-gray-500 font-medium">Kg totales volcados</span>
-            <span className="text-2xl font-bold text-[#c0392b]">{cosechas.filter(r => (r.destino || "").trim().toUpperCase() === "VUELCO").reduce((s, r) => s + (r.neto || 0), 0).toLocaleString()}</span>
-            <span className="text-[10px] text-gray-400">kg netos cosecha</span>
-          </div>
-          <div className="flex flex-col items-center bg-[#fdf4f5] border border-[#c0392b]/20 rounded-lg px-6 py-3 min-w-[140px]">
-            <span className="text-xs text-gray-500 font-medium">Kg totales producidos</span>
-            <span className="text-2xl font-bold text-[#c0392b]">{registros.reduce((s, r) => s + (Number(r.kg_netos) || 0), 0).toLocaleString()}</span>
-            <span className="text-[10px] text-gray-400">kg netos</span>
-          </div>
-          <div className="flex flex-col items-center bg-[#fdf4f5] border border-[#c0392b]/20 rounded-lg px-6 py-3 min-w-[140px]">
             <span className="text-xs text-gray-500 font-medium">Total bultos</span>
             <span className="text-2xl font-bold text-[#c0392b]">{registros.reduce((s, r) => s + (Number(r.cant_bultos) || 0), 0).toLocaleString()}</span>
             <span className="text-[10px] text-gray-400">bultos producidos</span>
