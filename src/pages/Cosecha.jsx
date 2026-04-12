@@ -206,8 +206,8 @@ export default function Cosecha() {
       {!loading && (
         <div className="grid grid-cols-3 gap-3">
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 px-4 py-3 text-center">
-            <p className="text-[11px] text-gray-400 mb-1">Total BINs</p>
-            <p className="text-2xl font-bold text-[#5c1020]">{registrosFiltrados.length}</p>
+            <p className="text-[11px] text-gray-400 mb-1">Total BINs {filtrosActivos && <span className="text-[10px] text-[#c0392b] font-normal">({registrosFiltrados.length} filtrados)</span>}</p>
+            <p className="text-2xl font-bold text-[#5c1020]">{registros.length}</p>
           </div>
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 px-4 py-3 text-center">
             <p className="text-[11px] text-gray-400 mb-1">Productores</p>
