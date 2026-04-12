@@ -76,16 +76,21 @@ export default function Cosecha() {
 
   const exportarExcel = () => {
     const cols = ["fecha","turno","nro_bin","especie","propietario","tipo_cosecha","cuadrilla","procedencia","variedad","bruto","tara","neto","destino","tipo_proceso","fecha_vuelco","kgs_vuelco","stock_camara"];
-    const headers = ["Fecha","Turno","Nro BIN","Especie","Propietario","Tipo Cosecha","Cuadrilla","Procedencia","Variedad","Bruto (kg)","Tara (kg)","Neto (kg)","Destino","Tipo Proceso","Fecha Vuelco","Kgs Vuelco","Stock Cámara"];
-    const sep = ";";
-    const rows = [headers.join(sep)];
-    registrosFiltrados.forEach(r => {
-      rows.push(cols.map(c => String(r[c] ?? "").replace(/;/g, ",")).join(sep));
-    });
-    const csv = "\uFEFF" + rows.join("\n");
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const headers = ["Fecha","Turno","Nro BIN","Especie","Propietario","Tipo Cosecha","Cuadrilla","Procedencia","Variedad","Bruto (kg)","Tara (kg)","Neto (kg)","Destino","Tipo Proceso","Fecha Vuelco","Kgs Vuelco","Stock C\u00e1mara"];
+    const numCols = new Set(["bruto","tara","neto","kgs_vuelco","stock_camara"]);
+    const ths = headers.map(h => `<th style="background:#5c1020;color:white;font-weight:bold;">${h}</th>`).join("");
+    const trs = registrosFiltrados.map(r =>
+      `<tr>${cols.map(c => {
+        const v = r[c] ?? "";
+        return numCols.has(c)
+          ? `<td style="mso-number-format:'0\\.00';">${v}</td>`
+          : `<td>${String(v)}</td>`;
+      }).join("")}</tr>`
+    ).join("");
+    const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="UTF-8"></head><body><table border="1">${"<tr>"+ths+"</tr>"}${trs}</table></body></html>`;
+    const blob = new Blob([html], { type: "application/vnd.ms-excel;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a"); a.href = url; a.download = "cosecha.csv"; a.click();
+    const a = document.createElement("a"); a.href = url; a.download = "cosecha.xls"; a.click();
     URL.revokeObjectURL(url);
   };
 
