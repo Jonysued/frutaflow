@@ -48,7 +48,7 @@ export default function Produccion() {
   const { data: registros = [], isLoading: loading, refetch } = useQuery({
     queryKey: ['producciones'],
     queryFn: async () => {
-      const PAGE = 20000;
+      const PAGE = 5000;
       let all = [], skip = 0;
       while (true) {
         const batch = await base44.entities.Produccion.list('-fecha', PAGE, skip);
@@ -56,7 +56,8 @@ export default function Produccion() {
         if (batch.length < PAGE) break;
         skip += PAGE;
       }
-      return all;
+      const seen = new Set();
+      return all.filter(r => { if (seen.has(r.id)) return false; seen.add(r.id); return true; });
     },
     staleTime: 0,
   });
