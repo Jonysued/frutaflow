@@ -28,6 +28,23 @@ export default function Produccion() {
   };
   const filtrosActivos = Object.values(filtros).some(v => v !== "");
 
+  const { data: cosechas = [] } = useQuery({
+    queryKey: ['cosechas_vuelco'],
+    queryFn: async () => {
+      const PAGE = 5000;
+      let all = [], skip = 0;
+      while (true) {
+        const batch = await base44.entities.Cosecha.list('-fecha', PAGE, skip);
+        all = all.concat(batch);
+        if (batch.length < PAGE) break;
+        skip += PAGE;
+      }
+      const seen = new Set();
+      return all.filter(r => { if (seen.has(r.id)) return false; seen.add(r.id); return true; });
+    },
+    staleTime: 60000,
+  });
+
   const { data: registros = [], isLoading: loading, refetch } = useQuery({
     queryKey: ['producciones'],
     queryFn: async () => {
@@ -149,6 +166,11 @@ export default function Produccion() {
 
       {!loading && (
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex flex-wrap gap-4 items-center">
+          <div className="flex flex-col items-center bg-[#fdf4f5] border border-[#c0392b]/20 rounded-lg px-6 py-3 min-w-[140px]">
+            <span className="text-xs text-gray-500 font-medium">Kg totales volcados</span>
+            <span className="text-2xl font-bold text-[#c0392b]">{cosechas.filter(r => (r.destino || "").trim().toUpperCase() === "VUELCO").reduce((s, r) => s + (r.neto || 0), 0).toLocaleString()}</span>
+            <span className="text-[10px] text-gray-400">kg netos cosecha</span>
+          </div>
           <div className="flex flex-col items-center bg-[#fdf4f5] border border-[#c0392b]/20 rounded-lg px-6 py-3 min-w-[140px]">
             <span className="text-xs text-gray-500 font-medium">Kg totales producidos</span>
             <span className="text-2xl font-bold text-[#c0392b]">{registrosFiltrados.reduce((s, r) => s + (r.kg_netos || 0), 0).toLocaleString()}</span>
