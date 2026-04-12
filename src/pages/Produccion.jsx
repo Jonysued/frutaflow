@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
-import { Plus, Upload, Trash2 } from "lucide-react";
+import { Plus, Upload, Trash2, Download } from "lucide-react";
 import ImportModal from "@/components/ImportModal";
 
 export default function Produccion() {
@@ -88,6 +88,24 @@ export default function Produccion() {
   ).map(c => ({ ...c, promedio: c.bultos > 0 ? (c.kg / c.bultos).toFixed(2) : null }))
     .sort((a, b) => CALIBRES_VALIDOS.indexOf(String(a.calibre)) - CALIBRES_VALIDOS.indexOf(String(b.calibre)));
 
+  const exportarExcel = () => {
+    const cols = ["fecha","turno","productor","especie","variedad","envase","calibre","cant_bultos","tipo_palet","kg_bruto","tipo_caja","tara","kg_netos","nro_romaneo","contenedor","termografo_nro","nro_remito","fecha_remito"];
+    const headers = ["Fecha","Turno","Productor","Especie","Variedad","Envase","Calibre","Cant. Bultos","Tipo Palet","Kg Bruto","Tipo Caja","Tara","Kg Netos","Nro Romaneo","Contenedor","Termógrafo Nro","Nro Remito","Fecha Remito"];
+    const sep = ";";
+    const rows = [headers.join(sep)];
+    registrosFiltrados.forEach(r => {
+      rows.push(cols.map(c => {
+        const v = r[c] ?? "";
+        return String(v).replace(/;/g, ",");
+      }).join(sep));
+    });
+    const csv = "\uFEFF" + rows.join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a"); a.href = url; a.download = "produccion.csv"; a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const handleDelete = async (id) => {
     if (!confirm("¿Eliminar este registro?")) return;
     queryClient.setQueryData(['producciones'], (old = []) => old.filter(r => r.id !== id));
@@ -117,6 +135,9 @@ export default function Produccion() {
             }`}
           >
             🔍 Filtros {filtrosActivos && `(activos)`}
+          </button>
+          <button onClick={exportarExcel} className="flex items-center gap-1 px-3 py-2 border border-[#276749] rounded-lg text-xs text-[#276749] hover:bg-green-50">
+            <Download className="w-3.5 h-3.5" /> Exportar
           </button>
           <button onClick={() => setShowImport(true)} className="flex items-center gap-1 px-3 py-2 border border-[#7a1a30] rounded-lg text-xs text-[#7a1a30] hover:bg-red-50">
             <Upload className="w-3.5 h-3.5" /> Importar
