@@ -174,7 +174,7 @@ export default function Produccion() {
           </div>
           <div className="flex flex-col items-center bg-[#fdf4f5] border border-[#c0392b]/20 rounded-lg px-6 py-3 min-w-[140px]">
             <span className="text-xs text-gray-500 font-medium">Kg totales producidos</span>
-            <span className="text-2xl font-bold text-[#c0392b]">{registros.reduce((s, r) => s + (r.kg_netos || 0), 0).toLocaleString()}</span>
+            <span className="text-2xl font-bold text-[#c0392b]">{registros.reduce((s, r) => s + (Number(r.kg_netos) || 0), 0).toLocaleString()}</span>
             <span className="text-[10px] text-gray-400">kg netos</span>
           </div>
           {pesoPorCalibre.length > 0 && (
