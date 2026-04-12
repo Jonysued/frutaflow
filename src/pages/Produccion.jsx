@@ -70,7 +70,7 @@ export default function Produccion() {
       (!filtros.envase || (r.envase || "").toLowerCase().includes(filtros.envase.toLowerCase())) &&
       (!filtros.romaneo || (r.nro_romaneo || "").toLowerCase().includes(filtros.romaneo.toLowerCase()))
     );
-  });
+  }).sort((a, b) => (normDate(b.fecha) || "").localeCompare(normDate(a.fecha) || ""));
 
   const { refreshing } = usePullToRefresh(refetch);
 
