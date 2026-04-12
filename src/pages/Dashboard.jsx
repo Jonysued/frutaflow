@@ -77,7 +77,7 @@ function TurnoCard({ turno, cosechaKg, produccionKg, bultos }) {
 export default function Dashboard() {
   const [cosechas, setCosechas] = useState([]);
   const [producciones, setProducciones] = useState([]);
-  const [modo, setModo] = useState("dia");
+  const [modo, setModo] = useState("todo");
   const [fecha, setFecha] = useState(format(new Date(), "yyyy-MM-dd"));
   const [fechaDesde, setFechaDesde] = useState(format(new Date(), "yyyy-MM-dd"));
   const [fechaHasta, setFechaHasta] = useState(format(new Date(), "yyyy-MM-dd"));
@@ -115,7 +115,7 @@ export default function Dashboard() {
         if (todasFechas.length > 0) {
           const ultima = todasFechas[todasFechas.length - 1];
           setFecha(ultima);
-          setFechaDesde(ultima);
+          setFechaDesde(todasFechas[0]);
           setFechaHasta(ultima);
         }
         setFechaIniciada(true);
@@ -132,6 +132,7 @@ export default function Dashboard() {
 
   const enRango = (f) => {
     if (!f) return false;
+    if (modo === "todo") return true;
     if (modo === "dia") return f === fecha;
     return f >= fechaDesde && f <= fechaHasta;
   };
@@ -191,24 +192,25 @@ export default function Dashboard() {
         <div>
           <h1 className="text-2xl font-bold text-[#5c1020]">Dashboard</h1>
           <p className="text-sm text-gray-500">
-            {modo === "dia" ? `Balance del ${fecha}` : `Balance del ${fechaDesde} al ${fechaHasta}`}
+            {modo === "todo" ? "Balance total del período" : modo === "dia" ? `Balance del ${fecha}` : `Balance del ${fechaDesde} al ${fechaHasta}`}
             {filtroProductor && <span className="ml-2 text-[#c0392b] font-semibold">— {filtroProductor}</span>}
           </p>
         </div>
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto">
           <div className="flex rounded-lg border border-gray-200 overflow-hidden text-xs font-semibold">
+            <button onClick={() => setModo("todo")} className={`px-3 py-2 transition-colors ${modo === "todo" ? "bg-[#c0392b] text-white" : "bg-white text-gray-600 hover:bg-gray-50"}`}>Todo</button>
             <button onClick={() => setModo("dia")} className={`px-3 py-2 transition-colors ${modo === "dia" ? "bg-[#c0392b] text-white" : "bg-white text-gray-600 hover:bg-gray-50"}`}>Día</button>
             <button onClick={() => setModo("rango")} className={`px-3 py-2 transition-colors ${modo === "rango" ? "bg-[#c0392b] text-white" : "bg-white text-gray-600 hover:bg-gray-50"}`}>Rango</button>
           </div>
           {modo === "dia" ? (
             <input type="date" value={fecha} onChange={e => setFecha(e.target.value)} className="w-full sm:w-auto border border-gray-200 rounded-lg px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-[#c0392b]" />
-          ) : (
+          ) : modo === "rango" ? (
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
               <input type="date" value={fechaDesde} onChange={e => setFechaDesde(e.target.value)} className="w-full sm:w-auto border border-gray-200 rounded-lg px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-[#c0392b]" />
               <span className="text-gray-400 text-xs text-center">al</span>
               <input type="date" value={fechaHasta} onChange={e => setFechaHasta(e.target.value)} className="w-full sm:w-auto border border-gray-200 rounded-lg px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-[#c0392b]" />
             </div>
-          )}
+          ) : null}
           <MobileSelect
             label="Productor"
             value={filtroProductor}
