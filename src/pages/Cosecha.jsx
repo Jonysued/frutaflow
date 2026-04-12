@@ -55,7 +55,7 @@ export default function Cosecha() {
     (!filtros.fecha_hasta || r.fecha <= filtros.fecha_hasta) &&
     (!filtros.cuadrilla || (r.cuadrilla || "").toLowerCase().includes(filtros.cuadrilla.toLowerCase())) &&
     (!filtros.procedencia || (r.procedencia || "").toLowerCase().includes(filtros.procedencia.toLowerCase())) &&
-    (!filtros.destino || (r.destino || "").toUpperCase() === filtros.destino.toUpperCase())
+    (!filtros.destino || (r.destino || "").trim().toUpperCase() === filtros.destino.trim().toUpperCase())
   );
 
   const handleCambioDestino = async () => {
