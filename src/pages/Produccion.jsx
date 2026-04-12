@@ -31,7 +31,7 @@ export default function Produccion() {
   const { data: cosechas = [] } = useQuery({
     queryKey: ['cosechas_vuelco'],
     queryFn: async () => {
-      const PAGE = 5000;
+      const PAGE = 1000;
       let all = [], skip = 0;
       while (true) {
         const batch = await base44.entities.Cosecha.list('-created_date', PAGE, skip);
@@ -48,10 +48,10 @@ export default function Produccion() {
   const { data: registros = [], isLoading: loading, refetch } = useQuery({
     queryKey: ['producciones'],
     queryFn: async () => {
-      const PAGE = 5000;
+      const PAGE = 1000;
       let all = [], skip = 0;
       while (true) {
-        const batch = await base44.entities.Produccion.list('-fecha', PAGE, skip);
+        const batch = await base44.entities.Produccion.list('-created_date', PAGE, skip);
         all = all.concat(batch);
         if (batch.length < PAGE) break;
         skip += PAGE;

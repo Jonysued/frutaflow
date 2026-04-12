@@ -26,7 +26,7 @@ export default function Cosecha() {
   const { data: rawRegistros = [], isLoading: loading, refetch } = useQuery({
     queryKey: ['cosechas'],
     queryFn: async () => {
-      const PAGE = 5000;
+      const PAGE = 1000;
       let all = [];
       let skip = 0;
       while (true) {
