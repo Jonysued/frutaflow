@@ -35,7 +35,9 @@ export default function Cosecha() {
         if (batch.length < PAGE) break;
         skip += PAGE;
       }
-      return all;
+      // Deduplicar por id
+      const seen = new Set();
+      return all.filter(r => { if (seen.has(r.id)) return false; seen.add(r.id); return true; });
     },
     staleTime: 0,
     refetchOnWindowFocus: true,
