@@ -160,8 +160,8 @@ export default function Dashboard() {
 
   const kgArilos = produccionesDia.filter(p => esArilo(p.calibre)).reduce((s, p) => s + (p.kg_netos || 0), 0);
   const kgFresco = produccionesDia.filter(p => p.calibre && !esArilo(p.calibre)).reduce((s, p) => s + (p.kg_netos || 0), 0);
-  const pctArilos = totalProdKg > 0 ? (kgArilos / totalProdKg * 100) : 0;
-  const pctFresco = totalProdKg > 0 ? (kgFresco / totalProdKg * 100) : 0;
+  const pctArilos = totalVuelcoKg > 0 ? (kgArilos / totalVuelcoKg * 100) : 0;
+  const pctFresco = totalVuelcoKg > 0 ? (kgFresco / totalVuelcoKg * 100) : 0;
 
   const turnosActivos = TURNOS.filter(t =>
     cosechasDia.some(c => c.turno === t) || produccionesDia.some(p => p.turno === t)
