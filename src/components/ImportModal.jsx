@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
+import * as XLSX from "xlsx";
 import { base44 } from "@/api/base44Client";
 import { Upload, X, CheckCircle, AlertCircle } from "lucide-react";
-import * as XLSX from "xlsx";
 
 const NUM_FIELDS = {
   Cosecha: ["bruto","tara","neto","kgs_vuelco","stock_camara"],
@@ -17,6 +17,41 @@ const TEMPLATE_COLS = {
   Cosecha: ["fecha","turno","nro_bin","especie","propietario","tipo_cosecha","cuadrilla","procedencia","variedad","bruto","tara","neto","destino","tipo_proceso","fecha_vuelco","kgs_vuelco","stock_camara"],
   Produccion: ["fecha","turno","productor","especie","variedad","categoria","envase","calibre","cant_bultos","tipo_palet","kg_bruto","tipo_caja","tara","kg_netos","nro_romaneo"],
 };
+
+function parseCSV(text) {
+  const lines = text.replace(/\r/g, "").split("\n").filter(l => l.trim());
+  if (lines.length < 2) return [];
+  const sep = lines[0].includes(";") ? ";" : ",";
+  const headers = lines[0].replace(/^\uFEFF/, "").split(sep).map(h => h.trim());
+  return lines.slice(1).map(line => {
+    const vals = line.split(sep);
+    const row = {};
+    headers.forEach((h, i) => { if (h) row[h] = vals[i]?.trim() ?? ""; });
+    return row;
+  }).filter(r => Object.values(r).some(v => v !== ""));
+}
+
+function parseXLSX(buffer) {
+  const wb = XLSX.read(buffer, { type: "array", cellDates: true });
+  const ws = wb.Sheets[wb.SheetNames[0]];
+  const rows = XLSX.utils.sheet_to_json(ws, { defval: "" });
+  return rows.map(row => {
+    const clean = {};
+    Object.entries(row).forEach(([k, v]) => {
+      const key = String(k).trim();
+      if (v instanceof Date) {
+        // Format date as YYYY-MM-DD
+        const y = v.getFullYear();
+        const m = String(v.getMonth() + 1).padStart(2, "0");
+        const d = String(v.getDate()).padStart(2, "0");
+        clean[key] = `${y}-${m}-${d}`;
+      } else {
+        clean[key] = v;
+      }
+    });
+    return clean;
+  });
+}
 
 function toNum(val) {
   if (val === "" || val == null) return null;
@@ -39,44 +74,9 @@ function cleanRecords(records, entity) {
         row[f] = n;
       }
     });
-    Object.keys(row).forEach(k => { if (row[k] === "" || row[k] == null) delete row[k]; });
+    Object.keys(row).forEach(k => { if (row[k] === "") delete row[k]; });
     return row;
   });
-}
-
-function parseCSV(text) {
-  const lines = text.replace(/\r/g, "").split("\n").filter(l => l.trim());
-  if (lines.length < 2) return [];
-  const sep = lines[0].includes(";") ? ";" : ",";
-  const headers = lines[0].replace(/^\uFEFF/, "").split(sep).map(h => h.trim());
-  return lines.slice(1).map(line => {
-    const vals = line.split(sep);
-    const row = {};
-    headers.forEach((h, i) => { if (h) row[h] = vals[i]?.trim() ?? ""; });
-    return row;
-  }).filter(r => Object.values(r).some(v => v !== ""));
-}
-
-function parseXLSX(buffer) {
-  const workbook = XLSX.read(buffer, { type: "array", cellDates: true });
-  const sheet = workbook.Sheets[workbook.SheetNames[0]];
-  const rows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
-  return rows.map(row => {
-    const clean = {};
-    Object.keys(row).forEach(k => {
-      const val = row[k];
-      // Convert Date objects to YYYY-MM-DD strings
-      if (val instanceof Date) {
-        const y = val.getFullYear();
-        const m = String(val.getMonth() + 1).padStart(2, "0");
-        const d = String(val.getDate()).padStart(2, "0");
-        clean[k.trim()] = `${y}-${m}-${d}`;
-      } else {
-        clean[k.trim()] = val;
-      }
-    });
-    return clean;
-  }).filter(r => Object.values(r).some(v => v !== ""));
 }
 
 export default function ImportModal({ entity, onClose }) {
@@ -86,8 +86,9 @@ export default function ImportModal({ entity, onClose }) {
   const inputRef = useRef();
 
   const downloadTemplate = () => {
-    const cols = TEMPLATE_COLS[entity] || [];
-    const content = "\uFEFF" + cols.join(";");
+    const cols = TEMPLATE_COLS[entity];
+    const sep = ";";
+    const content = "\uFEFF" + cols.join(sep);
     const blob = new Blob([content], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a"); a.href = url; a.download = `plantilla_${entity.toLowerCase()}.csv`; a.click();
@@ -106,7 +107,7 @@ export default function ImportModal({ entity, onClose }) {
       records = parseCSV(text);
     } else {
       const buffer = await file.arrayBuffer();
-      records = parseXLSX(new Uint8Array(buffer));
+      records = parseXLSX(buffer);
     }
 
     if (records.length === 0) {
