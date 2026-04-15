@@ -22,13 +22,29 @@ function parseCSV(text) {
   const lines = text.replace(/\r/g, "").split("\n").filter(l => l.trim());
   if (lines.length < 2) return [];
   const sep = lines[0].includes(";") ? ";" : ",";
-  const headers = lines[0].replace(/^\uFEFF/, "").split(sep).map(h => h.trim());
+  const headers = lines[0].replace(/^\uFEFF/, "").split(sep).map(h => normalizeKey(h));
   return lines.slice(1).map(line => {
     const vals = line.split(sep);
     const row = {};
     headers.forEach((h, i) => { if (h) row[h] = vals[i]?.trim() ?? ""; });
     return row;
   }).filter(r => Object.values(r).some(v => v !== ""));
+}
+
+function normalizeKey(k) {
+  return String(k).trim().toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // remove accents
+    .replace(/\s+/g, "_");
+}
+
+function formatDateVal(v) {
+  if (v instanceof Date) {
+    const y = v.getFullYear();
+    const m = String(v.getMonth() + 1).padStart(2, "0");
+    const d = String(v.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  }
+  return v;
 }
 
 function parseXLSX(buffer) {
@@ -38,16 +54,7 @@ function parseXLSX(buffer) {
   return rows.map(row => {
     const clean = {};
     Object.entries(row).forEach(([k, v]) => {
-      const key = String(k).trim();
-      if (v instanceof Date) {
-        // Format date as YYYY-MM-DD
-        const y = v.getFullYear();
-        const m = String(v.getMonth() + 1).padStart(2, "0");
-        const d = String(v.getDate()).padStart(2, "0");
-        clean[key] = `${y}-${m}-${d}`;
-      } else {
-        clean[key] = v;
-      }
+      clean[normalizeKey(k)] = formatDateVal(v);
     });
     return clean;
   });
