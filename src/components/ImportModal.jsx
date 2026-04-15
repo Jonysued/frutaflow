@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { Upload, X, CheckCircle, AlertCircle } from "lucide-react";
+import * as XLSX from "xlsx";
 
 const NUM_FIELDS = {
   Cosecha: ["bruto","tara","neto","kgs_vuelco","stock_camara"],
@@ -12,23 +13,10 @@ const NUM_REQUIRED = {
   Produccion: ["cant_bultos","kg_bruto","kg_netos"],
 };
 
-const XLSX_SCHEMAS = {
-  Cosecha: { fecha:{type:"string"}, turno:{type:"string"}, nro_bin:{type:"number"}, especie:{type:"string"}, propietario:{type:"string"}, tipo_cosecha:{type:"string"}, cuadrilla:{type:"string"}, procedencia:{type:"string"}, variedad:{type:"string"}, bruto:{type:"number"}, tara:{type:"number"}, neto:{type:"number"}, destino:{type:"string"}, tipo_proceso:{type:"string"}, fecha_vuelco:{type:"string"}, kgs_vuelco:{type:"number"}, stock_camara:{type:"number"} },
-  Produccion: { fecha:{type:"string"}, turno:{type:"string"}, productor:{type:"string"}, especie:{type:"string"}, variedad:{type:"string"}, categoria:{type:"string"}, envase:{type:"string"}, calibre:{type:"string"}, cant_bultos:{type:"number"}, tipo_palet:{type:"string"}, kg_bruto:{type:"number"}, tipo_caja:{type:"string"}, tara:{type:"number"}, kg_netos:{type:"number"}, nro_romaneo:{type:"string"} },
+const TEMPLATE_COLS = {
+  Cosecha: ["fecha","turno","nro_bin","especie","propietario","tipo_cosecha","cuadrilla","procedencia","variedad","bruto","tara","neto","destino","tipo_proceso","fecha_vuelco","kgs_vuelco","stock_camara"],
+  Produccion: ["fecha","turno","productor","especie","variedad","categoria","envase","calibre","cant_bultos","tipo_palet","kg_bruto","tipo_caja","tara","kg_netos","nro_romaneo"],
 };
-
-function parseCSV(text) {
-  const lines = text.replace(/\r/g, "").split("\n").filter(l => l.trim());
-  if (lines.length < 2) return [];
-  const sep = lines[0].includes(";") ? ";" : ",";
-  const headers = lines[0].replace(/^\uFEFF/, "").split(sep).map(h => h.trim());
-  return lines.slice(1).map(line => {
-    const vals = line.split(sep);
-    const row = {};
-    headers.forEach((h, i) => { if (h) row[h] = vals[i]?.trim() ?? ""; });
-    return row;
-  }).filter(r => Object.values(r).some(v => v !== ""));
-}
 
 function toNum(val) {
   if (val === "" || val == null) return null;
@@ -51,9 +39,44 @@ function cleanRecords(records, entity) {
         row[f] = n;
       }
     });
-    Object.keys(row).forEach(k => { if (row[k] === "") delete row[k]; });
+    Object.keys(row).forEach(k => { if (row[k] === "" || row[k] == null) delete row[k]; });
     return row;
   });
+}
+
+function parseCSV(text) {
+  const lines = text.replace(/\r/g, "").split("\n").filter(l => l.trim());
+  if (lines.length < 2) return [];
+  const sep = lines[0].includes(";") ? ";" : ",";
+  const headers = lines[0].replace(/^\uFEFF/, "").split(sep).map(h => h.trim());
+  return lines.slice(1).map(line => {
+    const vals = line.split(sep);
+    const row = {};
+    headers.forEach((h, i) => { if (h) row[h] = vals[i]?.trim() ?? ""; });
+    return row;
+  }).filter(r => Object.values(r).some(v => v !== ""));
+}
+
+function parseXLSX(buffer) {
+  const workbook = XLSX.read(buffer, { type: "array", cellDates: true });
+  const sheet = workbook.Sheets[workbook.SheetNames[0]];
+  const rows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+  return rows.map(row => {
+    const clean = {};
+    Object.keys(row).forEach(k => {
+      const val = row[k];
+      // Convert Date objects to YYYY-MM-DD strings
+      if (val instanceof Date) {
+        const y = val.getFullYear();
+        const m = String(val.getMonth() + 1).padStart(2, "0");
+        const d = String(val.getDate()).padStart(2, "0");
+        clean[k.trim()] = `${y}-${m}-${d}`;
+      } else {
+        clean[k.trim()] = val;
+      }
+    });
+    return clean;
+  }).filter(r => Object.values(r).some(v => v !== ""));
 }
 
 export default function ImportModal({ entity, onClose }) {
@@ -63,9 +86,8 @@ export default function ImportModal({ entity, onClose }) {
   const inputRef = useRef();
 
   const downloadTemplate = () => {
-    const sep = ";";
-    const cols = Object.keys(XLSX_SCHEMAS[entity]);
-    const content = "\uFEFF" + cols.join(sep);
+    const cols = TEMPLATE_COLS[entity] || [];
+    const content = "\uFEFF" + cols.join(";");
     const blob = new Blob([content], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a"); a.href = url; a.download = `plantilla_${entity.toLowerCase()}.csv`; a.click();
@@ -74,6 +96,8 @@ export default function ImportModal({ entity, onClose }) {
   const handleImport = async () => {
     if (!file) return;
     setStatus("loading");
+    setMessage("");
+
     const isCSV = file.name.toLowerCase().endsWith(".csv");
     let records = [];
 
@@ -81,17 +105,8 @@ export default function ImportModal({ entity, onClose }) {
       const text = await file.text();
       records = parseCSV(text);
     } else {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
-      const result = await base44.integrations.Core.ExtractDataFromUploadedFile({
-        file_url,
-        json_schema: { type: "object", properties: { records: { type: "array", items: { type: "object", properties: XLSX_SCHEMAS[entity] } } } }
-      });
-      if (result.status !== "success") {
-        setStatus("error");
-        setMessage("No se pudo procesar el archivo. Verificá el formato o usá un CSV.");
-        return;
-      }
-      records = result.output?.records || (Array.isArray(result.output) ? result.output : []);
+      const buffer = await file.arrayBuffer();
+      records = parseXLSX(new Uint8Array(buffer));
     }
 
     if (records.length === 0) {
