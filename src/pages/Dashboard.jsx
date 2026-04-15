@@ -153,10 +153,11 @@ export default function Dashboard() {
   );
 
   const totalCosechaKg = cosechasDia.reduce((s, c) => s + (c.neto || 0), 0);
-  const totalVuelcoKg = cosechasDia.filter(c => (c.destino || "").trim().toUpperCase() === "VUELCO").reduce((s, c) => s + (c.neto || 0), 0);
+  // Vuelco real: suma de kgs_vuelco registrados (se completa al momento del vuelco efectivo)
+  const totalVuelcoKg = cosechasDia.reduce((s, c) => s + (c.kgs_vuelco || 0), 0);
   const totalProdKg = produccionesDia.reduce((s, p) => s + (p.kg_netos || 0), 0);
   const totalBultos = produccionesDia.reduce((s, p) => s + (p.cant_bultos || 0), 0);
-  const rendimientoDia = totalCosechaKg > 0 ? (totalProdKg / totalCosechaKg) * 100 : 0;
+  const rendimientoDia = totalVuelcoKg > 0 ? (totalProdKg / totalVuelcoKg) * 100 : 0;
 
   const kgArilos = produccionesDia.filter(p => esArilo(p.calibre)).reduce((s, p) => s + (p.kg_netos || 0), 0);
   const kgFresco = produccionesDia.filter(p => p.calibre && !esArilo(p.calibre)).reduce((s, p) => s + (p.kg_netos || 0), 0);
