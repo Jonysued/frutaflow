@@ -31,10 +31,46 @@ function parseCSV(text) {
   }).filter(r => Object.values(r).some(v => v !== ""));
 }
 
+// Maps normalized header variants → canonical field name
+const FIELD_ALIASES = {
+  // Cosecha
+  "fecha": "fecha",
+  "turno": "turno",
+  "nro_bin": "nro_bin", "bin": "nro_bin", "numero_bin": "nro_bin", "nro._bin": "nro_bin",
+  "especie": "especie",
+  "propietario": "propietario", "productor": "productor",
+  "tipo_cosecha": "tipo_cosecha", "tipo": "tipo_cosecha",
+  "cuadrilla": "cuadrilla",
+  "procedencia": "procedencia",
+  "variedad": "variedad",
+  "bruto": "bruto", "kg_bruto": "kg_bruto", "bruto_(kg)": "bruto", "bruto_kg": "bruto",
+  "tara": "tara", "tara_(kg)": "tara", "tara_kg": "tara",
+  "neto": "neto", "neto_(kg)": "neto", "neto_kg": "neto",
+  "destino": "destino",
+  "tipo_proceso": "tipo_proceso",
+  "fecha_vuelco": "fecha_vuelco",
+  "kgs_vuelco": "kgs_vuelco", "kg_vuelco": "kgs_vuelco",
+  "stock_camara": "stock_camara", "stock_en_camara_(kg)": "stock_camara",
+  // Produccion
+  "cant_bultos": "cant_bultos", "cant._de_bultos": "cant_bultos", "cantidad_bultos": "cant_bultos", "bultos": "cant_bultos",
+  "tipo_palet": "tipo_palet",
+  "tipo_caja": "tipo_caja",
+  "kg_netos": "kg_netos", "kg._netos": "kg_netos", "kg_neto": "kg_netos",
+  "nro_romaneo": "nro_romaneo", "n_de_romaneo": "nro_romaneo", "romaneo": "nro_romaneo",
+  "contenedor": "contenedor",
+  "termografo_nro": "termografo_nro", "termografo": "termografo_nro",
+  "nro_remito": "nro_remito", "nro._remito": "nro_remito",
+  "fecha_remito": "fecha_remito",
+  "envase": "envase",
+  "calibre": "calibre",
+  "categoria": "categoria",
+};
+
 function normalizeKey(k) {
-  return String(k).trim().toLowerCase()
-    .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // remove accents
+  const normalized = String(k).trim().toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
     .replace(/\s+/g, "_");
+  return FIELD_ALIASES[normalized] || normalized;
 }
 
 function formatDateVal(v) {
