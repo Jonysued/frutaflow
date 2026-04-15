@@ -281,7 +281,8 @@ export default function Dashboard() {
                     <thead className="bg-[#5c1020] text-white text-xs">
                       <tr>
                         <th className="px-3 py-3 text-left">Productor</th>
-                        <th className="px-3 py-3 text-right">Cosecha kg</th>
+                        <th className="px-3 py-3 text-right hidden sm:table-cell">Cosecha kg</th>
+                        <th className="px-3 py-3 text-right">Vuelco kg</th>
                         <th className="px-3 py-3 text-right">Prod. kg</th>
                         <th className="px-3 py-3 text-right hidden sm:table-cell">Bultos</th>
                         <th className="px-3 py-3 text-right">Rend.</th>
@@ -292,15 +293,18 @@ export default function Dashboard() {
                     <tbody>
                       {productores.map((prod, i) => {
                         const cKg = cosechasDia.filter(c => (c.propietario || c.productor) === prod).reduce((s, c) => s + (c.neto || 0), 0);
+                        const vKg = cosechasDia.filter(c => (c.propietario || c.productor) === prod && (c.destino || "").trim().toUpperCase() === "VUELCO").reduce((s, c) => s + (c.neto || 0), 0);
                         const pKg = produccionesDia.filter(p => (p.productor || p.propietario) === prod).reduce((s, p) => s + (p.kg_netos || 0), 0);
                         const blt = produccionesDia.filter(p => (p.productor || p.propietario) === prod).reduce((s, p) => s + (p.cant_bultos || 0), 0);
-                        const rend = cKg > 0 ? (pKg / cKg * 100).toFixed(1) : "—";
-                        const descarte = cKg - pKg;
-                        const pctDescarte = cKg > 0 ? (descarte / cKg * 100).toFixed(1) : "—";
+                        const base = vKg > 0 ? vKg : cKg;
+                        const rend = base > 0 ? (pKg / base * 100).toFixed(1) : "—";
+                        const descarte = base - pKg;
+                        const pctDescarte = base > 0 ? (descarte / base * 100).toFixed(1) : "—";
                         return (
                           <tr key={prod} className={i % 2 === 0 ? "bg-white" : "bg-[#fdf4f5]"}>
                             <td className="px-3 py-2.5 font-medium text-gray-800 text-xs">{prod}</td>
-                            <td className="px-3 py-2.5 text-right text-gray-700 text-xs">{cKg.toLocaleString()}</td>
+                            <td className="px-3 py-2.5 text-right text-gray-700 text-xs hidden sm:table-cell">{cKg.toLocaleString()}</td>
+                            <td className="px-3 py-2.5 text-right font-semibold text-[#c0392b] text-xs">{vKg.toLocaleString()}</td>
                             <td className="px-3 py-2.5 text-right text-gray-700 text-xs">{pKg.toLocaleString()}</td>
                             <td className="px-3 py-2.5 text-right text-gray-700 text-xs hidden sm:table-cell">{blt.toLocaleString()}</td>
                             <td className="px-3 py-2.5 text-right font-semibold text-xs" style={{ color: rend !== "—" && Number(rend) >= 75 ? "#276749" : rend !== "—" && Number(rend) >= 50 ? "#b7791f" : "#c0392b" }}>{rend}{rend !== "—" ? "%" : ""}</td>
