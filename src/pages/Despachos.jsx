@@ -521,7 +521,12 @@ export default function Despachos() {
   };
 
   const clientes = [...new Set(cargas.map(c => c.cliente).filter(Boolean))].sort();
-  const cargasFiltradas = filtroCliente ? cargas.filter(c => c.cliente === filtroCliente) : cargas;
+  const cargasOrdenadas = [...cargas].sort((a, b) => {
+    const na = parseInt(String(a.nro_carga).replace(/\D/g, ""), 10) || 0;
+    const nb = parseInt(String(b.nro_carga).replace(/\D/g, ""), 10) || 0;
+    return nb - na;
+  });
+  const cargasFiltradas = filtroCliente ? cargasOrdenadas.filter(c => c.cliente === filtroCliente) : cargasOrdenadas;
 
   const totalCargas = cargas.length;
   const despachadas = cargas.filter(c => c.estado === "Despachado").length;
