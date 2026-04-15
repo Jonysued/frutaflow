@@ -6,6 +6,12 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Plus, Truck, X, CheckCircle, Package, ChevronDown, ChevronUp, Trash2, Pencil } from "lucide-react";
 
+function esArilo(calibre) {
+  if (!calibre) return false;
+  const u = calibre.toUpperCase().replace(/[\s.]/g, "");
+  return u.startsWith("ARILO") || u === "AG" || u === "AM" || u === "AC";
+}
+
 const ESTADO_COLORS = {
   Borrador: "bg-yellow-100 text-yellow-700",
   Despachado: "bg-green-100 text-green-700",
@@ -521,7 +527,10 @@ export default function Despachos() {
   const despachadas = cargas.filter(c => c.estado === "Despachado").length;
   const asignadosIds = new Set(cargas.flatMap(c => c.pallet_ids || []));
   const totalPallets = asignadosIds.size;
-  const palletsNoAsignados = producciones.filter(p => !asignadosIds.has(p.id)).length;
+  const sinAsignar = producciones.filter(p => !asignadosIds.has(p.id));
+  const palletsNoAsignados = sinAsignar.length;
+  const palletsNoAsignadosFresco = sinAsignar.filter(p => !esArilo(p.calibre)).length;
+  const palletsNoAsignadosArilos = sinAsignar.filter(p => esArilo(p.calibre)).length;
 
   // Despachos despachados separados por tipo (arilos vs fresco)
   const despachosDespachados = cargas.filter(c => c.estado === "Despachado");
@@ -530,15 +539,14 @@ export default function Despachos() {
   
   despachosDespachados.forEach(despacho => {
     const pallets = (despacho.pallet_ids || []).map(id => producciones.find(p => p.id === id)).filter(Boolean);
-    const arilosCount = pallets.filter(p => !/^\d+$/.test(p.calibre || "")).length;
-    const frescoCount = pallets.filter(p => /^\d+$/.test(p.calibre || "")).length;
+    const arilosCount = pallets.filter(p => esArilo(p.calibre)).length;
+    const frescoCount = pallets.filter(p => !esArilo(p.calibre)).length;
     
     if (arilosCount > frescoCount) {
       contenedoresArilos++;
     } else if (frescoCount > arilosCount) {
       contenedoresFresco++;
     } else if (arilosCount > 0) {
-      // Si son iguales pero hay ambos, contar como arilos
       contenedoresArilos++;
     }
   });
@@ -581,6 +589,10 @@ export default function Despachos() {
         <div className="bg-white rounded-xl p-4 shadow-sm border-l-4 border-[#b7791f] text-center">
           <p className="text-xs text-gray-400">Pallets sin asignar</p>
           <p className="text-2xl font-bold text-[#b7791f]">{palletsNoAsignados}</p>
+          <div className="flex justify-center gap-3 mt-1">
+            <span className="text-[11px] text-purple-600 font-semibold">Arilos: {palletsNoAsignadosArilos}</span>
+            <span className="text-[11px] text-green-700 font-semibold">Fresco: {palletsNoAsignadosFresco}</span>
+          </div>
         </div>
       </div>
 
