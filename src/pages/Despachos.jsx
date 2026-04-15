@@ -623,7 +623,8 @@ export default function Despachos() {
         </div>
       ) : (
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded [&::-webkit-scrollbar-thumb]:bg-gray-300" style={{ direction: 'ltr', transform: 'rotateX(180deg)' }}>
+          <div style={{ transform: 'rotateX(180deg)' }}>
             <table className="w-full text-xs">
               <thead className="bg-[#5c1020] text-white">
                 <tr>
@@ -671,6 +672,7 @@ export default function Despachos() {
                 })}
               </tbody>
             </table>
+          </div>
           </div>
         </div>
       )}
