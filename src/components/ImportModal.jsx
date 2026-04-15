@@ -50,14 +50,19 @@ function formatDateVal(v) {
 function parseXLSX(buffer) {
   const wb = XLSX.read(buffer, { type: "array", cellDates: true });
   const ws = wb.Sheets[wb.SheetNames[0]];
-  const rows = XLSX.utils.sheet_to_json(ws, { defval: "" });
-  return rows.map(row => {
-    const clean = {};
-    Object.entries(row).forEach(([k, v]) => {
-      clean[normalizeKey(k)] = formatDateVal(v);
-    });
-    return clean;
-  });
+  // raw:false → SheetJS formats everything as strings (dates become "YYYY-MM-DD" automatically)
+  const rows = XLSX.utils.sheet_to_json(ws, { defval: "", raw: false });
+  return rows
+    .map(row => {
+      const clean = {};
+      Object.entries(row).forEach(([k, v]) => {
+        const key = normalizeKey(k);
+        // If SheetJS returns a Date object (cellDates:true), format it
+        clean[key] = v instanceof Date ? formatDateVal(v) : String(v === null || v === undefined ? "" : v).trim();
+      });
+      return clean;
+    })
+    .filter(r => Object.values(r).some(v => v !== ""));
 }
 
 function toNum(val) {
@@ -81,7 +86,11 @@ function cleanRecords(records, entity) {
         row[f] = n;
       }
     });
-    Object.keys(row).forEach(k => { if (row[k] === "") delete row[k]; });
+    // Remove empty strings except required date fields
+    const dateRequired = ["fecha"];
+    Object.keys(row).forEach(k => {
+      if (row[k] === "" && !dateRequired.includes(k)) delete row[k];
+    });
     return row;
   });
 }
