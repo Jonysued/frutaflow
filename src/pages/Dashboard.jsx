@@ -370,7 +370,7 @@ export default function Dashboard() {
                 <ResponsiveContainer width="100%" height={220}>
                   <BarChart data={procData} barCategoryGap="30%">
                     <CartesianGrid strokeDasharray="3 3" stroke="#f3e6e8" />
-                    <XAxis dataKey="procedencia" tick={{ fontSize: 11 }} />
+                    <XAxis dataKey="procedencia" tick={{ fontSize: 10 }} interval={0} angle={-30} textAnchor="end" height={60} />
                     <YAxis tick={{ fontSize: 11 }} />
                     <Tooltip formatter={v => v.toLocaleString() + " kg"} />
                     <Bar dataKey="kg" fill="#1a4a6b" radius={[4, 4, 0, 0]} label={{ position: 'top', fontSize: 10, formatter: v => v.toLocaleString() }} />
@@ -403,7 +403,7 @@ export default function Dashboard() {
                 <ResponsiveContainer width="100%" height={220}>
                   <BarChart data={procData} barCategoryGap="30%">
                     <CartesianGrid strokeDasharray="3 3" stroke="#dbeafe" />
-                    <XAxis dataKey="procedencia" tick={{ fontSize: 11 }} />
+                    <XAxis dataKey="procedencia" tick={{ fontSize: 10 }} interval={0} angle={-30} textAnchor="end" height={60} />
                     <YAxis tick={{ fontSize: 11 }} />
                     <Tooltip formatter={v => v.toLocaleString() + " kg/ha"} />
                     <Bar dataKey="kgHa" fill="#1a4a6b" radius={[4, 4, 0, 0]} label={{ position: 'top', fontSize: 10, formatter: v => v.toLocaleString() }} />
