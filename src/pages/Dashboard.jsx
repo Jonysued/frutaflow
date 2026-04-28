@@ -380,6 +380,62 @@ export default function Dashboard() {
             );
           })()}
 
+          {/* Kg totales por Hectárea x Procedencia */}
+          {(() => {
+            const HA_POR_PROCEDENCIA = 6.5;
+            const procMap = {};
+            cosechasDia.forEach(c => {
+              if (!c.procedencia) return;
+              procMap[c.procedencia] = (procMap[c.procedencia] || 0) + (c.neto || 0);
+            });
+            const procData = Object.entries(procMap)
+              .map(([procedencia, kg]) => ({
+                procedencia,
+                kg,
+                kgHa: parseFloat((kg / HA_POR_PROCEDENCIA).toFixed(1)),
+              }))
+              .sort((a, b) => b.kgHa - a.kgHa);
+            if (procData.length === 0) return null;
+            return (
+              <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                <h2 className="text-base font-semibold text-[#5c1020] mb-1">Kg totales / Hectárea por Procedencia</h2>
+                <p className="text-xs text-gray-400 mb-4">Considerando 6,5 ha por procedencia — kg netos cosechados en el período seleccionado</p>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="bg-[#1a4a6b] text-white text-xs">
+                        <th className="px-3 py-2.5 text-left">Procedencia</th>
+                        <th className="px-3 py-2.5 text-right">Kg netos</th>
+                        <th className="px-3 py-2.5 text-right">Hectáreas</th>
+                        <th className="px-3 py-2.5 text-right font-bold">Kg / Ha</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {procData.map((row, i) => (
+                        <tr key={row.procedencia} className={i % 2 === 0 ? "bg-white" : "bg-blue-50"}>
+                          <td className="px-3 py-2.5 font-medium text-gray-800 text-xs">{row.procedencia}</td>
+                          <td className="px-3 py-2.5 text-right text-gray-700 text-xs">{row.kg.toLocaleString()}</td>
+                          <td className="px-3 py-2.5 text-right text-gray-500 text-xs">{HA_POR_PROCEDENCIA.toFixed(1)}</td>
+                          <td className="px-3 py-2.5 text-right font-bold text-[#1a4a6b] text-xs">{row.kgHa.toLocaleString()}</td>
+                        </tr>
+                      ))}
+                      {procData.length > 1 && (
+                        <tr className="bg-[#e8f0f7] font-semibold border-t-2 border-[#1a4a6b]">
+                          <td className="px-3 py-2.5 text-xs text-gray-800">TOTAL</td>
+                          <td className="px-3 py-2.5 text-right text-xs text-gray-800">{procData.reduce((s, r) => s + r.kg, 0).toLocaleString()}</td>
+                          <td className="px-3 py-2.5 text-right text-xs text-gray-500">{(procData.length * HA_POR_PROCEDENCIA).toFixed(1)}</td>
+                          <td className="px-3 py-2.5 text-right text-xs font-bold text-[#1a4a6b]">
+                            {(procData.reduce((s, r) => s + r.kg, 0) / (procData.length * HA_POR_PROCEDENCIA)).toFixed(1)}
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            );
+          })()}
+
           {/* Gráfico últimos 7 días */}
           {chartData.length > 0 && (
             <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
